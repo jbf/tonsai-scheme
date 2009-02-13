@@ -17,12 +17,25 @@ int issymb(int c);
 int isstop_pushback(int c);
 
 void free_token(token_t *tok) {
-  if (tok->type == SYMBOL ||
-      tok->type == STRING) {
+  if (tok->type == TOKEN_SYMBOL ||
+      tok->type == TOKEN_STRING) {
     free(tok->payload);
   }
 
   free(tok);
+}
+
+void *free_token_reuse_payload(token_t *tok) {
+  void *payload;
+
+  if (tok->type == TOKEN_SYMBOL ||
+      tok->type == TOKEN_STRING) {
+    payload = tok->payload;
+    tok->type = TOKEN_NUMBER;
+  }
+
+  free_token(tok);
+  return payload;
 }
 
 int get_token(token_t *tok) {
@@ -59,7 +72,7 @@ int get_token(token_t *tok) {
         *str = (unsigned char)c;
         *(str+1) = '\0';
 
-        tok->type = SYMBOL;
+        tok->type = TOKEN_SYMBOL;
         tok->atom_name = str;
 
         return TOKEN_OK;
@@ -102,10 +115,10 @@ int get_token(token_t *tok) {
     }
 
     switch (c) {
-    case '(': tok->type = LPAREN;
+    case '(': tok->type = TOKEN_LPAREN;
       tok->atom_name = 0;
       return TOKEN_OK;
-    case ')': tok->type = RPAREN;
+    case ')': tok->type = TOKEN_RPAREN;
       tok->atom_name = 0;
       return TOKEN_OK;
     case '"': return readstring(token_index, token, tok);
@@ -147,7 +160,7 @@ int readsymbol(int index, unsigned char token_string[], token_t *tok) {
 
       token_string[index] = '\0';
 
-      tok->type = SYMBOL;
+      tok->type = TOKEN_SYMBOL;
       
       tok_str = (char *)malloc(index);
       if (NULL == tok_str) {
@@ -211,7 +224,7 @@ int readnumber(int index, unsigned char token_string[], token_t *tok) {
       char *end;
       end = (char *)&token_string[index];
 
-      tok->type = NUMBER;
+      tok->type = TOKEN_NUMBER;
       tok->i_val = strtol((const char *)token_string, &end, 10);
 
       if (tok->i_val == LONG_MAX) {
@@ -283,7 +296,7 @@ int readstring(int index, unsigned char token_string[], token_t *tok) {
 
       token_string[index + 1] = '\0';
 
-      tok->type = STRING;
+      tok->type = TOKEN_STRING;
       
       tok_str = (char *)malloc(index + 1);
       if (NULL == tok_str) {
@@ -303,15 +316,15 @@ int readstring(int index, unsigned char token_string[], token_t *tok) {
 
 int print_token(const token_t *tok) {
   switch (tok->type) {
-  case LPAREN: printf("Token: LPAREN\n");
+  case TOKEN_LPAREN: printf("Token: LPAREN\n");
     return 0;
-  case RPAREN: printf("Token: RPAREN\n");
+  case TOKEN_RPAREN: printf("Token: RPAREN\n");
     return 0;
-  case STRING: printf("Token: STRING %s\n", tok->string_val);
+  case TOKEN_STRING: printf("Token: STRING %s\n", tok->string_val);
     return 0;
-  case NUMBER: printf("Token: NUMBER %d\n", tok->i_val);
+  case TOKEN_NUMBER: printf("Token: NUMBER %d\n", tok->i_val);
     return 0;
-  case SYMBOL: printf("Token: SYMBOL %s\n", tok->atom_name);
+  case TOKEN_SYMBOL: printf("Token: SYMBOL %s\n", tok->atom_name);
     return 0;
   default: printf("Unknown token.\n");
     return -1;

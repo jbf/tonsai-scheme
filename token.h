@@ -6,11 +6,11 @@
 #include <stdint.h>
 
 typedef enum {
-  LPAREN,
-  RPAREN,
-  SYMBOL,
-  NUMBER,
-  STRING
+  TOKEN_LPAREN,
+  TOKEN_RPAREN,
+  TOKEN_SYMBOL,
+  TOKEN_NUMBER,
+  TOKEN_STRING
 } token_type_t;
 
 typedef struct {
