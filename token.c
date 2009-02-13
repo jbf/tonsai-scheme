@@ -1,3 +1,5 @@
+#include "token.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <limits.h>
@@ -6,26 +8,6 @@
 #include <stdlib.h>
 
 #define MAX_TOKEN_LENGTH 256
-
-typedef enum {
-  LPAREN,
-  RPAREN,
-  SYMBOL,
-  NUMBER,
-  STRING
-} token_type_t;
-
-typedef struct {
-  token_type_t type;
-  union {
-    unsigned char *atom_name;
-    unsigned char *string_val;
-    int32_t i_val;
-  };
-} token_t;
-
-int get_token(token_t *tok);
-int print_token(const token_t *tok);
 
 int readstring(int, unsigned char[], token_t *);
 int readnumber(int, unsigned char[], token_t *);
@@ -280,7 +262,7 @@ int main(int argc, char **argv, char **envp) {
   int i;
   token_t t;
 
-  while (i =get_token(&t) != -1) {
+  while ((i = get_token(&t)) != -1) {
 
     print_token(&t);
 
