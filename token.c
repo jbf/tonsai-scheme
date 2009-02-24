@@ -7,8 +7,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAX_TOKEN_LENGTH 256
-
 int readstring(int index, unsigned char token_string[], token_t *tok);
 int readnumber(int index, unsigned char token_string[], token_t *tok);
 int readsymbol(int index, unsigned char token_string[], token_t *tok);

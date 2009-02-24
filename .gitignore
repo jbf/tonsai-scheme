@@ -2,3 +2,4 @@ token
 *.o
 test_token
 test_cell
+test_symbol

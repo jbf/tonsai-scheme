@@ -2,6 +2,7 @@
 #define _CELL_H 1
 
 #include "errors.h"
+#include "symbol.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -20,7 +21,7 @@ typedef struct cell_t {
   };
   union {
     int32_t i_val;
-    void *symbol_val;
+    struct symbol_entry_t *symbol_val;
     unsigned char *string_val;
     struct cell_t *cdr;
   };

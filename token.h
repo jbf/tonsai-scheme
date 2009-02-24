@@ -35,6 +35,8 @@ void *free_token_reuse_payload(token_t *token);
 
 #define NO_TOKEN 10
 
+#define MAX_TOKEN_LENGTH 256
+
 /* tokenizer recoverable errors -2000 to -2999 */
 #define ERROR_UNREDABLE_CHAR -2100
 #define ERROR_UNPARSABLE_TOKEN -2101
