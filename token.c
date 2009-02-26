@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+int read_plus_minus(int first, int index, unsigned char token_string[], token_t *tok);
 int readstring(int index, unsigned char token_string[], token_t *tok);
 int readnumber(int index, unsigned char token_string[], token_t *tok);
 int readsymbol(int index, unsigned char token_string[], token_t *tok);
@@ -47,56 +48,16 @@ int get_token(token_t *tok) {
       return ERROR_UNREDABLE_CHAR;
     }
 
+    /* So we can use a switch on whitespace. */
     if(isspace(c)) {
       c = ' ';
     }
 
+    /* '-' and '+' need lookahead, thus special treatment. */
     if(c == '-' ||
        c == '+') {
-      int next;
 
-      next = fgetc(stdin);
-
-      /* The actual symbols '+' or '-' */
-      if(isspace(next) ||
-         next == EOF) {
-        unsigned char *str;
-        str = malloc(2);
-
-        if (!str) {
-          return EOOM;
-        }
-         
-        *str = (unsigned char)c;
-        *(str+1) = '\0';
-
-        tok->type = TOKEN_SYMBOL;
-        tok->atom_name = str;
-
-        return TOKEN_OK;
-      }
-
-      /* Number with leading '+' or '-' */
-      if(isdigit(next) &&
-         next != '0') { /* can't start with 0 */
-        token[token_index] = (unsigned char)c;
-        token_index++;
-        token[token_index] = (unsigned char)next;
-        token_index++;
-        return readnumber(token_index, token, tok);
-      }
-
-      /* Symbol starting with '+' or '-' */
-      if(issymb(next)) {
-        token[token_index] = (unsigned char)c;
-        token_index++;
-        token[token_index] = (unsigned char)next;
-        token_index++;
-        return readsymbol(token_index, token, tok);
-      }
-
-      return ERROR_UNPARSABLE_TOKEN; /* '-' or '+' followed by weired
-                                        shit. */
+      return read_plus_minus(c, token_index, token, tok);
     }
 
     if(isdigit(c) && 
@@ -139,6 +100,54 @@ int get_token(token_t *tok) {
     return ERROR_TOKEN_TO_LONG;
   }
 }
+
+int read_plus_minus(int first, int token_index, unsigned char token[], token_t *tok) {
+  int next;
+
+  next = fgetc(stdin);
+
+  /* The actual symbols '+' or '-' */
+  if(isspace(next) ||
+     next == EOF) {
+    unsigned char *str;
+    str = malloc(2);
+
+    if (!str) {
+      return EOOM;
+    }
+         
+    *str = (unsigned char)first;
+    *(str+1) = '\0';
+
+    tok->type = TOKEN_SYMBOL;
+    tok->atom_name = str;
+
+    return TOKEN_OK;
+  }
+
+  /* Number with leading '+' or '-' */
+  if(isdigit(next) &&
+     next != '0') { /* can't start with 0 */
+    token[token_index] = (unsigned char)first;
+    token_index++;
+    token[token_index] = (unsigned char)next;
+    token_index++;
+    return readnumber(token_index, token, tok);
+  }
+
+  /* Symbol starting with '+' or '-' */
+  if(issymb(next)) {
+    token[token_index] = (unsigned char)first;
+    token_index++;
+    token[token_index] = (unsigned char)next;
+    token_index++;
+    return readsymbol(token_index, token, tok);
+  }
+
+  return ERROR_UNPARSABLE_TOKEN; /* '-' or '+' followed by weired
+                                    shit. */
+}
+
 
 int readsymbol(int index, unsigned char token_string[], token_t *tok) {
   int c;
