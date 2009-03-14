@@ -5,7 +5,6 @@
 #include "symbol.h"
 
 #include <stdint.h>
-#include <stdlib.h>
 
 typedef enum {
   PAYLOAD_NIL = 0,
@@ -21,8 +20,8 @@ typedef struct cell_t {
   };
   union {
     int32_t i_val;
-    struct symbol_entry_t *symbol_val;
-    unsigned char *string_val;
+    struct symbol_entry_t *symbol;
+    unsigned char *string;
     struct cell_t *cdr;
   };
 } cell_t;
@@ -42,7 +41,5 @@ typedef struct cell_t {
   } while (0)
 
 int print_cell(cell_t *cell);
-
-#define alloc_cell() (((cell_t *)malloc(sizeof(cell_t)/sizeof(char))))
 
 #endif /* _CELL_H */

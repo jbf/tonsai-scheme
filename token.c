@@ -279,7 +279,6 @@ int readnumber(int index, unsigned char token_string[], token_t *tok) {
   return ERROR_TOKEN_TO_LONG;
 }
 
-
 int readstring(int index, unsigned char token_string[], token_t *tok) {
   int c;
   token_string[index] = '"';

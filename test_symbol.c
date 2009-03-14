@@ -1,6 +1,8 @@
 #include "symbol.h"
+#include "util.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv, char **envp) {
   symbol_entry_t *nil_sym;
@@ -18,8 +20,8 @@ int main(int argc, char **argv, char **envp) {
   new_bar[2] = 'R';
   new_bar[3] = '\0';
   
-  nil_sym = alloc_symbol_entry();
-  symtab = alloc_symtab_entry();
+  nil_sym = new(symbol_entry_t);
+  symtab = new(symtab_entry_t);
   nil_str = (unsigned char *)malloc(4);
   nil_str[0] = 'N';
   nil_str[1] = 'I';

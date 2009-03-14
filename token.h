@@ -26,7 +26,6 @@ typedef struct {
 int get_token(token_t *tok);
 int print_token(const token_t *tok);
 
-#define alloc_token() ((token_t *)malloc(sizeof(token_t)/sizeof(char)))
 void free_token(token_t *token);
 void *free_token_reuse_payload(token_t *token);
 

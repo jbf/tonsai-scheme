@@ -1,4 +1,5 @@
 #include "symbol.h"
+#include "util.h"
 
 #include <string.h>
 
@@ -20,13 +21,13 @@ symbol_entry_t *intern2(unsigned char *sym, symtab_entry_t **tab, symtab_entry_t
     symtab_entry_t *new_tab;
     symbol_entry_t *new_sym;
     
-    new_tab = alloc_symtab_entry();
+    new_tab = new(symtab_entry_t);
     
     if (NULL == new_tab) {
       return 0; /* Out of memory. */
     }
     
-    new_sym = alloc_symbol_entry();
+    new_sym = new(symbol_entry_t);
 
     if (NULL == new_sym) {
       free(new_tab);
