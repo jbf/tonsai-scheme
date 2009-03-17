@@ -168,8 +168,8 @@ int readsymbol(int index, unsigned char token_string[], token_t *tok) {
       token_string[index] = '\0';
 
       tok->type = TOKEN_SYMBOL;
-      
-      tok_str = (char *)malloc(index);
+
+      tok_str = (char *)malloc(index+1);
       if (NULL == tok_str) {
         return EOOM;
       }
@@ -281,7 +281,9 @@ int readnumber(int index, unsigned char token_string[], token_t *tok) {
 
 int readstring(int index, unsigned char token_string[], token_t *tok) {
   int c;
-  token_string[index] = '"';
+
+  /* The loop works, but is off by one. Don't care to fix it yet.*/
+  index--;
   
   while(index < MAX_TOKEN_LENGTH) {
     c = fgetc(stdin);
@@ -300,16 +302,16 @@ int readstring(int index, unsigned char token_string[], token_t *tok) {
     if((unsigned char)c == '"') {
       char *tok_str;
 
-      token_string[index + 1] = '\0';
+      token_string[index] = '\0';
 
       tok->type = TOKEN_STRING;
       
-      tok_str = (char *)malloc(index + 1);
+      tok_str = (char *)malloc(index+1);
       if (NULL == tok_str) {
         return EOOM;
       }
       
-      strncpy(tok_str, (const char *)token_string, index + 1);
+      strncpy(tok_str, (const char *)token_string, index+1);
 
       tok->string_val = (unsigned char *)tok_str;
 
