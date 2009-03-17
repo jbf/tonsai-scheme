@@ -14,34 +14,39 @@ cell_t *read_intern(symtab_entry_t **symbol_table) {
     return NULL;
   }
 
-  cell = new(cell_t);
-  if (NULL == cell) {
-    return NULL;
-  }
 
   switch(tok.type) {
   case TOKEN_LPAREN:
-    free(cell);
     return read_list_intern(symbol_table);
   case TOKEN_RPAREN:
-    free(cell);
     return NULL;
   case TOKEN_SYMBOL:
     /* We also need to free or steal the payload part. */
+    cell = new(cell_t);
+    if (NULL == cell) {
+      return NULL;
+    }
     cell->type = PAYLOAD_SYMBOL;
     cell->symbol = intern2(tok.atom_name, symbol_table, *symbol_table);
     return cell;
   case TOKEN_NUMBER:
+    cell = new(cell_t);
+    if (NULL == cell) {
+      return NULL;
+    }
     cell->type = PAYLOAD_NUMBER;
     cell->i_val = tok.i_val;
     return cell;
   case TOKEN_STRING:
     /* As with symbols, we need to free or steal the token payload. */
+    cell = new(cell_t);
+    if (NULL == cell) {
+      return NULL;
+    }
     cell->type = PAYLOAD_STRING;
     cell->string = tok.string_val;
     return cell;
   default:
-    free(cell);
     return NULL;
   }
 }

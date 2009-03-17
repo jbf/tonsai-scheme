@@ -40,6 +40,8 @@ typedef struct cell_t {
     __CONS_TMP->cdr = (src2);      \
   } while (0)
 
-int print_cell(cell_t *cell);
+void print_cell(cell_t *cell);
+
+void pretty_print(cell_t *cell);
 
 #endif /* _CELL_H */

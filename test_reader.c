@@ -12,7 +12,7 @@ int main(int argc, char **argv, char **envp) {
   symtab = NULL;
 
   while ((cell = read_intern(&symtab))) {
-    print_cell(cell);
+    pretty_print(cell);
   }
 
   return 0;
