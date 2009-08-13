@@ -1,7 +1,7 @@
 CFLAGS = -Wall -DDEBUG -g
 PROGRAM = test_cell test_token test_symbol test_reader
 EXTRAS = errors.h util.h Makefile
-OBJECTS = reader.o token.o symbol.o cell.o
+OBJECTS = reader.o token.o symbol.o cell.o eval.o
 
 all: $(PROGRAM)
 
@@ -24,4 +24,4 @@ $(OBJECTS) : $(EXTRAS)
 .PHONY: clean
 
 clean:
-	-rm -f -- *.o *~ core a.out test_token test_cell
+	-rm -f -- *.o *~ core a.out test_token test_cell test_reader

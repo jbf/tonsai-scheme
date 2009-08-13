@@ -4,12 +4,12 @@
 #include "symbol.h"
 #include "util.h"
 
-cell_t *read_intern(symtab_entry_t **symbol_table) {
+cell_t *read_intern(FILE *stream, symtab_entry_t **symbol_table) {
   token_t tok;
   cell_t *cell; 
   int ret;
 
-  ret = get_token(&tok);
+  ret = get_token(stream, &tok);
   if (ret != TOKEN_OK) {
     return NULL;
   }
@@ -17,7 +17,7 @@ cell_t *read_intern(symtab_entry_t **symbol_table) {
 
   switch(tok.type) {
   case TOKEN_LPAREN:
-    return read_list_intern(symbol_table);
+    return read_list_intern(stream, symbol_table);
   case TOKEN_RPAREN:
     return NULL;
   case TOKEN_SYMBOL:
@@ -51,7 +51,7 @@ cell_t *read_intern(symtab_entry_t **symbol_table) {
   }
 }
 
-cell_t *read_list_intern(symtab_entry_t **symbol_table) {
+cell_t *read_list_intern(FILE *stream, symtab_entry_t **symbol_table) {
   cell_t *last, *current, *first, *temp;
   token_t tok;
   int ret;
@@ -59,7 +59,7 @@ cell_t *read_list_intern(symtab_entry_t **symbol_table) {
   last = current = first = temp = NULL;
 
   do {
-    ret = get_token(&tok);
+    ret = get_token(stream, &tok);
     if (ret != TOKEN_OK) {
       return NULL;
     }
@@ -79,7 +79,7 @@ cell_t *read_list_intern(symtab_entry_t **symbol_table) {
 
     switch(tok.type) {
     case TOKEN_LPAREN:
-      current->car = read_list_intern(symbol_table);
+      current->car = read_list_intern(stream, symbol_table);
       break;
     case TOKEN_RPAREN:
       current->type = PAYLOAD_NIL;

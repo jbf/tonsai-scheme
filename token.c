@@ -7,41 +7,26 @@
 #include <string.h>
 #include <stdlib.h>
 
-int read_plus_minus(int first, int index, unsigned char token_string[], token_t *tok);
-int readstring(int index, unsigned char token_string[], token_t *tok);
-int readnumber(int index, unsigned char token_string[], token_t *tok);
-int readsymbol(int index, unsigned char token_string[], token_t *tok);
+int read_plus_minus(FILE *stream, int first, int index, unsigned char token_string[], token_t *tok);
+int readstring(FILE *stream, int index, unsigned char token_string[], token_t *tok);
+int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *tok);
+int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *tok);
 
 int issymb(int c);
-int isstop_pushback(int c);
+int isstop_pushback(FILE *stream, int c);
 
-void free_token(token_t *tok) {
+void free_token_payload(token_t *tok) {
   if (tok->type == TOKEN_SYMBOL ||
       tok->type == TOKEN_STRING) {
     free(tok->payload);
   }
-
-  free(tok);
 }
 
-void *free_token_reuse_payload(token_t *tok) {
-  void *payload;
-
-  if (tok->type == TOKEN_SYMBOL ||
-      tok->type == TOKEN_STRING) {
-    payload = tok->payload;
-    tok->type = TOKEN_NUMBER;
-  }
-
-  free_token(tok);
-  return payload;
-}
-
-int get_token(token_t *tok) {
+int get_token(FILE *stream, token_t *tok) {
   int c, token_index = 0;
   unsigned char token[MAX_TOKEN_LENGTH+1];
 
-  while ((c = fgetc(stdin)) != EOF &&
+  while ((c = fgetc(stream)) != EOF &&
          token_index < MAX_TOKEN_LENGTH) {
 
     if (c < 0 || c > UCHAR_MAX) {
@@ -57,20 +42,20 @@ int get_token(token_t *tok) {
     if(c == '-' ||
        c == '+') {
 
-      return read_plus_minus(c, token_index, token, tok);
+       return read_plus_minus(stream, c, token_index, token, tok);
     }
 
     if(isdigit(c) && 
        c != '0') { /* can't start with 0 */
       token[token_index] = (unsigned char)c;
       token_index++;
-      return readnumber(token_index, token, tok);
+      return readnumber(stream, token_index, token, tok);
     }
 
     if(issymb(c)) {
       token[token_index] = (unsigned char)c;
       token_index++;
-      return readsymbol(token_index, token, tok);
+      return readsymbol(stream, token_index, token, tok);
     }
 
     switch (c) {
@@ -80,7 +65,7 @@ int get_token(token_t *tok) {
     case ')': tok->type = TOKEN_RPAREN;
       tok->atom_name = 0;
       return TOKEN_OK;
-    case '"': return readstring(token_index, token, tok);
+    case '"': return readstring(stream, token_index, token, tok);
       return ERROR_UNREACHABLE_STATEMENT; /* never reached */
     case ' ':
       continue;
@@ -101,10 +86,14 @@ int get_token(token_t *tok) {
   }
 }
 
-int read_plus_minus(int first, int token_index, unsigned char token[], token_t *tok) {
+int read_plus_minus(FILE *stream,
+                    int first,
+                    int token_index,
+                    unsigned char token[],
+                    token_t *tok) {
   int next;
 
-  next = fgetc(stdin);
+  next = fgetc(stream);
 
   /* The actual symbols '+' or '-' */
   if(isspace(next) ||
@@ -132,7 +121,7 @@ int read_plus_minus(int first, int token_index, unsigned char token[], token_t *
     token_index++;
     token[token_index] = (unsigned char)next;
     token_index++;
-    return readnumber(token_index, token, tok);
+    return readnumber(stream, token_index, token, tok);
   }
 
   /* Symbol starting with '+' or '-' */
@@ -141,7 +130,7 @@ int read_plus_minus(int first, int token_index, unsigned char token[], token_t *
     token_index++;
     token[token_index] = (unsigned char)next;
     token_index++;
-    return readsymbol(token_index, token, tok);
+    return readsymbol(stream, token_index, token, tok);
   }
 
   return ERROR_UNPARSABLE_TOKEN; /* '-' or '+' followed by weired
@@ -149,11 +138,11 @@ int read_plus_minus(int first, int token_index, unsigned char token[], token_t *
 }
 
 
-int readsymbol(int index, unsigned char token_string[], token_t *tok) {
+int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *tok) {
   int c;
   
   while(index < MAX_TOKEN_LENGTH) {
-    c = fgetc(stdin);
+    c = fgetc(stream);
 
     if (issymb(c)) {
       token_string[index] = (unsigned char)c;
@@ -161,7 +150,7 @@ int readsymbol(int index, unsigned char token_string[], token_t *tok) {
       continue;
     }
 
-    if(isstop_pushback(c) ||
+    if(isstop_pushback(stream, c) ||
        c == EOF) {
       char *tok_str;
 
@@ -176,7 +165,7 @@ int readsymbol(int index, unsigned char token_string[], token_t *tok) {
       
       strncpy(tok_str, (const char *)token_string, index + 1);
 
-      tok->string_val = (unsigned char *)tok_str;
+      tok->atom_name = (unsigned char *)tok_str;
 
       if (c == EOF) {
         return TOKEN_OK_EOF;
@@ -206,25 +195,25 @@ int issymb(int c) {
     c == '*';
 }
 
-int isstop_pushback(int c) {
+int isstop_pushback(FILE *stream, int c) {
   if (isspace(c)) {
     return 1;
   } else if (c == '(' ||
              c == ')') {
-    ungetc(c, stdin);
+    ungetc(c, stream);
     return 1;
   } else {
     return 0;
   }
 }
 
-int readnumber(int index, unsigned char token_string[], token_t *tok) {
+int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *tok) {
   int c;
 
   while(index < MAX_TOKEN_LENGTH) {
-    c = fgetc(stdin);
+    c = fgetc(stream);
 
-    if(isstop_pushback(c) ||
+    if(isstop_pushback(stream, c) ||
        c == EOF) {
       token_string[index] = '\0';
 
@@ -279,14 +268,14 @@ int readnumber(int index, unsigned char token_string[], token_t *tok) {
   return ERROR_TOKEN_TO_LONG;
 }
 
-int readstring(int index, unsigned char token_string[], token_t *tok) {
+int readstring(FILE *stream, int index, unsigned char token_string[], token_t *tok) {
   int c;
 
   /* The loop works, but is off by one. Don't care to fix it yet.*/
   index--;
   
   while(index < MAX_TOKEN_LENGTH) {
-    c = fgetc(stdin);
+    c = fgetc(stream);
 
     if (c < 0 || c > UCHAR_MAX) {
       return ERROR_UNREDABLE_CHAR;

@@ -11,7 +11,7 @@ int main(int argc, char **argv, char **envp) {
 
   symtab = NULL;
 
-  while ((cell = read_intern(&symtab))) {
+  while ((cell = read_intern(stdin, &symtab))) {
     pretty_print(cell);
   }
 

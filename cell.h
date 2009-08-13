@@ -27,6 +27,7 @@ typedef struct cell_t {
 } cell_t;
 
 #define PAIRP(c) (((c)->type & 1) == 0)
+#define ATOMP(c) (!PAIRP(C))
 #define NILP(c) ((c)->type == 0)
 #define CAR(c) ((c)->car)
 #define CDR(c) ((c)->cdr)

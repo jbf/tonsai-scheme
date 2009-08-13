@@ -18,21 +18,25 @@ int main(int argc, char *argv[], char *envp[]) {
   c1->type = PAYLOAD_NUMBER;
   c1->i_val = 47;
   print_cell(c1);
+  printf("\n");
 
   c2->type = PAYLOAD_STRING;
   c2->string = str;
   print_cell(c2);
+  printf("\n");
 
   symbol.symbol_name = smbl;
   symbol.symbol_value = 0;
   c3->type = PAYLOAD_SYMBOL;
   c3->symbol = &symbol;
   print_cell(c3);
+  printf("\n");
 
   CONS(c4, c1, c2);
   print_cell(c4);
-  printf("CAR: "); print_cell(CAR(c4));
-  printf("CDR: "); print_cell(CDR(c4));
+  printf("\n");
+  printf("CAR: "); print_cell(CAR(c4)); printf("\n");
+  printf("CDR: "); print_cell(CDR(c4)); printf("\n");
 
   return 0;
 }
