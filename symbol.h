@@ -16,7 +16,11 @@ typedef struct symtab_entry_t {
 
 symbol_entry_t *intern2(unsigned char *sym, symtab_entry_t **tab, symtab_entry_t *orig_head);
 symbol_entry_t *lookup(unsigned char *sym, symtab_entry_t *tab);
+int create_initial_symtab(symtab_entry_t **tab);
+
+/* need free_symtab() */
 
 #define MAX_SYMBOL_UNIQUENESS MAX_TOKEN_LENGTH
+#define SYMTAB_CREATED 1
 
 #endif /* _SYMBOL_H */

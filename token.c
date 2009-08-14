@@ -15,6 +15,9 @@ int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *t
 int issymb(int c);
 int isstop_pushback(FILE *stream, int c);
 
+/*
+ * Frees any extra memory possibly associated with 'tok'.
+ */
 void free_token_payload(token_t *tok) {
   if (tok->type == TOKEN_SYMBOL ||
       tok->type == TOKEN_STRING) {
@@ -22,6 +25,16 @@ void free_token_payload(token_t *tok) {
   }
 }
 
+/* 
+ * Read one token from 'stream' storing it in the memory pointed to by
+ * 'tok'.
+ *
+ * No more than 'MAX_TOKEN_LENGTH' will be read, before the read is aborted
+ * and an error is retuned.
+ *
+ * Some tokens require additional memory to be allocated. Use
+ * 'free_token_payload' to free any extra memory.
+ */
 int get_token(FILE *stream, token_t *tok) {
   int c, token_index = 0;
   unsigned char token[MAX_TOKEN_LENGTH+1];
@@ -45,6 +58,11 @@ int get_token(FILE *stream, token_t *tok) {
        return read_plus_minus(stream, c, token_index, token, tok);
     }
 
+    /* 
+     * Numbers and symbols are (possibly) multichar. 
+     *
+     * Read the first char and dispatch to special handler for the rest.
+     */
     if(isdigit(c) && 
        c != '0') { /* can't start with 0 */
       token[token_index] = (unsigned char)c;
@@ -52,12 +70,14 @@ int get_token(FILE *stream, token_t *tok) {
       return readnumber(stream, token_index, token, tok);
     }
 
+    /* Se above. */
     if(issymb(c)) {
       token[token_index] = (unsigned char)c;
       token_index++;
       return readsymbol(stream, token_index, token, tok);
     }
 
+    /* Handle the last cases. */
     switch (c) {
     case '(': tok->type = TOKEN_LPAREN;
       tok->atom_name = 0;
@@ -76,6 +96,7 @@ int get_token(FILE *stream, token_t *tok) {
     token_index++;
   }
 
+  /* What to return? */
   if (token_index == 0 &&
       c == EOF) {
     return NO_TOKEN;
@@ -86,6 +107,7 @@ int get_token(FILE *stream, token_t *tok) {
   }
 }
 
+/* First char was '+'/'-'. */
 int read_plus_minus(FILE *stream,
                     int first,
                     int token_index,
@@ -95,7 +117,7 @@ int read_plus_minus(FILE *stream,
 
   next = fgetc(stream);
 
-  /* The actual symbols '+' or '-' */
+  /* If the next char is a whitespace, the symbol was '+' or '-'. */
   if(isspace(next) ||
      next == EOF) {
     unsigned char *str;
@@ -137,7 +159,7 @@ int read_plus_minus(FILE *stream,
                                     shit. */
 }
 
-
+/* First char was symbol-constituent. */
 int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *tok) {
   int c;
   
@@ -150,6 +172,7 @@ int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *t
       continue;
     }
 
+    /* If we are done, prepare the token and return. */
     if(isstop_pushback(stream, c) ||
        c == EOF) {
       char *tok_str;
@@ -180,6 +203,7 @@ int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *t
   return ERROR_TOKEN_TO_LONG;
 }
 
+/* Returns true if 'c' is symbol-constituent. */
 int issymb(int c) {
   return isalpha(c) ||
     c == '-' ||
@@ -195,11 +219,11 @@ int issymb(int c) {
     c == '*';
 }
 
+/* Peek at next char in 'FILE', return true if we should stop reading this symbol. */
 int isstop_pushback(FILE *stream, int c) {
   if (isspace(c)) {
     return 1;
-  } else if (c == '(' ||
-             c == ')') {
+  } else if (c == ')') {
     ungetc(c, stream);
     return 1;
   } else {
@@ -311,6 +335,10 @@ int readstring(FILE *stream, int index, unsigned char token_string[], token_t *t
   return ERROR_TOKEN_TO_LONG;
 }
 
+/*
+ * Prints token 'tok' to FILE 'stream'. Since tokens are not first class
+ * objects this is mostly for (VM) debugging purposes.
+ */
 int print_token(const token_t *tok) {
   switch (tok->type) {
   case TOKEN_LPAREN: printf("Token: LPAREN\n");

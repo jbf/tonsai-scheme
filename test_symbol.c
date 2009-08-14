@@ -5,14 +5,14 @@
 #include <stdlib.h>
 
 int main(int argc, char **argv, char **envp) {
-  symbol_entry_t *nil_sym;
   symtab_entry_t *symtab;
-  unsigned char *nil_str;
-
+  
   unsigned char *my_nil = (unsigned char *)"NIL";
   unsigned char *my_foo = (unsigned char *)"FOO";
   unsigned char *my_bar = (unsigned char *)"BAR";
   unsigned char *new_bar;
+
+  int retval;
 
   new_bar = malloc(4);
   new_bar[0] = 'B';
@@ -20,18 +20,7 @@ int main(int argc, char **argv, char **envp) {
   new_bar[2] = 'R';
   new_bar[3] = '\0';
   
-  nil_sym = new(symbol_entry_t);
-  symtab = new(symtab_entry_t);
-  nil_str = (unsigned char *)malloc(4);
-  nil_str[0] = 'N';
-  nil_str[1] = 'I';
-  nil_str[2] = 'L';
-  nil_str[3] = '\0';
-
-  nil_sym->symbol_name = nil_str;
-  nil_sym->symbol_value = NULL;
-  symtab->next = NULL;
-  symtab->symbol = nil_sym;
+  retval = create_initial_symtab(&symtab);
 
   printf("Looking up NIL, should return non-NULL address: %p. NIL used for lookup is at: %p\n",
          lookup(my_nil, symtab),
