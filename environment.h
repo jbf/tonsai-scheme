@@ -2,19 +2,36 @@
 #define _ENVIRONMENT_H 1
 
 #include "symbol.h"
+#include "util.h"
 
 typedef struct environ_t {
   struct environ_t *parent;
-  symtab_entry_t *symtab;
-  
-  struct value_container_t {
-    cell_t *value;
-    struct value_container_t *next;
-  } *values;
+  value_container_t *symbols;
+  value_container_t *values;
 } environ_t;
 
+#define ENV_CREATED_OK 1
+#define ENV_ADDED_TO_OK 2
+
+/*
+ * Creates an initial environment containing nil. Sets '**env' to NULL in
+ * case of errror (typically OOM).
+ */
 int create_initial_environment(environ_t **env);
-int extend_environment(environ_t **env, symtab_entry_t *symtab, cell_t *list_of_values);
+
+/*
+ * Extends 'env' with a binding.
+ *
+ * Binding should be a symbol_entry_t 'symbol' and a cell_t 'value'.
+ */
+int add_to_environment(environ_t *env, symbol_entry_t *symbol, cell_t *value);
+
+/*
+ * Looks up the value of 'sym' in 'env' (or any parent environment of
+ * 'env').
+ */
 cell_t *value(environ_t *env, symbol_entry_t *sym);
+
+
 
 #endif /* _ENVIRONMENT_H */

@@ -26,16 +26,16 @@ cell_t *read_intern(FILE *stream, symtab_entry_t **symbol_table) {
     if (NULL == cell) {
       return NULL;
     }
-    cell->type = PAYLOAD_SYMBOL;
-    cell->symbol = intern2(tok.atom_name, symbol_table, *symbol_table);
+    cell->slot1.type = PAYLOAD_SYMBOL;
+    cell->slot2.symbol = intern2(tok.atom_name, symbol_table, *symbol_table);
     return cell;
   case TOKEN_NUMBER:
     cell = new(cell_t);
     if (NULL == cell) {
       return NULL;
     }
-    cell->type = PAYLOAD_NUMBER;
-    cell->i_val = tok.i_val;
+    cell->slot1.type = PAYLOAD_NUMBER;
+    cell->slot2.i_val = tok.i_val;
     return cell;
   case TOKEN_STRING:
     /* As with symbols, we need to free or steal the token payload. */
@@ -43,8 +43,8 @@ cell_t *read_intern(FILE *stream, symtab_entry_t **symbol_table) {
     if (NULL == cell) {
       return NULL;
     }
-    cell->type = PAYLOAD_STRING;
-    cell->string = tok.string_val;
+    cell->slot1.type = PAYLOAD_STRING;
+    cell->slot2.string = tok.string_val;
     return cell;
   default:
     return NULL;
@@ -72,18 +72,18 @@ cell_t *read_list_intern(FILE *stream, symtab_entry_t **symbol_table) {
     }
 
     if (last) {
-      last->cdr = current;
+      last->slot2.cdr = current;
     } else { /* This is the first in the list. */
       first = current;
     }
 
     switch(tok.type) {
     case TOKEN_LPAREN:
-      current->car = read_list_intern(stream, symbol_table);
+      current->slot1.car = read_list_intern(stream, symbol_table);
       break;
     case TOKEN_RPAREN:
-      current->type = PAYLOAD_NIL;
-      current->cdr = NULL;
+      current->slot1.type = PAYLOAD_NIL;
+      current->slot2.cdr = NULL;
       return first;
     case TOKEN_SYMBOL:
       /* We also need to free or steal the payload part. */
@@ -91,18 +91,18 @@ cell_t *read_list_intern(FILE *stream, symtab_entry_t **symbol_table) {
       if (!temp) {
         return NULL;
       }
-      current->car = temp;
-      temp->type = PAYLOAD_SYMBOL;
-      temp->symbol = intern2(tok.atom_name, symbol_table, *symbol_table);
+      current->slot1.car = temp;
+      temp->slot1.type = PAYLOAD_SYMBOL;
+      temp->slot2.symbol = intern2(tok.atom_name, symbol_table, *symbol_table);
       break;
     case TOKEN_NUMBER:
       temp = new(cell_t);
       if (!temp) {
         return NULL;
       }
-      current->car = temp;
-      temp->type = PAYLOAD_NUMBER;
-      temp->i_val = tok.i_val;
+      current->slot1.car = temp;
+      temp->slot1.type = PAYLOAD_NUMBER;
+      temp->slot2.i_val = tok.i_val;
       break;
     case TOKEN_STRING:
       /* As with symbols, we need to free or steal the token payload. */
@@ -110,9 +110,9 @@ cell_t *read_list_intern(FILE *stream, symtab_entry_t **symbol_table) {
       if (!temp) {
         return NULL;
       }
-      current->car = temp;
-      temp->type = PAYLOAD_STRING;
-      temp->string = tok.string_val;
+      current->slot1.car = temp;
+      temp->slot1.type = PAYLOAD_STRING;
+      temp->slot2.string = tok.string_val;
       break;
     default:
       return NULL;

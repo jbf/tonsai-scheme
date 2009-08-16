@@ -6,7 +6,9 @@ void pp_list(cell_t *cell);
 void pp(cell_t *cell);
 
 void print_cell(cell_t *cell) {
-  if (NILP(cell)) {
+  if (NULL == cell) {
+    printf ("NULL-pointer");
+  } else if (NILP(cell)) {
     printf("NIL");
   } else if (PAIRP(cell)) {
     printf("PAIR");
@@ -14,19 +16,19 @@ void print_cell(cell_t *cell) {
 #ifdef __DEBUG
     printf("SYMBOL ");
 #endif /* __DEBUG */
-    printf("%s", cell->symbol->symbol_name);
+    printf("%s", SYMBOL_NAME(CELL_SYMBOL(cell)));
   } else if (NUMBERP(cell)) {
 #ifdef __DEBUG
     printf("NUMBER ");
 #endif /* __DEBUG */
-    printf("%d", cell->i_val);
+    printf("%d", I_VAL(cell));
   } else if (STRINGP(cell)) {
 #ifdef __DEBUG
     printf("STRING ");
 #endif /* __DEBUG */
-    printf("\"%s\"", cell->string);
+    printf("\"%s\"", STRING_VAL(cell));
   } else {
-    printf("UNKNOWN CELL %p, %p", cell->car, cell->cdr);
+    printf("UNKNOWN CELL %p, %p", CAR(cell), CDR(cell));
   }
 }
 

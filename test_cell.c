@@ -15,20 +15,20 @@ int main(int argc, char *argv[], char *envp[]) {
   c3 = new(cell_t);
   c4 = new(cell_t);
 
-  c1->type = PAYLOAD_NUMBER;
-  c1->i_val = 47;
+  c1->slot1.type = PAYLOAD_NUMBER;
+  c1->slot2.i_val = 47;
   print_cell(c1);
   printf("\n");
 
-  c2->type = PAYLOAD_STRING;
-  c2->string = str;
+  c2->slot1.type = PAYLOAD_STRING;
+  c2->slot2.string = str;
   print_cell(c2);
   printf("\n");
 
   symbol.symbol_name = smbl;
   symbol.symbol_value = 0;
-  c3->type = PAYLOAD_SYMBOL;
-  c3->symbol = &symbol;
+  c3->slot1.type = PAYLOAD_SYMBOL;
+  c3->slot2.symbol = &symbol;
   print_cell(c3);
   printf("\n");
 

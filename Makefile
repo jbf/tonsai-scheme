@@ -1,9 +1,11 @@
-CFLAGS = -Wall -DDEBUG -g
-PROGRAM = test_cell test_token test_symbol test_reader
-EXTRAS = errors.h util.h Makefile
-OBJECTS = reader.o token.o symbol.o cell.o eval.o environment.o
+CFLAGS  = -Wall -DDEBUG -g
+PROGRAM = test_cell test_token test_symbol test_reader \
+          test_environment
+SOURCES = $(filter-out test_%,$(wildcard *.c))
+OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
+DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
 
-all: $(PROGRAM)
+all: $(DEPS) $(OBJECTS) $(PROGRAM)
 
 test_cell : cell.o
 
@@ -13,17 +15,18 @@ test_symbol : symbol.o
 
 test_reader : reader.o cell.o token.o symbol.o
 
-cell.o : $(EXTRAS) symbol.h cell.h
+test_environment : symbol.o environment.o cell.o
 
-symbol.o : $(EXTRAS) cell.h token.h symbol.h
+%.dep: %.c %.h
+	@set -e; rm -f $@; \
+         $(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+         sed -i -e 's,\:,\:\ Makefile,' $@.$$$$; \
+         sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+         rm -f $@.$$$$
 
-reader.o: $(EXTRAS) cell.h symbol.h token.h reader.h
-
-environment.o: $(EXTRAS) symbol.h environment.h
-
-$(OBJECTS) : $(EXTRAS)
+include $(SOURCES:.c=.dep)
 
 .PHONY: clean
 
 clean:
-	-rm -f -- *.o *~ core a.out test_token test_cell test_reader
+	-rm -f -- *.o *.dep *~ core a.out test_token test_cell test_reader test_symbol

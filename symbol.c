@@ -1,10 +1,14 @@
+#define _SYMBOL_C 1
 #include "symbol.h"
+#undef _SYMBOL_C
 #include "util.h"
 #include "error.h"
+#include "cell.h"
 
 #include <string.h>
 
-static symbol_entry_t nil = { (unsigned char *)"NIL", (void *)0};
+symbol_entry_t nil = { (unsigned char *)"NIL", (void *)0};
+cell_t nil_cell = {{.type = PAYLOAD_NIL}, {.symbol = &nil}};
 
 symbol_entry_t *lookup(unsigned char *sym, symtab_entry_t *tab) {
   if (NULL == tab) {

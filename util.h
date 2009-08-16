@@ -17,4 +17,21 @@
       (void) (&_x == &_y);                      \
       _x > _y ? _x : _y; })
 
+typedef struct value_container_t {
+  void  *value;
+  struct value_container_t *next;
+} value_container_t;
+
+#ifndef FALSE
+#define FALSE 0
+#endif /* FALSE */
+
+#ifndef TRUE
+#define TRUE (!FALSE)
+#endif /* TRUE */
+
+#ifndef NULL
+#define NULL (void *)0
+#endif /* NULL */
+
 #endif /* __UTIL_H */

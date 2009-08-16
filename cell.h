@@ -17,28 +17,36 @@ typedef struct cell_t {
   union {
     cell_type_t type;
     struct cell_t *car;
-  };
+  } slot1;
   union {
     int32_t i_val;
     struct symbol_entry_t *symbol;
     unsigned char *string;
     struct cell_t *cdr;
-  };
+  } slot2;
 } cell_t;
 
-#define PAIRP(c) (((c)->type & 1) == 0)
+/* Predicates. */
+#define PAIRP(c) (((c)->slot1.type & 1) == 0)
 #define ATOMP(c) (!PAIRP(C))
-#define NILP(c) ((c)->type == 0)
-#define CAR(c) ((c)->car)
-#define CDR(c) ((c)->cdr)
-#define SYMBOLP(c) ((c)->type == PAYLOAD_SYMBOL)
-#define NUMBERP(c) ((c)->type == PAYLOAD_NUMBER)
-#define STRINGP(c) ((c)->type == PAYLOAD_STRING)
+#define NILP(c) ((c)->slot1.type == 0)
+#define SYMBOLP(c) ((c)->slot1.type == PAYLOAD_SYMBOL)
+#define NUMBERP(c) ((c)->slot1.type == PAYLOAD_NUMBER)
+#define STRINGP(c) ((c)->slot1.type == PAYLOAD_STRING)
+
+/* Accessors. */
+#define CAR(c) ((c)->slot1.car)
+#define CDR(c) ((c)->slot2.cdr)
+#define CELL_SYMBOL(c) ((c)->slot2.symbol)
+#define I_VAL(c) ((c)->slot2.i_val)
+#define STRING_VAL(c) ((c)->slot2.string)
+
+/* Constructor. */
 #define CONS(target, src1, src2)   \
   do {                             \
     cell_t *__CONS_TMP = (c4);     \
-    __CONS_TMP->car = (src1);      \
-    __CONS_TMP->cdr = (src2);      \
+    __CONS_TMP->slot1.car = (src1);      \
+    __CONS_TMP->slot2.cdr = (src2);      \
   } while (0)
 
 void print_cell(cell_t *cell);
