@@ -20,7 +20,12 @@ typedef struct environ_t {
 int create_initial_environment(environ_t **env);
 
 /*
- * Extends 'env' with a binding.
+ * Creates a new empty environment.
+ */
+int create_empty_environment(environ_t **env);
+
+/*
+ * Adds a new binding to 'env'.
  *
  * Binding should be a symbol_entry_t 'symbol' and a cell_t 'value'.
  */
@@ -31,7 +36,5 @@ int add_to_environment(environ_t *env, symbol_entry_t *symbol, cell_t *value);
  * 'env').
  */
 cell_t *value(environ_t *env, symbol_entry_t *sym);
-
-
 
 #endif /* _ENVIRONMENT_H */

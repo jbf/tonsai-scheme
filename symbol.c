@@ -10,6 +10,18 @@
 symbol_entry_t nil = { (unsigned char *)"NIL", (void *)0};
 cell_t nil_cell = {{.type = PAYLOAD_NIL}, {.symbol = &nil}};
 
+/* 
+ * This is the recursive function doing the actual work. Internal only.
+ */
+symbol_entry_t *intern2(unsigned char *sym, symtab_entry_t **tab, symtab_entry_t *orig_head);
+
+/*
+ * This visible function is just a wrapper around intern2.
+ */
+symbol_entry_t *intern(unsigned char *sym, symtab_entry_t **tab) {
+  return intern2(sym, tab, *tab);
+}
+
 symbol_entry_t *lookup(unsigned char *sym, symtab_entry_t *tab) {
   if (NULL == tab) {
     return NULL; /* sym not present. */

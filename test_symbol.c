@@ -31,7 +31,7 @@ int main(int argc, char **argv, char **envp) {
 
   printf("Interning BAR from\t%p. Should return non-NULL address:\t%p.\n",
          my_bar,
-         intern2(my_bar, &symtab, symtab));
+         intern(my_bar, &symtab));
   printf("Looking up BAR from\t%p. Should return same non-NULL address:\t%p.\n",
          new_bar,
          lookup(new_bar, symtab));

@@ -6,19 +6,17 @@
 
 int alloc_sym_value_pair(value_container_t **sym, value_container_t **val);
 
-extern symbol_entry_t nil;
-extern cell_t nil_cell;
-
 int create_initial_environment(environ_t **env) { 
-  environ_t *temp_env = new(environ_t);
   value_container_t *sym;
   value_container_t *val;
-  int ok;
+  environ_t *temp_env;
+  int ok = create_empty_environment(&temp_env);
+
+  if (!ok) return EOOM;
 
   ok = alloc_sym_value_pair(&sym, &val);
 
-  if (NULL == temp_env || !ok) {
-    *env = NULL;
+  if (!ok) {
     free(temp_env);
     free(sym);
     free(val);
@@ -31,7 +29,6 @@ int create_initial_environment(environ_t **env) {
   val->value = &nil_cell;
   val->next = NULL;
 
-  temp_env->parent = NULL;
   temp_env->values = val;
   temp_env->symbols = sym;
 
@@ -39,6 +36,19 @@ int create_initial_environment(environ_t **env) {
   return ENV_CREATED_OK;
 }
 
+int create_empty_environment(environ_t **env) {
+  *env = new(environ_t);
+
+  if (NULL == *env) return EOOM;
+
+  (*env)->parent = NULL;
+  return ENV_CREATED_OK;
+}
+
+/* 
+ * Short alloc of containers. Does not clean up on failure. Caller should
+ * do that.
+ */
 int alloc_sym_value_pair(value_container_t **sym, value_container_t **val) {
   *sym = new(value_container_t);
   *val = new(value_container_t);

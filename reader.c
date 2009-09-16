@@ -27,7 +27,7 @@ cell_t *read_intern(FILE *stream, symtab_entry_t **symbol_table) {
       return NULL;
     }
     cell->slot1.type = PAYLOAD_SYMBOL;
-    cell->slot2.symbol = intern2(tok.atom_name, symbol_table, *symbol_table);
+    cell->slot2.symbol = intern(tok.atom_name, symbol_table);
     return cell;
   case TOKEN_NUMBER:
     cell = new(cell_t);
@@ -93,7 +93,7 @@ cell_t *read_list_intern(FILE *stream, symtab_entry_t **symbol_table) {
       }
       current->slot1.car = temp;
       temp->slot1.type = PAYLOAD_SYMBOL;
-      temp->slot2.symbol = intern2(tok.atom_name, symbol_table, *symbol_table);
+      temp->slot2.symbol = intern(tok.atom_name, symbol_table);
       break;
     case TOKEN_NUMBER:
       temp = new(cell_t);

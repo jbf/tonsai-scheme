@@ -2,8 +2,9 @@
 #include "symbol.h"
 #include "reader.h"
 #include "util.h"
+#include "environment.h"
 
-cell_t *evaluate(cell_t *exp /* later add env */) {
+cell_t *evaluate(cell_t *exp, environ_t *env) {
   /* if (NULL == exp) { */
   /*   return NULL; */
   /* } else if (ATOMP(exp)) { */

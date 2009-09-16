@@ -32,8 +32,8 @@ int main(int argc, char **argv, char **envp) {
   create_initial_environment(&env);
 
   my_nil_sym =lookup(my_nil, symtab);
-  my_bar_sym = intern2(my_bar, &symtab, symtab);
-  my_foo_sym = intern2(my_foo, &symtab, symtab);
+  my_bar_sym = intern(my_bar, &symtab);
+  my_foo_sym = intern(my_foo, &symtab);
 
   printf("Value of %p is ", my_nil_sym);
   print_cell(value(env, my_nil_sym));

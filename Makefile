@@ -7,6 +7,8 @@ DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
 
 all: $(DEPS) $(OBJECTS) $(PROGRAM)
 
+depend: $(DEPS)
+
 test_cell : cell.o
 
 test_token : token.o
@@ -24,9 +26,9 @@ test_environment : symbol.o environment.o cell.o
          sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
          rm -f $@.$$$$
 
-include $(SOURCES:.c=.dep)
-
 .PHONY: clean
 
 clean:
 	-rm -f -- *.o *.dep *~ core a.out test_token test_cell test_reader test_symbol
+
+include $(SOURCES:.c=.dep)
