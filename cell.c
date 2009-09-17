@@ -1,6 +1,10 @@
+#define _CELL_C 1
 #include "cell.h"
+#undef _CELL_C
 
 #include <stdio.h>
+
+cell_t the_false_cell = {{.type = FALSE_CELL}, {.i_val = 0}};
 
 void pp_list(cell_t *cell);
 void pp(cell_t *cell);

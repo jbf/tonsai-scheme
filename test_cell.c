@@ -26,7 +26,6 @@ int main(int argc, char *argv[], char *envp[]) {
   printf("\n");
 
   symbol.symbol_name = smbl;
-  symbol.symbol_value = 0;
   c3->slot1.type = PAYLOAD_SYMBOL;
   c3->slot2.symbol = &symbol;
   print_cell(c3);

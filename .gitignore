@@ -6,3 +6,5 @@ test_symbol
 test_reader
 *.dep
 /test_environment
+/test_eval
+/test_primitives

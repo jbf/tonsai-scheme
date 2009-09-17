@@ -17,7 +17,7 @@ int main(int argc, char **argv, char **envp) {
   unsigned char *my_foo = (unsigned char *)"FOO";
   unsigned char *new_bar;
 
-  symbol_entry_t *my_nil_sym, *my_bar_sym, *my_foo_sym;
+  cell_t *my_nil_sym, *my_bar_sym, *my_foo_sym;
 
   cell_t num_10 = {{.type = PAYLOAD_NUMBER}, {.i_val = 10}};
   cell_t str_hej = {{.type = PAYLOAD_STRING}, {.string = (unsigned char *)"Hej\t..."}};
@@ -43,7 +43,7 @@ int main(int argc, char **argv, char **envp) {
   print_cell(value(env, my_bar_sym));
   printf("\n");
   printf("Adding BAR => 10 binding\n");
-  add_to_environment(env, my_bar_sym, &num_10);
+  add_to_environment(env, my_bar_sym->slot2.symbol, &num_10);
 
   printf("Value of %p is ", my_bar_sym);
   print_cell(value(env, my_bar_sym));
@@ -53,7 +53,7 @@ int main(int argc, char **argv, char **envp) {
   print_cell(value(env, my_foo_sym));
   printf("\n");
   printf("Adding FOO => \"Hej\\t...\" binding\n");
-  add_to_environment(env, my_foo_sym, &str_hej);
+  add_to_environment(env, my_foo_sym->slot2.symbol, &str_hej);
 
   printf("Value of %p is ", my_foo_sym);
   print_cell(value(env, my_foo_sym));

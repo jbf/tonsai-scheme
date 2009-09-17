@@ -5,6 +5,11 @@
 #include "symbol.h"
 
 int alloc_sym_value_pair(value_container_t **sym, value_container_t **val);
+cell_t *_value(environ_t *env, symbol_entry_t *sym);
+
+cell_t *value(environ_t *env, cell_t *sym) {
+  return _value(env, CELL_SYMBOL(sym));
+}
 
 int create_initial_environment(environ_t **env) { 
   value_container_t *sym;
@@ -87,7 +92,7 @@ int add_to_environment(environ_t *env, symbol_entry_t *symbol, cell_t *value) {
   return ENV_ADDED_TO_OK;
 }
 
-cell_t *value(environ_t *env, symbol_entry_t *sym) {
+cell_t *_value(environ_t *env, symbol_entry_t *sym) {
   value_container_t *sym_list;
   value_container_t *val_list;
 

@@ -22,12 +22,10 @@ cell_t *read_intern(FILE *stream, symtab_entry_t **symbol_table) {
     return NULL;
   case TOKEN_SYMBOL:
     /* We also need to free or steal the payload part. */
-    cell = new(cell_t);
+    cell = intern(tok.atom_name, symbol_table);
     if (NULL == cell) {
       return NULL;
     }
-    cell->slot1.type = PAYLOAD_SYMBOL;
-    cell->slot2.symbol = intern(tok.atom_name, symbol_table);
     return cell;
   case TOKEN_NUMBER:
     cell = new(cell_t);
@@ -87,13 +85,11 @@ cell_t *read_list_intern(FILE *stream, symtab_entry_t **symbol_table) {
       return first;
     case TOKEN_SYMBOL:
       /* We also need to free or steal the payload part. */
-      temp = new(cell_t);
+      temp = intern(tok.atom_name, symbol_table);
       if (!temp) {
         return NULL;
       }
       current->slot1.car = temp;
-      temp->slot1.type = PAYLOAD_SYMBOL;
-      temp->slot2.symbol = intern(tok.atom_name, symbol_table);
       break;
     case TOKEN_NUMBER:
       temp = new(cell_t);

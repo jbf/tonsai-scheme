@@ -19,7 +19,7 @@
 
 typedef struct symbol_entry_t {
   unsigned char *symbol_name;
-  struct cell_t *symbol_value;
+  struct cell_t *symbol_cell;
 } symbol_entry_t;
 
 typedef struct symtab_entry_t {
@@ -36,8 +36,8 @@ extern struct cell_t nil_cell;
 #define SYMBOL_NAME(s) ((s)->symbol_name)
 #define SYMBOL_VALUE(s) ((s)->symbol_value)
 
-symbol_entry_t *intern(unsigned char *sym, symtab_entry_t **tab);
-symbol_entry_t *lookup(unsigned char *sym, symtab_entry_t *tab);
+struct cell_t *intern(unsigned char *sym, symtab_entry_t **tab);
+struct cell_t *lookup(unsigned char *sym, symtab_entry_t *tab);
 int create_initial_symtab(symtab_entry_t **tab);
 
 /* need free_symtab() */

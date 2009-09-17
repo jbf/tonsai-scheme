@@ -2,6 +2,7 @@
 #define _ENVIRONMENT_H 1
 
 #include "symbol.h"
+#include "cell.h"
 #include "util.h"
 
 typedef struct environ_t {
@@ -33,8 +34,8 @@ int add_to_environment(environ_t *env, symbol_entry_t *symbol, cell_t *value);
 
 /*
  * Looks up the value of 'sym' in 'env' (or any parent environment of
- * 'env').
+ * 'env'). Returns NULL if if 'sym' is unbound in 'env'.
  */
-cell_t *value(environ_t *env, symbol_entry_t *sym);
+cell_t *value(environ_t *env, cell_t *sym);
 
 #endif /* _ENVIRONMENT_H */
