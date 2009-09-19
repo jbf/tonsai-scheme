@@ -19,6 +19,9 @@ int proper_list_length(cell_t *lst);
 cell_t pops[] = {
   {{.type = PRIMITIVE}, {.prim = &prim_if}},
   {{.type = PRIMITIVE}, {.prim = &prim_plus}},
+  {{.type = PRIMITIVE}, {.prim = &prim_lambda}},
+  {{.type = PRIMITIVE}, {.prim = &prim_quote}},
+
 };
 
 #ifdef DEBUG
@@ -49,6 +52,12 @@ void init_eval() {
 
   s = intern((unsigned char *)"+", global_symtab);
   add_to_environment(special_forms, s, &pops[1]);
+
+  s = intern((unsigned char *)"lambda", global_symtab);
+  add_to_environment(special_forms, s, &pops[2]);
+
+  s = intern((unsigned char *)"quote", global_symtab);
+  add_to_environment(special_forms, s, &pops[3]);
 }
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {
@@ -73,19 +82,18 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
     }
   } else { /* list */
     cell_t *first = evaluate(CAR(exp), env);
+    cell_t *rest = CDR(exp);
 
     if (NULL == first) {
       DEBUG_PRINT_AND_RETURN(NULL);
     } else if (PRIMITIVEP(first)) {
       cell_t *(*f)(cell_t *, environ_t *) = CELL_PRIMITIVE(first);
-
-      DEBUG_PRINT_AND_RETURN((*f)(CDR(exp), env));
+      DEBUG_PRINT_AND_RETURN((*f)(rest, env));
     } else if (FUNCTIONP(first)) { /* function call */
-      --__tl_eval_level;
-      return NULL; /* not implemented yet */
+      DEBUG_PRINT_AND_RETURN(invoke(first, rest, env));
     }
       --__tl_eval_level;
-    return NULL;
+      return NULL; /* Not primitive or funcall, error.*/
   }
 }
 
@@ -124,4 +132,9 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   }
 
   return head;
+}
+
+cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
+  printf("APPLY ");
+  return nil_cell;
 }

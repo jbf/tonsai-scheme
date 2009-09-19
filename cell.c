@@ -29,6 +29,8 @@ void print_cell(cell_t *cell) {
     printf("\"%s\"", STRING_VAL(cell));
   } else if (PRIMITIVEP(cell)) {
     printf("PRIMITIVE FUNCTION CELL ");
+  } else if (FUNCTIONP(cell)) {
+    printf("FUNCTION CELL ");
   } else {
     printf("UNKNOWN CELL %p, %p", CAR(cell), CDR(cell));
   }

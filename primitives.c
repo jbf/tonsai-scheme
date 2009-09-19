@@ -82,3 +82,14 @@ cell_t *prim_plus(cell_t *rest, environ_t *env) {
     return rc;
   }
 }
+
+cell_t *prim_lambda(cell_t *rest, environ_t *env) {
+  cell_t *tmp = new(cell_t);
+  tmp->slot1.type = FUNCTION;
+  tmp->slot2.i_val = 0;
+  return tmp;
+}
+
+cell_t *prim_quote(cell_t *rest, environ_t *env) {
+  return rest;
+}

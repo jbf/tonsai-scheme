@@ -10,9 +10,9 @@
  *                  binary position
  * symbol payloads: 9876543210
  *
- *        cons cell xxxxxxxxx0 both car and cdr point to other cells.
+ *        cons cell xxxxxxxxx0 both car and cdr point to other cells
  *          symbols 0000000011
- *       nil-symbol 0000000111
+ *       nil-symbol 0000000111 only symbols have bit 1 (zero-indexed) set
  *           string 0000000101
  *           number 0000001101 
  *        PRIMITIVE 0000010101

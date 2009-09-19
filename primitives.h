@@ -8,4 +8,6 @@ int scheme_to_c_truth(cell_t *c, environ_t *env);
 
 cell_t *prim_if(cell_t* rest, environ_t *env);
 cell_t *prim_plus(cell_t* rest, environ_t *env);
+cell_t *prim_lambda(cell_t* rest, environ_t *env);
+cell_t *prim_quote(cell_t *rest, environ_t *env);
 #endif /* _PRIMITIVES_H */
