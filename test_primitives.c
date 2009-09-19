@@ -3,6 +3,7 @@
 #include "cell.h"
 #include "primitives.h"
 #include "util.h"
+#include "bootstrap.h"
 
 int proper_list_of_length(int length, cell_t *lst);
 
@@ -40,7 +41,7 @@ int main(int argc, char **argv, char **envp) {
   test(proper_list_of_length(1, c4), 0);
   test(proper_list_of_length(10, c4), 0);
 
-  CONS(c4, c1, NIL);
+  CONS(c4, c1, nil_cell);
   CONS(c3, c1, c4);
   CONS(c2, c1, c3);
 

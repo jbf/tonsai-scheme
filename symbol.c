@@ -1,47 +1,37 @@
-#define _SYMBOL_C 1
 #include "symbol.h"
-#undef _SYMBOL_C
 #include "util.h"
 #include "error.h"
 #include "cell.h"
 
 #include <string.h>
 
-symbol_entry_t nil = { (unsigned char *)"NIL", (void *)0};
-cell_t nil_cell = {{.type = PAYLOAD_NIL}, {.symbol = &nil}};
+typedef struct symtab_entry_t {
+  struct symbol_entry_t *symbol;
+  struct symtab_entry_t *next;
+} symtab_entry_t;
 
-/* 
- * This is the recursive function doing the actual work. Internal only.
- */
-symbol_entry_t *intern2(unsigned char *sym, symtab_entry_t **tab, symtab_entry_t *orig_head);
+cell_t *_lookup(unsigned char *sym, symtab_entry_t *tab);
+int push(symbol_table *tab, symbol_entry_t *s);
 
-symbol_entry_t *_lookup(unsigned char *sym, symtab_entry_t *tab);
-
-cell_t *lookup(unsigned char *sym, symtab_entry_t *tab) {
-  symbol_entry_t *s = _lookup(sym, tab);
-  return (NULL == s ? NULL : s->symbol_cell);
+cell_t *lookup(unsigned char *sym, symbol_table *tab) {
+  return (NULL == tab ? NULL : _lookup(sym, tab->head));
 }
 
-/*
- * This visible function is just a wrapper around intern2.
- */
-cell_t *intern(unsigned char *sym, symtab_entry_t **tab) {
-  return intern2(sym, tab, *tab)->symbol_cell;
-}
-
-symbol_entry_t *_lookup(unsigned char *sym, symtab_entry_t *tab) {
-  if (NULL == tab) {
+cell_t *_lookup(unsigned char *sym, symtab_entry_t *tab) {
+  if (NULL == tab || NULL == tab->symbol) {
     return NULL; /* sym not present. */
-  } else if (strncmp((const char *)sym, (const char*)tab->symbol->symbol_name, MAX_SYMBOL_UNIQUENESS) == 0) {
-    return tab->symbol;
+  } else if (strncmp((const char *)sym, (const char*)SYMBOL_NAME(tab->symbol), MAX_SYMBOL_UNIQUENESS) == 0) {
+    return SYMBOL_CELL(tab->symbol);
   } else {
     return _lookup(sym, tab->next);
   }
 }
 
-symbol_entry_t *intern2(unsigned char *sym, symtab_entry_t **tab, symtab_entry_t *orig_head) {
-  symbol_entry_t *existing;
-  existing = _lookup(sym, *tab);
+cell_t *intern(unsigned char *sym, symbol_table *tab) {
+  cell_t *existing;
+  existing = lookup(sym, tab);
+
+  if (NULL == tab) return NULL;
   
   if (NULL == existing) {
     symtab_entry_t *new_tab;
@@ -66,36 +56,28 @@ symbol_entry_t *intern2(unsigned char *sym, symtab_entry_t **tab, symtab_entry_t
     new_sym->symbol_cell = new_cell;
 
     new_tab->symbol = new_sym;
-    new_tab->next = orig_head;
+    new_tab->next = tab->head;
 
-    *tab = new_tab;
+    tab->head = new_tab;
 
-    return new_sym;
+    return new_cell;
   } else {
     return existing;
   }
 }
 
-/* 
- * Create an intial symtab containing 'nil'. The returned symtab is ready
- * for interning into.
- */
-int create_initial_symtab(symtab_entry_t **tab) {
-  symtab_entry_t *symtab;
+int init_symbol_table(symbol_table *tab) {
+  if (NULL == tab) return 0;
 
-  if (nil.symbol_cell == NULL ) {
-    nil.symbol_cell = &nil_cell;
-  }
-
-  symtab = new(symtab_entry_t);
-  if(NULL == symtab) {
-    return EOOM;
-  }
-
-  symtab->next = NULL;
-  symtab->symbol = &nil;
-
-  *tab = symtab;
-
+  tab->head = NULL;
   return SYMTAB_CREATED;
+}
+
+int push(symbol_table *tab, symbol_entry_t *s) {
+  symtab_entry_t *t = new(symtab_entry_t);
+  t->next = tab->head;
+  t->symbol = s;
+  tab->head = t;
+
+  return 1;
 }

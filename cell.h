@@ -6,14 +6,26 @@
 
 #include <stdint.h>
 
+/*
+ *                  binary position
+ * symbol payloads: 9876543210
+ *
+ *        cons cell xxxxxxxxx0 both car and cdr point to other cells.
+ *          symbols 0000000011
+ *       nil-symbol 0000000111
+ *           string 0000000101
+ *           number 0000001101 
+ *        PRIMITIVE 0000010101
+ *         FUNCTION 0000011101 
+ */
+
 typedef enum {
-  PAYLOAD_SYMBOL = 1,
-  PAYLOAD_STRING = 3,
-  PAYLOAD_NUMBER = 5,
-  PAYLOAD_NIL = 7,
-  PRIMITIVE = 31,
-  FUNCTION = 33,
-  FALSE_CELL = 101,
+  PAYLOAD_SYMBOL = 0b00011, /*  3 */
+  PAYLOAD_NIL    = 0b00111, /*  7 */
+  PAYLOAD_STRING = 0b00101, /*  5 */
+  PAYLOAD_NUMBER = 0b01101, /* 13 */
+  PRIMITIVE      = 0b10101, /* 21 */
+  FUNCTION       = 0b11101, /* 29 */
 } cell_type_t;
 
 typedef struct cell_t {
@@ -34,12 +46,11 @@ typedef struct cell_t {
 #define PAIRP(c) (((c)->slot1.type & 1) == 0)
 #define ATOMP(c) (((c)->slot1.type & 1) == 1)
 #define NILP(c) ((c)->slot1.type == PAYLOAD_NIL)
-#define SYMBOLP(c) ((c)->slot1.type == PAYLOAD_SYMBOL)
+#define SYMBOLP(c) (((c)->slot1.type & 2) == 2)
 #define NUMBERP(c) ((c)->slot1.type == PAYLOAD_NUMBER)
 #define STRINGP(c) ((c)->slot1.type == PAYLOAD_STRING)
 #define PRIMITIVEP(c) ((c)->slot1.type == PRIMITIVE)
 #define FUNCTIONP(c) ((c)->slot1.type == FUNCTION)
-#define FALSEP(c) ((c)->slot1.type == FALSE_CELL)
 
 /* Accessors. */
 #define CAR(c) ((c)->slot1.car)

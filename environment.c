@@ -11,36 +11,6 @@ cell_t *value(environ_t *env, cell_t *sym) {
   return _value(env, CELL_SYMBOL(sym));
 }
 
-int create_initial_environment(environ_t **env) { 
-  value_container_t *sym;
-  value_container_t *val;
-  environ_t *temp_env;
-  int ok = create_empty_environment(&temp_env);
-
-  if (!ok) return EOOM;
-
-  ok = alloc_sym_value_pair(&sym, &val);
-
-  if (!ok) {
-    free(temp_env);
-    free(sym);
-    free(val);
-    return EOOM;
-  }
-
-  sym->value = &nil;
-  sym->next = NULL;
-
-  val->value = &nil_cell;
-  val->next = NULL;
-
-  temp_env->values = val;
-  temp_env->symbols = sym;
-
-  *env = temp_env;
-  return ENV_CREATED_OK;
-}
-
 int create_empty_environment(environ_t **env) {
   *env = new(environ_t);
 
@@ -68,7 +38,7 @@ int alloc_sym_value_pair(value_container_t **sym, value_container_t **val) {
   return !oom; /* We want TRUE to be ok. */
 }
 
-int add_to_environment(environ_t *env, symbol_entry_t *symbol, cell_t *value) {
+int add_to_environment(environ_t *env, cell_t *symbol, cell_t *value) {
   value_container_t *sym;
   value_container_t *val;
   int ok;
@@ -82,7 +52,7 @@ int add_to_environment(environ_t *env, symbol_entry_t *symbol, cell_t *value) {
   }
 
   sym->next = env->symbols;
-  sym->value = symbol;
+  sym->value = CELL_SYMBOL(symbol);
   env->symbols = sym;
 
   val->next = env->values;

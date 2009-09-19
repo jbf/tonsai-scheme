@@ -4,39 +4,42 @@
 
 #include <stdio.h>
 
-cell_t the_false_cell = {{.type = FALSE_CELL}, {.i_val = 0}};
-
 void pp_list(cell_t *cell);
 void pp(cell_t *cell);
 
 void print_cell(cell_t *cell) {
   if (NULL == cell) {
-    printf ("NULL-pointer");
-  } else if (NILP(cell)) {
-    printf("NIL");
+    printf ("C-NULL");
   } else if (PAIRP(cell)) {
     printf("PAIR");
   } else if (SYMBOLP(cell)) {
-#ifdef __DEBUG
+#ifdef DEBUG
     printf("SYMBOL ");
-#endif /* __DEBUG */
+#endif /* DEBUG */
     printf("%s", SYMBOL_NAME(CELL_SYMBOL(cell)));
   } else if (NUMBERP(cell)) {
-#ifdef __DEBUG
+#ifdef DEBUG
     printf("NUMBER ");
-#endif /* __DEBUG */
+#endif /* DEBUG */
     printf("%d", I_VAL(cell));
   } else if (STRINGP(cell)) {
-#ifdef __DEBUG
+#ifdef DEBUG
     printf("STRING ");
-#endif /* __DEBUG */
+#endif /* DEBUG */
     printf("\"%s\"", STRING_VAL(cell));
+  } else if (PRIMITIVEP(cell)) {
+    printf("PRIMITIVE FUNCTION CELL ");
   } else {
     printf("UNKNOWN CELL %p, %p", CAR(cell), CDR(cell));
   }
 }
 
 void pretty_print(cell_t *cell) {
+  if (NULL == cell) {
+    printf("C-NULL\n");
+    return;
+  }
+
   pp(cell);
   printf("\n");
 }

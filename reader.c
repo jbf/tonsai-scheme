@@ -4,7 +4,7 @@
 #include "symbol.h"
 #include "util.h"
 
-cell_t *read_intern(FILE *stream, symtab_entry_t **symbol_table) {
+cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
   token_t tok;
   cell_t *cell; 
   int ret;
@@ -49,7 +49,7 @@ cell_t *read_intern(FILE *stream, symtab_entry_t **symbol_table) {
   }
 }
 
-cell_t *read_list_intern(FILE *stream, symtab_entry_t **symbol_table) {
+cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
   cell_t *last, *current, *first, *temp;
   token_t tok;
   int ret;

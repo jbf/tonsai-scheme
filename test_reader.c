@@ -7,11 +7,11 @@
 
 int main(int argc, char **argv, char **envp) {
   cell_t *cell;
-  symtab_entry_t *symtab;
+  symbol_table s, *symtab = &s;
 
-  symtab = NULL;
+  init_symbol_table(symtab);
 
-  while ((cell = read_intern(stdin, &symtab))) {
+  while ((cell = read_intern(stdin, symtab))) {
     pretty_print(cell);
   }
 

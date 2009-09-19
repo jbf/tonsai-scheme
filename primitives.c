@@ -2,9 +2,20 @@
 #include "cell.h"
 #include "environment.h"
 #include "eval.h"
+#include "bootstrap.h"
 #include "scheme-utils.h"
 
 int proper_list_of_length(int length, cell_t *lst);
+
+int scheme_to_c_truth(cell_t *c, environ_t *env) {
+  if (NULL == c) return 0; /* error */
+  
+  if (ATOMP(c) && value(env, c) == false_cell) {
+    return FALSE;
+  }
+  
+  return TRUE;
+}
 
 cell_t *prim_if(cell_t *rest, void *e) {
   environ_t *env = (environ_t *)e;
@@ -13,11 +24,11 @@ cell_t *prim_if(cell_t *rest, void *e) {
   if (!proper_list_of_length(3, rest)) return NULL;
 
   pred = evaluate(CAR(rest), env);
-  
-  if(NILP(pred) || FALSEP(pred)) {
-    return evaluate(CADDR(rest), env);
-  } else {
+
+  if(scheme_to_c_truth(pred, env)) {
     return evaluate(CADR(rest), env);
+  } else {
+    return evaluate(CADDR(rest), env);
   }
 }
 

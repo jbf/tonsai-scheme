@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 void init_eval();
-extern symtab_entry_t *global_symtab;
+extern symbol_table *global_symtab;
 extern environ_t *special_forms;
 
 int main(int argc, char **argv, char **envp) {
@@ -16,7 +16,7 @@ int main(int argc, char **argv, char **envp) {
   cell_t *res;
 
   init_eval();
-  while ((cell = read_intern(stdin, &global_symtab))) {
+  while ((cell = read_intern(stdin, global_symtab))) {
     pretty_print(cell);
 
      res = evaluate(cell, special_forms);
