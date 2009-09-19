@@ -1,4 +1,5 @@
-CFLAGS  = -Wall -DDEBUG -g
+DEBUG   = -DDEBUG
+CFLAGS  = -Wall $(DEBUG) -g
 PROGRAM = test_cell test_token test_symbol test_reader \
           test_environment test_primitives test_eval
 SOURCES = $(filter-out test_%,$(wildcard *.c))

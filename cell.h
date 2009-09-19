@@ -28,6 +28,8 @@ typedef enum {
   FUNCTION       = 0b11101, /* 29 */
 } cell_type_t;
 
+struct environ_t;
+
 typedef struct cell_t {
   union {
     cell_type_t type;
@@ -38,7 +40,7 @@ typedef struct cell_t {
     struct symbol_entry_t *symbol;
     unsigned char *string;
     struct cell_t *cdr;
-    struct cell_t *(*prim)(struct cell_t *, void *);
+    struct cell_t *(*prim)(struct cell_t *, struct environ_t *);
   } slot2;
 } cell_t;
 
