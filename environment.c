@@ -81,5 +81,23 @@ cell_t *_value(environ_t *env, symbol_entry_t *sym) {
       return (cell_t *)val_list->value;
     }
   }
-  return NULL;
+  return _value(env->parent, sym);
+}
+
+int extend(environ_t *parent,
+           environ_t *new,
+           cell_t *symbols,
+           cell_t *values) {
+  new->parent = parent;
+  for (symbols, values;
+       NULL != symbols &&
+         !NILP(symbols) && 
+         NULL != values &&
+         !NILP(values);
+       symbols = CDR(symbols),
+         values = CDR(values)) {
+    add_to_environment(new, CAR(symbols), CAR(values));
+  }
+
+  return 1;
 }

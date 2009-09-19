@@ -29,6 +29,7 @@ typedef enum {
 } cell_type_t;
 
 struct environ_t;
+struct function_t;
 
 typedef struct cell_t {
   union {
@@ -41,6 +42,7 @@ typedef struct cell_t {
     unsigned char *string;
     struct cell_t *cdr;
     struct cell_t *(*prim)(struct cell_t *, struct environ_t *);
+    struct function_t *fun;
   } slot2;
 } cell_t;
 
@@ -71,12 +73,8 @@ typedef struct cell_t {
   } while (0)
 
 void print_cell(cell_t *cell);
-
 void pretty_print(cell_t *cell);
-
-#ifndef _CELL_C
-extern cell_t the_false_cell;
-#endif /* _CELL_C */
+void pp(cell_t *cell);
 
 #define NIL &nil_cell
 

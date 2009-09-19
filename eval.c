@@ -8,13 +8,12 @@
 #include "environment.h"
 #include "primitives.h"
 #include "bootstrap.h"
+#include "function.h"
 
 environ_t *special_forms;
 static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
-
-int proper_list_length(cell_t *lst);
 
 cell_t pops[] = {
   {{.type = PRIMITIVE}, {.prim = &prim_if}},
@@ -97,19 +96,6 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
   }
 }
 
-int proper_list_length(cell_t *lst) {
-  int length;
-
-  if (NULL == lst)
-    return -1; /* error */
-
-  for (length = 0;
-       NULL != lst && PAIRP(lst);
-       length++, lst = CDR(lst));
-  
-  return NULL == lst ? -1 : (NILP(lst) ? length : -1);
-}
-
 cell_t *evargs(cell_t *args, environ_t *env) {
   cell_t *argsarray[16];
   int length;
@@ -135,6 +121,25 @@ cell_t *evargs(cell_t *args, environ_t *env) {
 }
 
 cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
-  printf("APPLY ");
-  return nil_cell;
+  int argslen, paramlen;
+  environ_t *new_env;
+  function_t *func = fun->slot2.fun;
+  cell_t *ret;
+  cell_t *code;
+
+  argslen = proper_list_length(args);
+  paramlen = proper_list_length(func->param_list);
+  
+  if (argslen != paramlen) return NULL; /* error */
+
+  create_empty_environment(&new_env);
+  extend(func->lexical_env, new_env, func->param_list, args);
+
+  code = func->code;
+  while (NULL != code && !NILP(code)) {
+    ret = evaluate(CAR(code), new_env);
+    code = CDR(code);
+  }
+
+  return ret;
 }

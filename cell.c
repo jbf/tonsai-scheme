@@ -1,6 +1,5 @@
-#define _CELL_C 1
 #include "cell.h"
-#undef _CELL_C
+#include "function.h"
 
 #include <stdio.h>
 
@@ -30,7 +29,7 @@ void print_cell(cell_t *cell) {
   } else if (PRIMITIVEP(cell)) {
     printf("PRIMITIVE FUNCTION CELL ");
   } else if (FUNCTIONP(cell)) {
-    printf("FUNCTION CELL ");
+    print_fun(cell);
   } else {
     printf("UNKNOWN CELL %p, %p", CAR(cell), CDR(cell));
   }

@@ -15,9 +15,7 @@ int main(int argc, char **argv, char **envp) {
   unsigned char* smbl =(unsigned char *)"QUOTE";
   symbol_entry_t symbol;
 
-  test(proper_list_of_length(0, NULL), 0);
-  test(proper_list_of_length(1, NULL), 0);
-
+  test(proper_list_length(NULL), -1);
 
   c1 = new(cell_t);
   c2 = new(cell_t);
@@ -37,9 +35,7 @@ int main(int argc, char **argv, char **envp) {
 
   CONS(c4, c1, c2);
 
-  test(proper_list_of_length(0, c4), 0);
-  test(proper_list_of_length(1, c4), 0);
-  test(proper_list_of_length(10, c4), 0);
+  test(proper_list_length(c4), -1);
 
   CONS(c4, c1, nil_cell);
   CONS(c3, c1, c4);
@@ -49,14 +45,10 @@ int main(int argc, char **argv, char **envp) {
   pretty_print(c3);
   pretty_print(c2);
   pretty_print(c1);
-  
-  test(proper_list_of_length(0, c4), 0);
-  test(proper_list_of_length(1, c4), TRUE);
-  test(proper_list_of_length(2, c4), FALSE);
-  test(proper_list_of_length(10, c4), FALSE);
 
-  test(proper_list_of_length(2, c3), TRUE);
-  test(proper_list_of_length(3, c2), TRUE);
+  test(proper_list_length(c4), 1);
+  test(proper_list_length(c3), 2);
+  test(proper_list_length(c2), 3);
 
   return 0;
 }

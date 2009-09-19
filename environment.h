@@ -32,4 +32,6 @@ int add_to_environment(environ_t *env, cell_t *symbol, cell_t *value);
  */
 cell_t *value(environ_t *env, cell_t *sym);
 
+int extend(environ_t *parent, environ_t *new, cell_t *symbols, cell_t *values);
+
 #endif /* _ENVIRONMENT_H */

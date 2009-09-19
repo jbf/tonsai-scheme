@@ -4,6 +4,7 @@
 #include "eval.h"
 #include "bootstrap.h"
 #include "scheme-utils.h"
+#include "function.h"
 
 #include <assert.h>
 
@@ -22,7 +23,7 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
 cell_t *prim_if(cell_t *rest, environ_t *env) {
   cell_t *pred;
 
-  if (!proper_list_of_length(3, rest)) return NULL;
+  if (proper_list_length(rest) != 3) return NULL;
 
   pred = evaluate(CAR(rest), env);
   int truth_value = scheme_to_c_truth(pred, env);
@@ -36,19 +37,17 @@ cell_t *prim_if(cell_t *rest, environ_t *env) {
   }
 }
 
-int proper_list_of_length(int length, cell_t *lst) {
-  if (length < 0 || NULL == lst)
-    return 0; /* error */
+int proper_list_length(cell_t *lst) {
+  int length;
 
-  for (;
-       length > 0 && NULL != lst && PAIRP(lst);
-       length--, lst = CDR(lst)) {
-    ;
-  }
+  if (NULL == lst)
+    return -1; /* error */
 
-  if (NULL == lst || length > 0) return FALSE; /* fail */
+  for (length = 0;
+       NULL != lst && PAIRP(lst);
+       length++, lst = CDR(lst));
   
-  return NILP(lst);
+  return NULL == lst ? -1 : (NILP(lst) ? length : -1);
 }
 
 /*
@@ -84,9 +83,24 @@ cell_t *prim_plus(cell_t *rest, environ_t *env) {
 }
 
 cell_t *prim_lambda(cell_t *rest, environ_t *env) {
-  cell_t *tmp = new(cell_t);
+  cell_t *tmp;
+  function_t *fun;
+
+  if (proper_list_length(rest) < 2) return NULL;
+  if (!(NILP(CAR(rest)) || proper_list_length(CAR(rest)) > 0)) return NULL;
+
+  /* asert params only symbols */
+
+  tmp = new(cell_t);
+  fun = new(function_t);
+
+  fun->fun_cell = tmp;
+  fun->lexical_env = env;
+  fun->param_list = CAR(rest);
+  fun->code = CDR(rest);
+
   tmp->slot1.type = FUNCTION;
-  tmp->slot2.i_val = 0;
+  tmp->slot2.fun = fun;
   return tmp;
 }
 

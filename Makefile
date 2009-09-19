@@ -10,20 +10,21 @@ all: $(DEPS) $(OBJECTS) $(PROGRAM)
 
 depend: $(DEPS)
 
-test_cell : cell.o
+test_cell : cell.o function.o
 
 test_token : token.o
 
 test_symbol : symbol.o
 
-test_reader : reader.o cell.o token.o symbol.o
+test_reader : reader.o cell.o token.o symbol.o function.o
 
-test_environment : symbol.o environment.o cell.o bootstrap.o
+test_environment : symbol.o environment.o cell.o bootstrap.o function.o
 
-test_primitives : primitives.o eval.o environment.o symbol.o cell.o bootstrap.o
+test_primitives : primitives.o eval.o environment.o symbol.o cell.o \
+                  bootstrap.o function.o
 
 test_eval : eval.o token.o symbol.o cell.o reader.o primitives.o \
-            environment.o bootstrap.o
+            environment.o bootstrap.o function.o
 
 %.dep: %.c %.h
 	@set -e; rm -f $@; \
