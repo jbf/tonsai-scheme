@@ -35,16 +35,16 @@ void print_cell(cell_t *cell) {
 }
 
 void pretty_print(cell_t *cell) {
-  if (NULL == cell) {
-    printf("C-NULL\n");
-    return;
-  }
-
   pp(cell);
   printf("\n");
 }
 
 void pp(cell_t *cell) {
+  if (NULL == cell) {
+    printf("C-NULL");
+    return;
+  }
+
   if (PAIRP(cell)) {
     printf("(");
     pp_list(cell);

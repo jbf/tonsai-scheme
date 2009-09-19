@@ -118,7 +118,7 @@ int read_plus_minus(FILE *stream,
   next = fgetc(stream);
 
   /* If the next char is a whitespace, the symbol was '+' or '-'. */
-  if(isspace(next) ||
+  if(isstop_pushback(stream, next) ||
      next == EOF) {
     unsigned char *str;
     str = malloc(2);
@@ -216,7 +216,8 @@ int issymb(int c) {
     c == '=' ||
     c == '|' ||
     c == '/' ||
-    c == '*';
+    c == '*' ||
+    c == '#';
 }
 
 /* Peek at next char in 'FILE', return true if we should stop reading this symbol. */
