@@ -8,3 +8,7 @@ test_reader
 /test_environment
 /test_eval
 /test_primitives
+/GPATH
+/GRTAGS
+/GSYMS
+/GTAGS
