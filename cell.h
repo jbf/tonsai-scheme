@@ -76,6 +76,4 @@ void print_cell(cell_t *cell);
 void pretty_print(cell_t *cell);
 void pp(cell_t *cell);
 
-#define NIL &nil_cell
-
 #endif /* _CELL_H */

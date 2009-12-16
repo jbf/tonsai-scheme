@@ -89,7 +89,7 @@ int extend(environ_t *parent,
            cell_t *symbols,
            cell_t *values) {
   new->parent = parent;
-  for (symbols, values;
+  for (;
        NULL != symbols &&
          !NILP(symbols) && 
          NULL != values &&

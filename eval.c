@@ -1,6 +1,4 @@
-#define _EVAL_C 1
 #include "eval.h"
-#undef _EVAL_C
 #include "cell.h"
 #include "symbol.h"
 #include "reader.h"
@@ -14,14 +12,6 @@ environ_t *special_forms;
 static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
-
-cell_t pops[] = {
-  {{.type = PRIMITIVE}, {.prim = &prim_if}},
-  {{.type = PRIMITIVE}, {.prim = &prim_plus}},
-  {{.type = PRIMITIVE}, {.prim = &prim_lambda}},
-  {{.type = PRIMITIVE}, {.prim = &prim_quote}},
-
-};
 
 #ifdef DEBUG
 #define DEBUG_PRINT_AND_RETURN(x)                   \
@@ -43,20 +33,22 @@ cell_t pops[] = {
 #endif /* DEBUG */
 
 void init_eval() {
-  cell_t *s;
   boot(global_symtab, &special_forms);
 
-  s = intern((unsigned char *)"if", global_symtab);
-  add_to_environment(special_forms, s, &pops[0]);
+#define DECLARE_PRIMITIVE(name, prim_op) do {                           \
+    cell_t *s, *v = new(cell_t);                                        \
+    v->slot1.type = PRIMITIVE;                                          \
+    v->slot2.prim = &prim_op;                                           \
+    s = intern((unsigned char *)name, global_symtab);                   \
+    add_to_environment(special_forms, s, v);                            \
+  } while (0)
 
-  s = intern((unsigned char *)"+", global_symtab);
-  add_to_environment(special_forms, s, &pops[1]);
+  DECLARE_PRIMITIVE("if", prim_if);
+  DECLARE_PRIMITIVE("+", prim_plus);
+  DECLARE_PRIMITIVE("lambda", prim_lambda);
+  DECLARE_PRIMITIVE("quote", prim_quote);
 
-  s = intern((unsigned char *)"lambda", global_symtab);
-  add_to_environment(special_forms, s, &pops[2]);
-
-  s = intern((unsigned char *)"quote", global_symtab);
-  add_to_environment(special_forms, s, &pops[3]);
+#undef DECLARE_PRIMITIVE
 }
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {

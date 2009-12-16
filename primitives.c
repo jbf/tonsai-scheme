@@ -57,8 +57,9 @@ int list_of(cell_type_t type, cell_t *lst) {
   assert(type != PAYLOAD_SYMBOL);
   if (NULL == lst) return -1;
   
-  for (lst; lst != NULL && PAIRP(lst); lst = CDR(lst))
+  for (; lst != NULL && PAIRP(lst); lst = CDR(lst)) {
     if (!(CAR(lst) != NULL && CAR(lst)->slot1.type == type)) return 0;
+  }
 
   return 1;
 }
@@ -73,8 +74,9 @@ cell_t *prim_plus(cell_t *rest, environ_t *env) {
     int tmp = 0;
     cell_t *rc = new(cell_t);
 
-    for (args; args != NULL && PAIRP(args); args = CDR(args))
+    for (; args != NULL && PAIRP(args); args = CDR(args)) {
       tmp += I_VAL(CAR(args));
+    }
 
     rc->slot1.type = PAYLOAD_NUMBER;
     rc->slot2.i_val = tmp;
