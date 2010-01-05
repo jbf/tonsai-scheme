@@ -1,8 +1,8 @@
 #include <assert.h>
 
 #include "environment.h"
-#include "errors.h"
 #include "symbol.h"
+#include "errors.h"
 
 int alloc_sym_value_pair(value_container_t **sym, value_container_t **val);
 cell_t *_value(environ_t *env, symbol_entry_t *sym);

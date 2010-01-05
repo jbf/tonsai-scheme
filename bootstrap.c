@@ -4,6 +4,7 @@
 
 #include "cell.h"
 #include "symbol.h"
+#include "errors.h"
 
 static cell_t nil_c;
 static cell_t false_c;

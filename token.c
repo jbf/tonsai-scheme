@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "errors.h"
+
 int read_plus_minus(FILE *stream, int first, int index, unsigned char token_string[], token_t *tok);
 int readstring(FILE *stream, int index, unsigned char token_string[], token_t *tok);
 int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *tok);
@@ -54,7 +56,6 @@ int get_token(FILE *stream, token_t *tok) {
     /* '-' and '+' need lookahead, thus special treatment. */
     if(c == '-' ||
        c == '+') {
-
        return read_plus_minus(stream, c, token_index, token, tok);
     }
 
@@ -68,6 +69,17 @@ int get_token(FILE *stream, token_t *tok) {
       token[token_index] = (unsigned char)c;
       token_index++;
       return readnumber(stream, token_index, token, tok);
+    }
+
+    if(c == '0') {
+      int next = fgetc(stream);
+      if (isstop_pushback(stream, next)) {
+        tok->type = TOKEN_NUMBER;
+        tok->i_val = 0;
+        return TOKEN_OK;
+      } else {
+        return ERROR_MALFORMED_NUMBER;
+      }
     }
 
     /* Se above. */
@@ -116,7 +128,7 @@ int read_plus_minus(FILE *stream,
   int next;
 
   next = fgetc(stream);
-
+  
   /* If the next char is a whitespace, the symbol was '+' or '-'. */
   if(isstop_pushback(stream, next) ||
      next == EOF) {
@@ -248,7 +260,7 @@ int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *t
       tok->type = TOKEN_NUMBER;
       tok->i_val = strtol((const char *)token_string, &end, 10);
 
-      if (tok->i_val == LONG_MAX) {
+      if (tok->i_val == INT32_MAX) {
         char * long_max_string = "2147483647";
         char *start;
 
@@ -265,7 +277,7 @@ int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *t
         }
       }
 
-      if (tok->i_val == LONG_MIN) {
+      if (tok->i_val == INT32_MIN) {
         char * long_min_string = "-2147483648";
 
         if (strncmp(long_min_string, (const char *)token_string, index+1)) {

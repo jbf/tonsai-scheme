@@ -1,8 +1,6 @@
 #ifndef _TOKEN_H
 #define _TOKEN_H 1
 
-#include "errors.h"
-
 #include <stdint.h>
 #include <stdio.h>
 

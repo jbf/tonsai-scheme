@@ -1,6 +1,5 @@
 #include "symbol.h"
 #include "util.h"
-#include "error.h"
 #include "cell.h"
 
 #include <string.h>
