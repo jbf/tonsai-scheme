@@ -36,7 +36,7 @@ test_eval : eval.o token.o symbol.o cell.o reader.o primitives.o \
 .PHONY: clean
 
 clean:
-	-rm -f -- *.o *.dep *~ core a.out test_token test_cell test_reader \
+	-rm -f -- *.o *.dep *.dep.* *~ core a.out test_token test_cell test_reader \
         test_symbol test_environment test_eval test_primitives
 
 include $(SOURCES:.c=.dep)
