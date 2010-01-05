@@ -1,7 +1,6 @@
 #ifndef _CELL_H
 #define _CELL_H 1
 
-#include "errors.h"
 #include "symbol.h"
 
 #include <stdint.h>
@@ -20,12 +19,12 @@
  */
 
 typedef enum {
-  PAYLOAD_SYMBOL = 0b00011, /*  3 */
-  PAYLOAD_NIL    = 0b00111, /*  7 */
-  PAYLOAD_STRING = 0b00101, /*  5 */
-  PAYLOAD_NUMBER = 0b01101, /* 13 */
-  PRIMITIVE      = 0b10101, /* 21 */
-  FUNCTION       = 0b11101, /* 29 */
+  PAYLOAD_SYMBOL = 3,
+  PAYLOAD_NIL    = 7,
+  PAYLOAD_STRING = 5,
+  PAYLOAD_NUMBER = 13,
+  PRIMITIVE      = 21,
+  FUNCTION       = 29,
 } cell_type_t;
 
 struct environ_t;
