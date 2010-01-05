@@ -15,8 +15,9 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
   
   if (ATOMP(c) && value(env, c) == false_cell) {
     return FALSE;
+  } else if (ATOMP(c) && value(env, c) == nil_cell) {
+    return FALSE;
   }
-  
   return TRUE;
 }
 
