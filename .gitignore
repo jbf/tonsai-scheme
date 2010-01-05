@@ -5,6 +5,8 @@ test_cell
 test_symbol
 test_reader
 *.dep
+*.dep.*
+*.dSYM
 /test_environment
 /test_eval
 /test_primitives
