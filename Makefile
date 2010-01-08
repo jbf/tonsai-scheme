@@ -38,5 +38,6 @@ test_eval : eval.o token.o symbol.o cell.o reader.o primitives.o \
 clean:
 	-rm -f -- *.o *.dep *.dep.* *~ core a.out test_token test_cell test_reader \
         test_symbol test_environment test_eval test_primitives
+	-rm -rf -- *.dSYM
 
 include $(SOURCES:.c=.dep)
