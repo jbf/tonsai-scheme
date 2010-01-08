@@ -2,6 +2,7 @@
 #define __UTIL_H 1
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #define new(type) ((type *)malloc(sizeof(type)/sizeof(char)))
 
@@ -33,5 +34,13 @@ typedef struct value_container_t {
 #ifndef NULL
 #define NULL (void *)0
 #endif /* NULL */
+
+#define QUOTEME_(x) #x
+#define QUOTEME(x) QUOTEME_(x)
+
+#define WHERESTR  "[file %s, line %d]: "
+#define WHEREARG  __FILE__, __LINE__
+#define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__)
+#define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG, __VA_ARGS__)
 
 #endif /* __UTIL_H */

@@ -38,7 +38,11 @@ int fill_initial_environment(environ_t *env) {
   return ENV_CREATED_OK;
 }
 
+/*
+ * push is defined in symbol.c why do I do this?
+*/
 int push(symbol_table *tab, symbol_entry_t *s);
+
 int boot(symbol_table *tab, environ_t **env) {
   init_symbol_table(tab);
   push(tab, &nil_s);

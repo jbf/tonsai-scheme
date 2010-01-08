@@ -9,9 +9,11 @@
 #include "function.h"
 
 environ_t *special_forms;
+environ_t *toplevel;
 static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
+cell_t *find_value(environ_t *env, cell_t *sym);
 
 #ifdef DEBUG
 #define DEBUG_PRINT_AND_RETURN(x)                   \
@@ -22,8 +24,26 @@ int __tl_eval_level = 0;
     --__tl_eval_level;                              \
     return __my_ret;                                \
   } while (0)
+#define DEBUG_PRIM_PRINT_AND_RETURN(x)                   \
+  do {                                                   \
+    cell_t *__my_ret = (x);                              \
+    printf("Primitive (%d) returns: ", __tl_eval_level); \
+    pretty_print(__my_ret);                              \
+    --__tl_eval_level;                                   \
+    return __my_ret;                                     \
+  } while (0)
+#define DEBUG_INVOKE_PRINT_AND_RETURN(x)              \
+  do {                                                \
+    cell_t *__my_ret = (x);                           \
+    printf("Invoke (%d) returns: ", __tl_eval_level); \
+    pretty_print(__my_ret);                           \
+    --__tl_eval_level;                                \
+    return __my_ret;                                  \
+  } while (0)
 #else
 #define DEBUG_PRINT_AND_RETURN(x) do {--__tl_eval_level; return(x);} while (0)
+#define DEBUG_PRIM_PRINT_AND_RETURN(x) do {--__tl_eval_level; return(x);} while (0)  
+#define DEBUG_INVOKE_PRINT_AND_RETURN(x) do {--__tl_eval_level; return(x);} while (0)
 #endif /* DEBUG */
 
 #ifdef DEBUG
@@ -34,6 +54,7 @@ int __tl_eval_level = 0;
 
 void init_eval() {
   boot(global_symtab, &special_forms);
+  create_empty_environment(&toplevel);
 
 #define DECLARE_PRIMITIVE(name, prim_op) do {                           \
     cell_t *s, *v = new(cell_t);                                        \
@@ -47,6 +68,7 @@ void init_eval() {
   DECLARE_PRIMITIVE("+", prim_plus);
   DECLARE_PRIMITIVE("lambda", prim_lambda);
   DECLARE_PRIMITIVE("quote", prim_quote);
+  DECLARE_PRIMITIVE("define", prim_define);
 
 #undef DECLARE_PRIMITIVE
 }
@@ -64,7 +86,7 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
     DEBUG_PRINT_AND_RETURN(nil_cell);
   } else if (ATOMP(exp)) {
     if (SYMBOLP(exp)) {
-      DEBUG_PRINT_AND_RETURN(value(env, exp));
+      DEBUG_PRINT_AND_RETURN(find_value(env, exp));
     } else if (STRINGP(exp) || NUMBERP(exp)) {
       DEBUG_PRINT_AND_RETURN(exp);
     } else {
@@ -74,14 +96,21 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
   } else { /* list */
     cell_t *first = evaluate(CAR(exp), env);
     cell_t *rest = CDR(exp);
+    
+#ifdef DEBUG
+    printf("First is: ");
+    pretty_print(first);
+    printf("Rest is: ");
+    pretty_print(rest);
+#endif /* DEBUG */
 
     if (NULL == first) {
       DEBUG_PRINT_AND_RETURN(NULL);
     } else if (PRIMITIVEP(first)) {
       cell_t *(*f)(cell_t *, environ_t *) = CELL_PRIMITIVE(first);
-      DEBUG_PRINT_AND_RETURN((*f)(rest, env));
+      DEBUG_PRIM_PRINT_AND_RETURN((*f)(rest, env));
     } else if (FUNCTIONP(first)) { /* function call */
-      DEBUG_PRINT_AND_RETURN(invoke(first, rest, env));
+      DEBUG_INVOKE_PRINT_AND_RETURN(invoke(first, evargs(rest, env), env));
     }
       --__tl_eval_level;
       return NULL; /* Not primitive or funcall, error.*/
@@ -134,4 +163,23 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
   }
 
   return ret;
+}
+
+cell_t *find_value(environ_t *env, cell_t *sym) {
+  cell_t *ct = value(special_forms, sym);
+  DEBUGPRINT("In special forms, sym is %p\n", ct);
+
+  if (ct) {
+    return ct;
+  }
+
+  ct = value(env, sym);
+  DEBUGPRINT("In env, sym is %p\n", ct);
+  
+  if (NULL == ct) {
+    DEBUGPRINT("In toplevel, sym is %p\n", value(toplevel, sym));
+    return value(toplevel, sym);
+  }
+  
+  return ct;
 }
