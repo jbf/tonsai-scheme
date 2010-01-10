@@ -3,6 +3,7 @@
 
 #include "cell.h"
 #include "environment.h"
+#include "repl.h"
 
 typedef struct primitive_t {
   unsigned char *name;

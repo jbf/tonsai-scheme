@@ -1,7 +1,7 @@
 DEBUG   = -DDEBUG
 CFLAGS  = -Wall $(DEBUG) -g
 PROGRAM = test_cell test_token test_symbol test_reader \
-          test_environment test_primitives test_eval
+          test_environment test_primitives repl
 SOURCES = $(filter-out test_%,$(wildcard *.c))
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
@@ -23,8 +23,8 @@ test_environment : symbol.o environment.o cell.o bootstrap.o function.o
 test_primitives : primitives.o eval.o environment.o symbol.o cell.o \
                   bootstrap.o function.o
 
-test_eval : eval.o token.o symbol.o cell.o reader.o primitives.o \
-            environment.o bootstrap.o function.o
+repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
+       environment.o bootstrap.o function.o
 
 %.dep: %.c %.h
 	@set -e; rm -f $@; \
@@ -37,7 +37,7 @@ test_eval : eval.o token.o symbol.o cell.o reader.o primitives.o \
 
 clean:
 	-rm -f -- *.o *.dep *.dep.* *~ core a.out test_token test_cell test_reader \
-        test_symbol test_environment test_eval test_primitives
+        test_symbol test_environment test_eval test_primitives repl
 	-rm -rf -- *.dSYM
 
 include $(SOURCES:.c=.dep)

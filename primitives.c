@@ -6,9 +6,15 @@
 #include "scheme-utils.h"
 #include "function.h"
 
+#include <setjmp.h>
 #include <assert.h>
 
 int proper_list_of_length(int length, cell_t *lst);
+jmp_buf __jmp_env;
+
+#ifndef GOTO_TOPLEVEL
+#define GOTO_TOPLEVEL() longjmp(__jmp_env, 1)
+#endif /* GOTO_TOPLEVEL */
 
 /*
  * Helpers.
@@ -126,7 +132,6 @@ cell_t *prim_quote(cell_t *rest, environ_t *env) {
  * toplevel and restart repl.
  */
 cell_t *prim_error(cell_t *rest, environ_t *env) {
-#define GOTO_TOPLEVEL(x)
   if (proper_list_length(rest) != 1) return NULL;
   if (STRINGP(CAR(rest))) {
     printf("error: ");
