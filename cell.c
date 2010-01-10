@@ -56,10 +56,15 @@ void pp(cell_t *cell) {
 }
 
 void pp_list(cell_t *cell) {
+  if (NULL != cell && PAIRP(cell)) {
+      pp(CAR(cell));
+      cell = CDR(cell);
+  }
+
   while (!NILP(cell)) {
     if (PAIRP(cell)) {
-      pp(CAR(cell));
       printf(" ");
+      pp(CAR(cell));
       cell = CDR(cell);
     } else {
       printf("ERROR in list\n");
