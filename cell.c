@@ -1,5 +1,6 @@
 #include "cell.h"
 #include "function.h"
+#include "primitives.h"
 
 #include <stdio.h>
 
@@ -27,7 +28,7 @@ void print_cell(cell_t *cell) {
 #endif /* DEBUG */
     printf("\"%s\"", STRING_VAL(cell));
   } else if (PRIMITIVEP(cell)) {
-    printf("PRIMITIVE FUNCTION CELL ");
+    printf("PRIMITIVE FUNCTION CELL %s ", CELL_PRIMITIVE_NAME(cell));
   } else if (FUNCTIONP(cell)) {
     print_fun(cell);
   } else {

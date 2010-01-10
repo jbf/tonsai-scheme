@@ -29,6 +29,7 @@ typedef enum {
 
 struct environ_t;
 struct function_t;
+struct primitive_t;
 
 typedef struct cell_t {
   union {
@@ -40,7 +41,7 @@ typedef struct cell_t {
     struct symbol_entry_t *symbol;
     unsigned char *string;
     struct cell_t *cdr;
-    struct cell_t *(*prim)(struct cell_t *, struct environ_t *);
+    struct primitive_t *prim;
     struct function_t *fun;
   } slot2;
 } cell_t;
@@ -61,7 +62,6 @@ typedef struct cell_t {
 #define CELL_SYMBOL(c) ((c)->slot2.symbol)
 #define I_VAL(c) ((c)->slot2.i_val)
 #define STRING_VAL(c) ((c)->slot2.string)
-#define CELL_PRIMITIVE(c) ((c)->slot2.prim);
 
 /* Constructor. */
 #define CONS(target, src1, src2)   \

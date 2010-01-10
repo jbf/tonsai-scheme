@@ -56,11 +56,15 @@ void init_eval() {
   boot(global_symtab, &special_forms);
   create_empty_environment(&toplevel);
 
-#define DECLARE_PRIMITIVE(name, prim_op) do {                           \
+#define DECLARE_PRIMITIVE(n, prim_op) do {                              \
     cell_t *s, *v = new(cell_t);                                        \
+    primitive_t *p = new(primitive_t);                                  \
+                                                                        \
+    p->fun = &prim_op;                                                  \
+    p->name = (unsigned char *)n;                                       \
     v->slot1.type = PRIMITIVE;                                          \
-    v->slot2.prim = &prim_op;                                           \
-    s = intern((unsigned char *)name, global_symtab);                   \
+    v->slot2.prim = p;                                                  \
+    s = intern((unsigned char *)n, global_symtab);                      \
     add_to_environment(special_forms, s, v);                            \
   } while (0)
 
