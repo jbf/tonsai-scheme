@@ -118,6 +118,31 @@ cell_t *prim_quote(cell_t *rest, environ_t *env) {
   return rest;
 }
 
+/*
+ * (error "string") or (error (form)) where 'form' must evalutate to a
+ * string.
+ *
+ * When properly implemented, this primitive won't return, but longjump to
+ * toplevel and restart repl.
+ */
+cell_t *prim_error(cell_t *rest, environ_t *env) {
+#define GOTO_TOPLEVEL(x)
+  if (proper_list_length(rest) != 1) return NULL;
+  if (STRINGP(CAR(rest))) {
+    printf("error: ");
+    pretty_print(CAR(rest));
+    GOTO_TOPLEVEL();
+  } else {
+    cell_t *tmp;
+    tmp = evaluate(CAR(rest), env);
+    if (!STRINGP(tmp)) return NULL;
+    printf("error: ");
+    pretty_print(tmp);
+    GOTO_TOPLEVEL();
+  }
+  return NULL;
+}
+
 extern int __tl_eval_level;
 extern environ_t *toplevel;
 cell_t *prim_define(cell_t *rest, environ_t *env) {

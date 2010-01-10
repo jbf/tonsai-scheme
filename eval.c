@@ -69,8 +69,7 @@ void init_eval() {
   DECLARE_PRIMITIVE("lambda", prim_lambda);
   DECLARE_PRIMITIVE("quote", prim_quote);
   DECLARE_PRIMITIVE("define", prim_define);
-
-#undef DECLARE_PRIMITIVE
+  DECLARE_PRIMITIVE("error", prim_error);
 }
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {
