@@ -2,19 +2,15 @@
 #include "cell.h"
 #include "environment.h"
 #include "eval.h"
+#include "errors.h"
 #include "bootstrap.h"
 #include "scheme-utils.h"
 #include "function.h"
 
-#include <setjmp.h>
 #include <assert.h>
 
 int proper_list_of_length(int length, cell_t *lst);
-jmp_buf __jmp_env;
-
-#ifndef GOTO_TOPLEVEL
-#define GOTO_TOPLEVEL() longjmp(__jmp_env, 1)
-#endif /* GOTO_TOPLEVEL */
+void inner_prim_error(cell_t *string_cell);
 
 /*
  * Helpers.
@@ -132,20 +128,36 @@ cell_t *prim_quote(cell_t *rest, environ_t *env) {
  * toplevel and restart repl.
  */
 cell_t *prim_error(cell_t *rest, environ_t *env) {
-  if (proper_list_length(rest) != 1) return NULL;
-  if (STRINGP(CAR(rest))) {
-    printf("error: ");
-    pretty_print(CAR(rest));
+  /*
+   * (error ...) must be a form of two elements, error and a second element
+   * evalutaing to a string.
+   */
+  if (proper_list_length(rest) != 1) {
+    DEBUGPRINT("rest=%p is not a proper list of length 1.\n", rest);
+    pretty_print(rest);
     GOTO_TOPLEVEL();
+  }
+  
+  if (STRINGP(CAR(rest))) {
+    inner_prim_error(CAR(rest));
   } else {
     cell_t *tmp;
     tmp = evaluate(CAR(rest), env);
-    if (!STRINGP(tmp)) return NULL;
-    printf("error: ");
-    pretty_print(tmp);
-    GOTO_TOPLEVEL();
+    if (STRINGP(tmp)) {
+      inner_prim_error(tmp);
+    }
   }
-  return NULL;
+  
+  DEBUGPRINT_("Not a valid error form.\n");
+  pretty_print(rest);
+  GOTO_TOPLEVEL();
+  return NULL; /* unreachable */
+}
+
+void inner_prim_error(cell_t *string_cell) {
+    printf("error: ");
+    pretty_print(string_cell);
+    GOTO_TOPLEVEL();
 }
 
 extern int __tl_eval_level;

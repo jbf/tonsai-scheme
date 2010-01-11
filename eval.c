@@ -7,12 +7,15 @@
 #include "primitives.h"
 #include "bootstrap.h"
 #include "function.h"
+#include "errors.h"
 
 environ_t *special_forms;
 environ_t *toplevel;
 static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
+cell_t *orig_sexpr;
+
 cell_t *find_value(environ_t *env, cell_t *sym);
 
 #ifdef DEBUG
@@ -93,8 +96,9 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
     } else if (STRINGP(exp) || NUMBERP(exp)) {
       DEBUG_PRINT_AND_RETURN(exp);
     } else {
-      --__tl_eval_level;
-      return NULL; /* error */
+      DEBUGPRINT_("Expression not valid.\n");
+      GOTO_TOPLEVEL();
+      return NULL; /* unreachable */
     }
   } else { /* list */
     cell_t *first = evaluate(CAR(exp), env);
@@ -171,18 +175,22 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
 cell_t *find_value(environ_t *env, cell_t *sym) {
   cell_t *ct = value(special_forms, sym);
   DEBUGPRINT("In special forms, sym is %p\n", ct);
-
   if (ct) {
     return ct;
   }
 
   ct = value(env, sym);
   DEBUGPRINT("In env, sym is %p\n", ct);
-  
-  if (NULL == ct) {
-    DEBUGPRINT("In toplevel, sym is %p\n", value(toplevel, sym));
-    return value(toplevel, sym);
+  if (ct) {
+    return ct;
   }
-  
-  return ct;
+ 
+  value(toplevel, sym);
+  DEBUGPRINT("In toplevel, sym is %p\n", value(toplevel, sym));
+  if (ct) {
+    return ct;
+  }
+
+  DEBUGPRINT_("Value not bound.\n");
+  GOTO_TOPLEVEL();
 }

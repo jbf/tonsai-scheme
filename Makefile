@@ -18,13 +18,15 @@ test_symbol : symbol.o
 
 test_reader : reader.o cell.o token.o symbol.o function.o
 
-test_environment : symbol.o environment.o cell.o bootstrap.o function.o
+test_environment : symbol.o environment.o cell.o bootstrap.o function.o \
+                   errors.o
 
 test_primitives : primitives.o eval.o environment.o symbol.o cell.o \
-                  bootstrap.o function.o
+                  bootstrap.o function.o errors.o
 
 repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
-       environment.o bootstrap.o function.o
+       environment.o bootstrap.o function.o errors.o
+
 
 %.dep: %.c %.h
 	@set -e; rm -f $@; \

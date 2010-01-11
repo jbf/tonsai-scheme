@@ -66,8 +66,12 @@ cell_t *_value(environ_t *env, symbol_entry_t *sym) {
   value_container_t *sym_list;
   value_container_t *val_list;
 
-  if (NULL == env || NULL == sym) {
-    return NULL;
+  if (NULL == env) return NULL; /* not found */
+
+  if (NULL == sym) {
+    DEBUGPRINT("sym=%p\n", sym);
+    vm_exit();
+    return NULL; /* unreachable */
   }
   
   for (sym_list = env->symbols, val_list = env->values;

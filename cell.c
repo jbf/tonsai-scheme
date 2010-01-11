@@ -10,6 +10,8 @@ void pp(cell_t *cell);
 void print_cell(cell_t *cell) {
   if (NULL == cell) {
     printf ("C-NULL");
+  } else if (NILP(cell)) {
+    printf("NIL");
   } else if (PAIRP(cell)) {
     printf("PAIR");
   } else if (SYMBOLP(cell)) {
