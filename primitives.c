@@ -11,6 +11,7 @@
 
 int proper_list_of_length(int length, cell_t *lst);
 void inner_prim_error(cell_t *string_cell);
+void string_error(const char *err_msg);
 
 /*
  * Helpers.
@@ -26,17 +27,53 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
   }
   return TRUE;
 }
+
+/*
+ * Checks that 'lst' is a proper list, and not cyclic.
+ *
+ * returns:
+ * -1 if lst is NULL
+ * -2 if lst i a cyclic list
+ * -3 if lst is not a list
+ * -4 if lst is not a proper list (ie not NIL as last elem)
+ * -5 if last elem is a NULL-pointer
+ */
 int proper_list_length(cell_t *lst) {
-  int length;
+  int length = 1;
+  cell_t *runner = lst;
 
   if (NULL == lst)
     return -1; /* error */
 
-  for (length = 0;
-       NULL != lst && PAIRP(lst);
-       length++, lst = CDR(lst));
-  
-  return NULL == lst ? -1 : (NILP(lst) ? length : -1);
+  if (PAIRP(lst)) {
+    if (NILP(CDR(lst))) {
+      return length; /* single cell*/
+    } else {
+      runner = CDR(lst);
+    }
+  } else {
+    return -3; /* not a list */
+  }
+
+  while(NULL != lst &&
+        NULL != runner) {
+    if (runner == lst) return -2; /* cyclic list */
+    if (PAIRP(runner)) { /* safe to step both one step */
+      runner = CDR(runner);
+      lst = CDR(lst);
+      length++;
+      
+      if (NULL != runner && PAIRP(runner)) { /* second step */
+        runner = CDR(runner);
+        length++;
+      }
+    } else if (NILP(runner)) { /* proper list, return lenght */
+      return length;
+    } else { /* improper list, return -1 */
+      return -4;
+    }
+  }
+  return -5;
 }
 
 /*
@@ -117,24 +154,31 @@ cell_t *prim_lambda(cell_t *rest, environ_t *env) {
 }
 
 cell_t *prim_quote(cell_t *rest, environ_t *env) {
-  return rest;
+  if (PAIRP(rest) && proper_list_length(rest) == 1) { 
+    return CAR(rest);
+  } else {
+    string_error("malformed quote.");
+    GOTO_TOPLEVEL();
+    return NULL; /* unreachable */
+  }
 }
 
 /*
- * (error "string") or (error (form)) where 'form' must evalutate to a
- * string.
+ * (error "string") or (error (form)) where 'form' must be printable.
  *
  * When properly implemented, this primitive won't return, but longjump to
  * toplevel and restart repl.
  */
 cell_t *prim_error(cell_t *rest, environ_t *env) {
+  int arity = 0;
   /*
-   * (error ...) must be a form of two elements, error and a second element
-   * evalutaing to a string.
+   * (error ...) must be a form of two elements, error and a second
+   * printable element.
    */
   if (proper_list_length(rest) != 1) {
     DEBUGPRINT("rest=%p is not a proper list of length 1.\n", rest);
-    pretty_print(rest);
+    if (0 != arity) { pretty_print(rest); }
+    printf("error: wrong arity in call to (error ...)\n");
     GOTO_TOPLEVEL();
   }
   
@@ -143,9 +187,9 @@ cell_t *prim_error(cell_t *rest, environ_t *env) {
   } else {
     cell_t *tmp;
     tmp = evaluate(CAR(rest), env);
-    if (STRINGP(tmp)) {
-      inner_prim_error(tmp);
-    }
+    printf("error: ");
+    pretty_print(tmp);
+    GOTO_TOPLEVEL();
   }
   
   DEBUGPRINT_("Not a valid error form.\n");
@@ -155,9 +199,14 @@ cell_t *prim_error(cell_t *rest, environ_t *env) {
 }
 
 void inner_prim_error(cell_t *string_cell) {
-    printf("error: ");
-    pretty_print(string_cell);
-    GOTO_TOPLEVEL();
+  printf("error: ");
+  pretty_print(string_cell);
+  GOTO_TOPLEVEL();
+}
+
+void string_error(const char *err_msg) {
+  printf("error: %s\n", err_msg);
+  GOTO_TOPLEVEL();
 }
 
 extern int __tl_eval_level;

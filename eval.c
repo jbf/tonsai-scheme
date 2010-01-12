@@ -18,7 +18,7 @@ cell_t *orig_sexpr;
 
 cell_t *find_value(environ_t *env, cell_t *sym);
 
-#ifdef DEBUG
+#ifdef EVAL_DEBUG
 #define DEBUG_PRINT_AND_RETURN(x)                   \
   do {                                              \
     cell_t *__my_ret = (x);                         \

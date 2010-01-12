@@ -7,6 +7,8 @@
 void pp_list(cell_t *cell);
 void pp(cell_t *cell);
 
+#undef PP_DEBUG
+
 void print_cell(cell_t *cell) {
   if (NULL == cell) {
     printf ("C-NULL");
@@ -15,19 +17,19 @@ void print_cell(cell_t *cell) {
   } else if (PAIRP(cell)) {
     printf("PAIR");
   } else if (SYMBOLP(cell)) {
-#ifdef DEBUG
+#ifdef PP_DEBUG
     printf("SYMBOL ");
-#endif /* DEBUG */
+#endif /* PP_DEBUG */
     printf("%s", SYMBOL_NAME(CELL_SYMBOL(cell)));
   } else if (NUMBERP(cell)) {
-#ifdef DEBUG
+#ifdef PP_DEBUG
     printf("NUMBER ");
-#endif /* DEBUG */
+#endif /* PP_DEBUG */
     printf("%d", I_VAL(cell));
   } else if (STRINGP(cell)) {
-#ifdef DEBUG
+#ifdef PP_DEBUG
     printf("STRING ");
-#endif /* DEBUG */
+#endif /* PP_DEBUG */
     printf("\"%s\"", STRING_VAL(cell));
   } else if (PRIMITIVEP(cell)) {
     printf("PRIMITIVE FUNCTION CELL %s ", CELL_PRIMITIVE_NAME(cell));
