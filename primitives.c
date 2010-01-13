@@ -32,6 +32,8 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
  * Checks that 'lst' is a proper list, and not cyclic.
  *
  * returns:
+ * length for a list
+ * 0 for a 0-length list (NIL)
  * -1 if lst is NULL
  * -2 if lst i a cyclic list
  * -3 if lst is not a list
@@ -44,6 +46,10 @@ int proper_list_length(cell_t *lst) {
 
   if (NULL == lst)
     return -1; /* error */
+
+  if (NILP(lst)) {
+    return 0;
+  }
 
   if (PAIRP(lst)) {
     if (NILP(CDR(lst))) {
@@ -93,6 +99,27 @@ int list_of(cell_type_t type, cell_t *lst) {
 /*
  * Primitives.
  */
+cell_t *prim_length(cell_t *rest, environ_t *env) {
+  cell_t *tmp;
+  int length;
+
+  if (proper_list_length(rest) != 1) {
+    string_error("wrong arity in call to (length ...) expected 1 argument of type list.");
+  }
+
+  tmp = evaluate(CAR(rest), env);
+  length = proper_list_length(tmp);
+  if (length >= 0) {
+    tmp = new(cell_t);
+    tmp->slot1.type = PAYLOAD_NUMBER;
+    tmp->slot2.i_val = length;
+    return tmp;
+  } else {
+    string_error("not a proper list.");
+  }
+  return NULL; /* unreachable */
+}
+
 cell_t *prim_plus(cell_t *rest, environ_t *env) {
   cell_t *args = evargs(rest, env);
   int ok = list_of(PAYLOAD_NUMBER, args);

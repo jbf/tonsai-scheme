@@ -77,6 +77,7 @@ void init_eval() {
   DECLARE_PRIMITIVE("quote", prim_quote);
   DECLARE_PRIMITIVE("define", prim_define);
   DECLARE_PRIMITIVE("error", prim_error);
+  DECLARE_PRIMITIVE("length", prim_length);
 }
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {
