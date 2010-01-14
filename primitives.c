@@ -242,11 +242,17 @@ cell_t *prim_define(cell_t *rest, environ_t *env) {
   cell_t *val;
   
   /* Rest must be a symbol and an expression. */
-  if (proper_list_length(rest) != 2) return NULL;
-  if (!SYMBOLP(CAR(rest))) return NULL;
-
+  if (proper_list_length(rest) != 2) {
+    string_error("wrong arity in call to (define ...).");
+  }
+  if (!SYMBOLP(CAR(rest))) {
+    string_error("1:st argument to 'define' must evaluate to a symbol.");
+  }
+  
   /* Can only define at toplevel. */
-  if (__tl_eval_level != 1) return NULL;
+  if (__tl_eval_level != 1) {
+    string_error("(define ...) only at toplevel.");
+  }
   
   val = evaluate(CADR(rest), env);
   add_to_environment(toplevel, CAR(rest), val);

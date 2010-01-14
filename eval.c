@@ -44,9 +44,24 @@ cell_t *find_value(environ_t *env, cell_t *sym);
     return __my_ret;                                  \
   } while (0)
 #else
-#define DEBUG_PRINT_AND_RETURN(x) do {--__tl_eval_level; return(x);} while (0)
-#define DEBUG_PRIM_PRINT_AND_RETURN(x) do {--__tl_eval_level; return(x);} while (0)  
-#define DEBUG_INVOKE_PRINT_AND_RETURN(x) do {--__tl_eval_level; return(x);} while (0)
+#define DEBUG_PRINT_AND_RETURN(x) \
+  do {                            \
+    cell_t *__my_ret = (x);       \
+    --__tl_eval_level;            \
+    return(__my_ret);             \
+  } while (0)
+#define DEBUG_PRIM_PRINT_AND_RETURN(x) \
+  do {                                 \
+    cell_t *__my_ret = (x);            \
+    --__tl_eval_level;                 \
+    return(__my_ret);                  \
+  } while (0)  
+#define DEBUG_INVOKE_PRINT_AND_RETURN(x) \
+  do {                                   \
+  cell_t *__my_ret = (x);                \
+  --__tl_eval_level;                     \
+  return(__my_ret);                      \
+} while (0)
 #endif /* DEBUG */
 
 #ifdef DEBUG
@@ -186,8 +201,8 @@ cell_t *find_value(environ_t *env, cell_t *sym) {
     return ct;
   }
  
-  value(toplevel, sym);
-  DEBUGPRINT("In toplevel, sym is %p\n", value(toplevel, sym));
+  ct = value(toplevel, sym);
+  DEBUGPRINT("In toplevel, sym is %p\n", ct);
   if (ct) {
     return ct;
   }

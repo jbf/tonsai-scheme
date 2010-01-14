@@ -27,7 +27,12 @@ int main(int argc, char **argv, char **envp) {
   while ((cell = read_intern(stdin, global_symtab))) {
     orig_sexpr = cell;
     res = evaluate(cell, special_forms);
-    if (res) pretty_print(res);
+    if (res) {
+      pretty_print(res);
+    } else {
+      printf("Got NULL from eval of: ");
+      pretty_print(orig_sexpr);
+    }
     orig_sexpr = NULL;
   }
 
