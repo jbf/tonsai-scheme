@@ -9,7 +9,6 @@
 
 #include <assert.h>
 
-int proper_list_of_length(int length, cell_t *lst);
 void inner_prim_error(cell_t *string_cell);
 void string_error(const char *err_msg);
 
@@ -31,7 +30,11 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
 /*
  * Checks that 'lst' is a proper list, and not cyclic.
  *
- * returns:
+ * If target_lenght is != 0 it checks max target_length + 1 cons-cells, and
+ * returns 0 if length != target_length or target_lenght if that is lenght.
+ *
+ * If target_lenght is 0 it returns:
+ *
  * length for a list
  * 0 for a 0-length list (NIL)
  * -1 if lst is NULL
@@ -39,10 +42,15 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
  * -3 if lst is not a list
  * -4 if lst is not a proper list (ie not NIL as last elem)
  * -5 if last elem is a NULL-pointer
+ * -6 if target_lenght < 0
  */
-int proper_list_length(cell_t *lst) {
+int proper_list_length(cell_t *lst, int target_length) {
   int length = 1;
   cell_t *runner = lst;
+
+  if (target_length < 0) {
+    return -6;
+  }
 
   if (NULL == lst)
     return -1; /* error */
@@ -62,7 +70,8 @@ int proper_list_length(cell_t *lst) {
   }
 
   while(NULL != lst &&
-        NULL != runner) {
+        NULL != runner &&
+        (!target_length || length <= target_length )) {
     if (runner == lst) return -2; /* cyclic list */
     if (PAIRP(runner)) { /* safe to step both one step */
       runner = CDR(runner);
@@ -79,6 +88,11 @@ int proper_list_length(cell_t *lst) {
       return -4;
     }
   }
+  
+  if (target_length && length > target_length) {
+    return 0;
+  }
+
   return -5;
 }
 
@@ -103,12 +117,12 @@ cell_t *prim_length(cell_t *rest, environ_t *env) {
   cell_t *tmp;
   int length;
 
-  if (proper_list_length(rest) != 1) {
+  if (proper_list_length(rest, 1) != 1) {
     string_error("wrong arity in call to (length ...) expected 1 argument of type list.");
   }
 
   tmp = evaluate(CAR(rest), env);
-  length = proper_list_length(tmp);
+  length = proper_list_length(tmp, 0);
   if (length >= 0) {
     tmp = new(cell_t);
     tmp->slot1.type = PAYLOAD_NUMBER;
@@ -140,10 +154,69 @@ cell_t *prim_plus(cell_t *rest, environ_t *env) {
   }
 }
 
+cell_t *prim_mul(cell_t *rest, environ_t *env) {
+  cell_t *args = evargs(rest, env);
+  int ok = list_of(PAYLOAD_NUMBER, args);
+
+  if (ok < 1) {
+    return NULL; /* ERROR */
+  } else {
+    int tmp = 1;
+    cell_t *rc = new(cell_t);
+
+    for (; args != NULL && PAIRP(args) && tmp; args = CDR(args)) {
+      tmp *= I_VAL(CAR(args));
+    }
+
+    rc->slot1.type = PAYLOAD_NUMBER;
+    rc->slot2.i_val = tmp;
+    return rc;
+  }
+}
+
+cell_t *prim_number_equals(cell_t *rest, environ_t *env) {
+  cell_t *args = evargs(rest, env);
+  int ok = list_of(PAYLOAD_NUMBER, args);
+
+  if (ok < 1) {
+    return NULL; /* ERROR */
+  } else {
+    int tmp = 1;
+    cell_t *last = CAR(args);
+
+    for (; args != NULL && PAIRP(args) && tmp; args = CDR(args)) {
+      tmp = I_VAL(CAR(args)) == I_VAL(last);
+      last = CAR(args);
+    }
+
+    return tmp ? t_cell : false_cell;
+  }
+}
+
+cell_t *prim_minus(cell_t *rest, environ_t *env) {
+  cell_t *args = evargs(rest, env);
+  int ok = list_of(PAYLOAD_NUMBER, args);
+
+  if (ok < 1) {
+    return NULL; /* ERROR */
+  } else {
+    int tmp = 2*I_VAL(CAR(args));
+    cell_t *rc = new(cell_t);
+
+    for (; args != NULL && PAIRP(args); args = CDR(args)) {
+      tmp -= I_VAL(CAR(args));
+    }
+
+    rc->slot1.type = PAYLOAD_NUMBER;
+    rc->slot2.i_val = tmp;
+    return rc;
+  }
+}
+
 cell_t *prim_if(cell_t *rest, environ_t *env) {
   cell_t *pred;
 
-  if (proper_list_length(rest) != 3) return NULL;
+  if (proper_list_length(rest, 3) != 3) return NULL;
 
   pred = evaluate(CAR(rest), env);
   int truth_value = scheme_to_c_truth(pred, env);
@@ -162,8 +235,8 @@ cell_t *prim_lambda(cell_t *rest, environ_t *env) {
   cell_t *tmp;
   function_t *fun;
 
-  if (proper_list_length(rest) < 2) return NULL;
-  if (!(NILP(CAR(rest)) || proper_list_length(CAR(rest)) > 0)) return NULL;
+  if (proper_list_length(rest, 0) < 2) return NULL;
+  if (!(NILP(CAR(rest)) || proper_list_length(CAR(rest),0) > 0)) return NULL;
 
   /* asert params only symbols */
 
@@ -181,7 +254,7 @@ cell_t *prim_lambda(cell_t *rest, environ_t *env) {
 }
 
 cell_t *prim_quote(cell_t *rest, environ_t *env) {
-  if (PAIRP(rest) && proper_list_length(rest) == 1) { 
+  if (PAIRP(rest) && proper_list_length(rest,1) == 1) { 
     return CAR(rest);
   } else {
     string_error("malformed quote.");
@@ -202,7 +275,7 @@ cell_t *prim_error(cell_t *rest, environ_t *env) {
    * (error ...) must be a form of two elements, error and a second
    * printable element.
    */
-  if (proper_list_length(rest) != 1) {
+  if (proper_list_length(rest,1) != 1) {
     DEBUGPRINT("rest=%p is not a proper list of length 1.\n", rest);
     if (0 != arity) { pretty_print(rest); }
     printf("error: wrong arity in call to (error ...)\n");
@@ -236,13 +309,22 @@ void string_error(const char *err_msg) {
   GOTO_TOPLEVEL();
 }
 
+cell_t *prim_eq(cell_t *rest, environ_t *env) {
+  /* Rest Need to be a two-element list. */
+  if(!proper_list_length(rest, 2)) {
+    string_error("wrong arity in call to (eq ...).");
+  }
+
+  return CAR(rest) == CADR(rest) ? t_cell : false_cell;
+}
+
 extern int __tl_eval_level;
 extern environ_t *toplevel;
 cell_t *prim_define(cell_t *rest, environ_t *env) {
   cell_t *val;
   
   /* Rest must be a symbol and an expression. */
-  if (proper_list_length(rest) != 2) {
+  if (proper_list_length(rest,2) != 2) {
     string_error("wrong arity in call to (define ...).");
   }
   if (!SYMBOLP(CAR(rest))) {

@@ -1,4 +1,4 @@
-DEBUG   = -DDEBUG
+DEBUG   = -DDEBUG -DEVAL_DEBUG
 CFLAGS  = -Wall $(DEBUG) -g
 PROGRAM = test_cell test_token test_symbol test_reader \
           test_environment test_primitives repl

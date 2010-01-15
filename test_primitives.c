@@ -16,7 +16,7 @@ int main(int argc, char **argv, char **envp) {
   unsigned char* smbl =(unsigned char *)"QUOTE";
   symbol_entry_t symbol;
 
-  test(proper_list_length(NULL), -1);
+  test(proper_list_length(NULL, 0), -1);
 
   c1 = new(cell_t);
   c2 = new(cell_t);
@@ -47,13 +47,13 @@ int main(int argc, char **argv, char **envp) {
   c3->slot1.type = PAYLOAD_SYMBOL;
   c3->slot2.symbol = &symbol;
 
-  test(proper_list_length(c1), -3);
-  test(proper_list_length(c2), -3);
-  test(proper_list_length(c3), -3);
+  test(proper_list_length(c1, 0), -3);
+  test(proper_list_length(c2, 0), -3);
+  test(proper_list_length(c3, 0), -3);
 
   CONS(c4, c1, c2);
 
-  test(proper_list_length(c4), -4);
+  test(proper_list_length(c4, 0), -4);
 
   CONS(c4, c1, nil_cell);
   CONS(c3, c1, c4);
@@ -72,26 +72,26 @@ int main(int argc, char **argv, char **envp) {
   CONS(c16, c1, c15);
   CONS(c17, c1, c16);
 
-  test(proper_list_length(c4), 1);
-  test(proper_list_length(c3), 2);
-  test(proper_list_length(c2), 3);
+  test(proper_list_length(c4, 0), 1);
+  test(proper_list_length(c3, 0), 2);
+  test(proper_list_length(c2, 0), 3);
 
-  test(proper_list_length(c17), 16);
+  test(proper_list_length(c17, 0), 16);
 
   CONS(c4, c1, c17);
-  test(proper_list_length(c17), -2);
+  test(proper_list_length(c17, 0), -2);
 
   CONS(c4, c1, c1);
-  test(proper_list_length(c17), -4);
+  test(proper_list_length(c17, 0), -4);
 
   c4->slot2.cdr = NULL;
-  test(proper_list_length(c17), -5);
+  test(proper_list_length(c17, 0), -5);
 
   CONS(c3, c1, nil_cell);
-  test(proper_list_length(c17), 15);
+  test(proper_list_length(c17, 0), 15);
 
   c3->slot2.cdr = NULL;
-  test(proper_list_length(c17), -5);
+  test(proper_list_length(c17, 0), -5);
 
   return 0;
 }

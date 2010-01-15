@@ -88,11 +88,15 @@ void init_eval() {
 
   DECLARE_PRIMITIVE("if", prim_if);
   DECLARE_PRIMITIVE("+", prim_plus);
+  DECLARE_PRIMITIVE("*", prim_mul);
+  DECLARE_PRIMITIVE("=", prim_number_equals);
+  DECLARE_PRIMITIVE("-", prim_minus);
   DECLARE_PRIMITIVE("lambda", prim_lambda);
   DECLARE_PRIMITIVE("quote", prim_quote);
   DECLARE_PRIMITIVE("define", prim_define);
   DECLARE_PRIMITIVE("error", prim_error);
   DECLARE_PRIMITIVE("length", prim_length);
+  DECLARE_PRIMITIVE("eq?", prim_eq);
 }
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {
@@ -146,7 +150,7 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   int i;
   cell_t *tmp, *head = nil_cell, *tail;
 
-  if (!(length = proper_list_length(args))) return NULL; /* error */
+  if (!(length = proper_list_length(args, 0))) return NULL; /* error */
   if (length > 16) return NULL; /* can only handle 16 args atm */
 
   for (i = 0; i < length; i++, args = CDR(args)) {
@@ -171,8 +175,8 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
   cell_t *ret;
   cell_t *code;
 
-  argslen = proper_list_length(args);
-  paramlen = proper_list_length(func->param_list);
+  argslen = proper_list_length(args,0);
+  paramlen = proper_list_length(func->param_list, 0);
   
   if (argslen != paramlen) return NULL; /* error */
 
