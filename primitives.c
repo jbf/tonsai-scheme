@@ -118,7 +118,7 @@ cell_t *prim_length(cell_t *rest, environ_t *env) {
   int length;
 
   if (proper_list_length(rest, 1) != 1) {
-    string_error("wrong arity in call to (length ...) expected 1 argument of type list.");
+    fast_error("wrong arity in call to (length ...) expected 1 argument of type list.");
   }
 
   tmp = evaluate(CAR(rest), env);
@@ -129,7 +129,7 @@ cell_t *prim_length(cell_t *rest, environ_t *env) {
     tmp->slot2.i_val = length;
     return tmp;
   } else {
-    string_error("not a proper list.");
+    fast_error("not a proper list.");
   }
   return NULL; /* unreachable */
 }
@@ -257,7 +257,7 @@ cell_t *prim_quote(cell_t *rest, environ_t *env) {
   if (PAIRP(rest) && proper_list_length(rest,1) == 1) { 
     return CAR(rest);
   } else {
-    string_error("malformed quote.");
+    fast_error("malformed quote.");
     GOTO_TOPLEVEL();
     return NULL; /* unreachable */
   }
@@ -298,13 +298,21 @@ cell_t *prim_error(cell_t *rest, environ_t *env) {
   return NULL; /* unreachable */
 }
 
+void undefun_error(cell_t *first, cell_t *exp) {
+  printf("error: undefined function '");
+  pp(first);
+  printf("' in expression: ");
+  pretty_print(exp);
+  GOTO_TOPLEVEL();
+}
+
 void inner_prim_error(cell_t *string_cell) {
   printf("error: ");
   pretty_print(string_cell);
   GOTO_TOPLEVEL();
 }
 
-void string_error(const char *err_msg) {
+void fast_error(const char *err_msg) {
   printf("error: %s\n", err_msg);
   GOTO_TOPLEVEL();
 }
@@ -312,7 +320,7 @@ void string_error(const char *err_msg) {
 cell_t *prim_eq(cell_t *rest, environ_t *env) {
   /* Rest Need to be a two-element list. */
   if(!proper_list_length(rest, 2)) {
-    string_error("wrong arity in call to (eq ...).");
+    fast_error("wrong arity in call to (eq ...).");
   }
 
   return CAR(rest) == CADR(rest) ? t_cell : false_cell;
@@ -325,15 +333,15 @@ cell_t *prim_define(cell_t *rest, environ_t *env) {
   
   /* Rest must be a symbol and an expression. */
   if (proper_list_length(rest,2) != 2) {
-    string_error("wrong arity in call to (define ...).");
+    fast_error("wrong arity in call to (define ...).");
   }
   if (!SYMBOLP(CAR(rest))) {
-    string_error("1:st argument to 'define' must evaluate to a symbol.");
+    fast_error("1:st argument to 'define' must evaluate to a symbol.");
   }
   
   /* Can only define at toplevel. */
   if (__tl_eval_level != 1) {
-    string_error("(define ...) only at toplevel.");
+    fast_error("(define ...) only at toplevel.");
   }
   
   val = evaluate(CADR(rest), env);
