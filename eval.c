@@ -9,6 +9,7 @@
 #include "function.h"
 #include "errors.h"
 
+/* Some of theses should be per thread, and some global but protected. */
 environ_t *special_forms;
 environ_t *toplevel;
 static symbol_table __gs;
@@ -30,7 +31,7 @@ enum {
     cell_t *__my_ret = (x);                                     \
     if (type == RET_VAL) {                                      \
       printf("Eval (%d) returns: ", __tl_eval_level);           \
-    } else if (type == RET_PRIM) {                         \
+    } else if (type == RET_PRIM) {                              \
       printf("Primitive (%d) returns: ", __tl_eval_level);      \
     } else {                                                    \
       printf("Invoke (%d) returns: ", __tl_eval_level);         \
@@ -91,8 +92,7 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
   if (NULL == exp) {
     DRETURN(RET_VAL, NULL);
   } else if (NILP(exp)) {
-    fast_error("NIL is not autoquoting.");
-    return NULL; /* Unreachable fast_error() does not return. */
+    DRETURN(RET_VAL, nil_cell);
   } else if (ATOMP(exp)) {
     if (SYMBOLP(exp)) {
       DRETURN(RET_VAL, find_value(env, exp));

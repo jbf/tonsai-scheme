@@ -14,7 +14,6 @@ cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
     return NULL;
   }
 
-
   switch(tok.type) {
   case TOKEN_LPAREN:
     return read_list_intern(stream, symbol_table);
