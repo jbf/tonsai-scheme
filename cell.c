@@ -13,7 +13,7 @@ void print_cell(cell_t *cell) {
   if (NULL == cell) {
     printf ("C-NULL");
   } else if (NILP(cell)) {
-    printf("NIL");
+    printf("()");
   } else if (PAIRP(cell)) {
     printf("PAIR");
   } else if (SYMBOLP(cell)) {
