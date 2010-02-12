@@ -109,7 +109,8 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
   if (NULL == exp) {
     DEBUG_PRINT_AND_RETURN(NULL);
   } else if (NILP(exp)) {
-    DEBUG_PRINT_AND_RETURN(nil_cell);
+    fast_error("NIL is not autoquoting.");
+    return NULL; /* Unreachable fast_error() does not return. */
   } else if (ATOMP(exp)) {
     if (SYMBOLP(exp)) {
       DEBUG_PRINT_AND_RETURN(find_value(env, exp));
@@ -139,8 +140,8 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
     } else if (FUNCTIONP(first)) { /* function call */
       DEBUG_INVOKE_PRINT_AND_RETURN(invoke(first, evargs(rest, env), env));
     }
-      --__tl_eval_level;
-      return NULL; /* Not primitive or funcall, error.*/
+    undefun_error(first, exp); /* Not primitive or funcall, error.*/
+    return NULL; /* Unreachable, undefun_error() does not return. */
   }
 }
 
