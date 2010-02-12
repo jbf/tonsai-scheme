@@ -18,57 +18,38 @@ cell_t *orig_sexpr;
 
 cell_t *find_value(environ_t *env, cell_t *sym);
 
+enum {
+  RET_VAL     = 1,
+  RET_PRIM    = 2,
+  RET_FUNCALL = 3,
+};
+
 #ifdef EVAL_DEBUG
-#define DEBUG_PRINT_AND_RETURN(x)                   \
-  do {                                              \
-    cell_t *__my_ret = (x);                         \
-    printf("Eval (%d) returns: ", __tl_eval_level); \
-    pretty_print(__my_ret);                         \
-    --__tl_eval_level;                              \
-    return __my_ret;                                \
+#define DRETURN(type,x)                                         \
+  do {                                                          \
+    cell_t *__my_ret = (x);                                     \
+    if (type == RET_VAL) {                                      \
+      printf("Eval (%d) returns: ", __tl_eval_level);           \
+    } else if (type == RET_PRIM) {                         \
+      printf("Primitive (%d) returns: ", __tl_eval_level);      \
+    } else {                                                    \
+      printf("Invoke (%d) returns: ", __tl_eval_level);         \
+    }                                                           \
+    pretty_print(__my_ret);                                     \
+    --__tl_eval_level;                                          \
+    return __my_ret;                                            \
   } while (0)
-#define DEBUG_PRIM_PRINT_AND_RETURN(x)                   \
-  do {                                                   \
-    cell_t *__my_ret = (x);                              \
-    printf("Primitive (%d) returns: ", __tl_eval_level); \
-    pretty_print(__my_ret);                              \
-    --__tl_eval_level;                                   \
-    return __my_ret;                                     \
-  } while (0)
-#define DEBUG_INVOKE_PRINT_AND_RETURN(x)              \
-  do {                                                \
-    cell_t *__my_ret = (x);                           \
-    printf("Invoke (%d) returns: ", __tl_eval_level); \
-    pretty_print(__my_ret);                           \
-    --__tl_eval_level;                                \
-    return __my_ret;                                  \
-  } while (0)
-#else
-#define DEBUG_PRINT_AND_RETURN(x) \
+
+#define DFLAG 1
+#else /* != EVAL_DEBUG */
+#define DRETURN(type, x)          \
   do {                            \
     cell_t *__my_ret = (x);       \
     --__tl_eval_level;            \
     return(__my_ret);             \
   } while (0)
-#define DEBUG_PRIM_PRINT_AND_RETURN(x) \
-  do {                                 \
-    cell_t *__my_ret = (x);            \
-    --__tl_eval_level;                 \
-    return(__my_ret);                  \
-  } while (0)  
-#define DEBUG_INVOKE_PRINT_AND_RETURN(x) \
-  do {                                   \
-  cell_t *__my_ret = (x);                \
-  --__tl_eval_level;                     \
-  return(__my_ret);                      \
-} while (0)
-#endif /* DEBUG */
-
-#ifdef DEBUG
-#define DFLAG 1
-#else
 #define DFLAG 0
-#endif /* DEBUG */
+#endif /* EVAL_DEBUG */
 
 void init_eval() {
   boot(global_symtab, &special_forms);
@@ -97,6 +78,7 @@ void init_eval() {
   DECLARE_PRIMITIVE("error", prim_error);
   DECLARE_PRIMITIVE("length", prim_length);
   DECLARE_PRIMITIVE("eq?", prim_eq);
+#undef DECLARE_PRIMITIVE
 }
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {
@@ -107,17 +89,18 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
   }
 
   if (NULL == exp) {
-    DEBUG_PRINT_AND_RETURN(NULL);
+    DRETURN(RET_VAL, NULL);
   } else if (NILP(exp)) {
     fast_error("NIL is not autoquoting.");
     return NULL; /* Unreachable fast_error() does not return. */
   } else if (ATOMP(exp)) {
     if (SYMBOLP(exp)) {
-      DEBUG_PRINT_AND_RETURN(find_value(env, exp));
+      DRETURN(RET_VAL, find_value(env, exp));
     } else if (STRINGP(exp) || NUMBERP(exp)) {
-      DEBUG_PRINT_AND_RETURN(exp);
+      DRETURN(RET_VAL, exp);
     } else {
       DEBUGPRINT_("Expression not valid.\n");
+      pretty_print(orig_sexpr);
       GOTO_TOPLEVEL();
       return NULL; /* unreachable */
     }
@@ -125,20 +108,21 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
     cell_t *first = evaluate(CAR(exp), env);
     cell_t *rest = CDR(exp);
     
-#ifdef DEBUG
-    printf("First is: ");
-    pretty_print(first);
-    printf("Rest is: ");
-    pretty_print(rest);
-#endif /* DEBUG */
+    if (DFLAG) {
+      printf("First is: ");
+      pretty_print(first);
+      printf("Rest is: ");
+      pretty_print(rest);
+    }
 
     if (NULL == first) {
-      DEBUG_PRINT_AND_RETURN(NULL);
+      fast_error(" malformed expression.");
+      /* This is unreachable */
     } else if (PRIMITIVEP(first)) {
       cell_t *(*f)(cell_t *, environ_t *) = CELL_PRIMITIVE(first);
-      DEBUG_PRIM_PRINT_AND_RETURN((*f)(rest, env));
+      DRETURN(RET_PRIM, (*f)(rest, env));
     } else if (FUNCTIONP(first)) { /* function call */
-      DEBUG_INVOKE_PRINT_AND_RETURN(invoke(first, evargs(rest, env), env));
+      DRETURN(RET_FUNCALL, invoke(first, evargs(rest, env), env));
     }
     undefun_error(first, exp); /* Not primitive or funcall, error.*/
     return NULL; /* Unreachable, undefun_error() does not return. */
