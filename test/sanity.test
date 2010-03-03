@@ -1,0 +1,19 @@
+(+ 1 1),2
+(= 1 1),T
+(quote foo),foo
+(length (quote (a b c))),3
+(length (quote ())),0
+(if T "a" "b"), "a"
+((if FALSE + -) 10 2),8
+((lambda (a b) (- (+ b b) a)) 2 10 ),18
+"abcd","abcd"
+(quote ()), ()
+1, 1
+100000,100000
+(* -1 10), -10
+(define bb "asdf") bb, "asdf"
+(define a 10) (define b 20) (- a b), -10
+(define factorial (lambda (x) (if (= 1 x) 1 (* x (factorial (- x 1)))))) (factorial 5), 120
+(= -222 -222), T
+(eq? (quote foo) (quote foo)), T
+(eq? (if T (quote foo) "a") (if FALSE "z" (quote foo))), T
