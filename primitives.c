@@ -321,7 +321,9 @@ cell_t *prim_eq(cell_t *rest, environ_t *env) {
     fast_error("wrong arity in call to (eq ...).");
   }
 
-  return CAR(rest) == CADR(rest) ? t_cell : false_cell;
+  return evaluate(CAR(rest),env) == evaluate(CADR(rest),env)
+    ? t_cell
+    : false_cell;
 }
 
 extern int __tl_eval_level;
