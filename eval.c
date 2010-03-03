@@ -12,6 +12,7 @@
 /* Some of theses should be per thread, and some global but protected. */
 environ_t *special_forms;
 environ_t *toplevel;
+environ_t *primitives;
 static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
@@ -55,8 +56,9 @@ enum {
 void init_eval() {
   boot(global_symtab, &special_forms);
   create_empty_environment(&toplevel);
+  create_empty_environment(&primitives);
 
-#define DECLARE_PRIMITIVE(n, prim_op) do {                              \
+#define DECLARE_SPECIAL(n, prim_op) do {                                \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new(primitive_t);                                  \
                                                                         \
@@ -68,14 +70,28 @@ void init_eval() {
     add_to_environment(special_forms, s, v);                            \
   } while (0)
 
-  DECLARE_PRIMITIVE("if", prim_if);
+#define DECLARE_PRIMITIVE(n, prim_op) do {                              \
+    cell_t *s, *v = new(cell_t);                                        \
+    primitive_t *p = new(primitive_t);                                  \
+                                                                        \
+    p->fun = &prim_op;                                                  \
+    p->name = (unsigned char *)n;                                       \
+    v->slot1.type = PRIMITIVE;                                          \
+    v->slot2.prim = p;                                                  \
+    s = intern((unsigned char *)n, global_symtab);                      \
+    add_to_environment(primitives, s, v);                               \
+  } while (0)
+
+  DECLARE_SPECIAL("if", prim_if);
+  DECLARE_SPECIAL("lambda", prim_lambda);
+  DECLARE_SPECIAL("quote", prim_quote);
+  DECLARE_SPECIAL("define", prim_define);
+#undef DECLARE_SPECIAL
+
   DECLARE_PRIMITIVE("+", prim_plus);
   DECLARE_PRIMITIVE("*", prim_mul);
   DECLARE_PRIMITIVE("=", prim_number_equals);
   DECLARE_PRIMITIVE("-", prim_minus);
-  DECLARE_PRIMITIVE("lambda", prim_lambda);
-  DECLARE_PRIMITIVE("quote", prim_quote);
-  DECLARE_PRIMITIVE("define", prim_define);
   DECLARE_PRIMITIVE("error", prim_error);
   DECLARE_PRIMITIVE("length", prim_length);
   DECLARE_PRIMITIVE("eq?", prim_eq);
@@ -193,6 +209,12 @@ cell_t *find_value(environ_t *env, cell_t *sym) {
  
   ct = value(toplevel, sym);
   DEBUGPRINT("In toplevel, sym is %p\n", ct);
+  if (ct) {
+    return ct;
+  }
+
+  ct = value(primitives, sym);
+  DEBUGPRINT("In primitives, sym is %p\n", ct);
   if (ct) {
     return ct;
   }
