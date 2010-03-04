@@ -17,3 +17,4 @@
 (= -222 -222), T
 (eq? (quote foo) (quote foo)), T
 (eq? (if T (quote foo) "a") (if FALSE "z" (quote foo))), T
+(define x 4) (define toadd 4) (define mkadder (lambda (toadd) (lambda (x) (+ x toadd)))) (define addtwo (mkadder 2)) (define toadd 5) (define x 5) (addtwo 17), 19 #test lexical scope
