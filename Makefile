@@ -1,28 +1,13 @@
 DEBUG   = -DDEBUG -DEVAL_DEBUG
 CFLAGS  = -Wall $(DEBUG) -g
-PROGRAM = test_cell test_token test_symbol test_reader \
-          test_environment test_primitives repl
-SOURCES = $(filter-out test_%,$(wildcard *.c))
+PROGRAM = repl
+SOURCES = $(wildcard *.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
 
 all: $(DEPS) $(OBJECTS) $(PROGRAM)
 
 depend: $(DEPS)
-
-test_cell : cell.o function.o
-
-test_token : token.o
-
-test_symbol : symbol.o
-
-test_reader : reader.o cell.o token.o symbol.o function.o
-
-test_environment : symbol.o environment.o cell.o bootstrap.o function.o \
-                   errors.o
-
-test_primitives : primitives.o eval.o environment.o symbol.o cell.o \
-                  bootstrap.o function.o errors.o
 
 repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
        environment.o bootstrap.o function.o errors.o
