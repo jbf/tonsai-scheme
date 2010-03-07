@@ -1,6 +1,7 @@
 #ifndef _BOOTSTRAP_H
 #define _BOOTSTRAP_H 1
 
+#include "cell.h"
 #include "symbol.h"
 #include "environment.h"
 

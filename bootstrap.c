@@ -22,11 +22,6 @@ cell_t *nil_cell = &nil_c;
 cell_t *false_cell = &false_c;
 cell_t *t_cell = &t_c;
 
-/*
- * Creates an initial environment containing nil. Sets '**env' to NULL in
- * case of errror (typically OOM).
- */
-
 int fill_initial_environment(environ_t *env);
 
 int fill_initial_environment(environ_t *env) { 
