@@ -17,6 +17,8 @@ int create_empty_environment(environ_t **env) {
   if (NULL == *env) return EOOM;
 
   (*env)->parent = NULL;
+  (*env)->symbols = NULL;
+  (*env)->values = NULL;
   return ENV_CREATED_OK;
 }
 
