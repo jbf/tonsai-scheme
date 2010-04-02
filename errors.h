@@ -7,6 +7,8 @@
 #define EOOM -100
 #define ERROR_UNREACHABLE_STATEMENT -101
 
+#define ERROR_OTHER_ERROR -1000
+
 /*
  * Kill the vm in a controlled fashion.
  */

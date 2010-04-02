@@ -25,10 +25,9 @@ cell_t *t_cell = &t_c;
 int fill_initial_environment(environ_t *env);
 
 int fill_initial_environment(environ_t *env) { 
-  environ_t *temp_env;
-  int ok = create_empty_environment(&temp_env);
-
-  if (!ok) return EOOM;
+  if (NULL == env) {
+    return ERROR_OTHER_ERROR;
+  }
 
   /* Add lots of stuff */
   add_to_environment(env, nil_cell, nil_cell);
