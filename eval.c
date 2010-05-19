@@ -2,7 +2,7 @@
 #include "cell.h"
 #include "symbol.h"
 #include "reader.h"
-#include "util.h"
+#include "memory.h"
 #include "environment.h"
 #include "primitives.h"
 #include "bootstrap.h"

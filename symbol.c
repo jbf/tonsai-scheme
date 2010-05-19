@@ -1,5 +1,5 @@
 #include "symbol.h"
-#include "util.h"
+#include "memory.h"
 #include "cell.h"
 
 #include <string.h>

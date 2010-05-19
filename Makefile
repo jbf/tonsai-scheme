@@ -10,7 +10,7 @@ all: $(DEPS) $(OBJECTS) $(PROGRAM)
 depend: $(DEPS)
 
 repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
-       environment.o bootstrap.o function.o errors.o
+       environment.o bootstrap.o function.o memory.o errors.o
 
 
 %.dep: %.c %.h
@@ -23,8 +23,9 @@ repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
 .PHONY: clean
 
 clean:
-	-rm -f -- *.o *.dep *.dep.* *~ core a.out test_token test_cell test_reader \
-        test_symbol test_environment test_eval test_primitives repl
+	-rm -f -- *.o *.dep *.dep.* *~ core a.out test_token test_cell \
+	test_reader test_symbol test_environment test_eval test_primitives \
+	repl
 	-rm -rf -- *.dSYM
 
 include $(SOURCES:.c=.dep)

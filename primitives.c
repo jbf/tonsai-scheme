@@ -6,6 +6,7 @@
 #include "bootstrap.h"
 #include "scheme-utils.h"
 #include "function.h"
+#include "memory.h"
 
 #include <assert.h>
 

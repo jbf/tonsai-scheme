@@ -3,6 +3,7 @@
 #include "environment.h"
 #include "symbol.h"
 #include "errors.h"
+#include "memory.h"
 
 int alloc_sym_value_pair(value_container_t **sym, value_container_t **val);
 cell_t *_value(environ_t *env, symbol_entry_t *sym);

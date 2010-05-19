@@ -1,10 +1,7 @@
 #ifndef __UTIL_H
 #define __UTIL_H 1
 
-#include <stdlib.h>
 #include <stdio.h>
-
-#define new(type) ((type *)malloc(sizeof(type)/sizeof(char)))
 
 #define min(x,y) ({                             \
       typeof(x) _x = (x);                       \

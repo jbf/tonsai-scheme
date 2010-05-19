@@ -2,7 +2,7 @@
 #include "cell.h"
 #include "token.h"
 #include "symbol.h"
-#include "util.h"
+#include "memory.h"
 
 cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
   token_t tok;
