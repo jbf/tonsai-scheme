@@ -5,6 +5,7 @@
 #include "util.h"
 #include "eval.h"
 #include "environment.h"
+#include "memory.h"
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -19,6 +20,7 @@ int main(int argc, char **argv, char **envp) {
   cell_t *cell;
   cell_t *res;
 
+  init_mem_sys();
   init_eval();
   if (setjmp(__jmp_env)) {
     __tl_eval_level = 0;

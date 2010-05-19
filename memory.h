@@ -5,4 +5,6 @@
 
 #define new(type) ((type *)malloc(sizeof(type)/sizeof(char)))
 
+void init_mem_sys();
+
 #endif /* _MEMORY_H */
