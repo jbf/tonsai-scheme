@@ -34,7 +34,8 @@ typedef struct value_container_t {
 
 #define QUOTEME_(x) #x
 #define QUOTEME(x) QUOTEME_(x)
-#define MACCONCATQUOTE(x, y) QUOTEME(x) ## QUOTEME(y)
+
+#define AT "["__FILE__ ": " QUOTEME(__LINE__) "]"
 
 #define WHERESTR  "[file %s, line %d]: "
 #define WHEREARG  __FILE__, __LINE__

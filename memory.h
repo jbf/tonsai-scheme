@@ -3,7 +3,9 @@
 
 #include <stdlib.h>
 
-#define new(type) ((type *)malloc(sizeof(type)/sizeof(char)))
+void *mem_sys_safe_alloc(size_t bytes);
+
+#define new(type) ((type *)mem_sys_safe_alloc(sizeof(type)/sizeof(char)))
 
 void init_mem_sys();
 
