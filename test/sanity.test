@@ -18,3 +18,6 @@
 (eq? (quote foo) (quote foo)), T
 (eq? (if T (quote foo) "a") (if FALSE "z" (quote foo))), T
 (define x 4) (define toadd 4) (define mkadder (lambda (toadd) (lambda (x) (+ x toadd)))) (define addtwo (mkadder 2)) (define toadd 5) (define x 5) (addtwo 17), 19 #test lexical scope
+(cons (+ 1 2) (if FALSE "a" (cons (quote a) "b"))), (3 a . "b")
+(define x 4) (define toadd 4) (define mkadder (lambda (toadd) (lambda (x) (+ x toadd)))) (define addtwo (mkadder 2)) (define toadd 100) (define x 1000) (cons toadd (cons x (addtwo 17))), (100 1000 . 19)
+(cons 1 (quote NIL)), (1)
