@@ -305,6 +305,12 @@ void undefun_error(cell_t *first, cell_t *exp) {
   GOTO_TOPLEVEL();
 }
 
+void undef_ident_error(cell_t *sym) {
+  printf("error: undefined identiier '");
+  pretty_print(sym);
+  GOTO_TOPLEVEL();
+}
+
 void inner_prim_error(cell_t *string_cell) {
   printf("error: ");
   pretty_print(string_cell);

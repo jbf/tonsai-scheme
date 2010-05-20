@@ -30,5 +30,6 @@ cell_t *prim_eq(cell_t *rest, environ_t *env);
 int proper_list_length(cell_t *lst, int target_length);
 void fast_error(const char *err_msg);
 void undefun_error(cell_t *first, cell_t *exp);
+void undef_ident_error(cell_t *sym);
 
 #endif /* _PRIMITIVES_H */

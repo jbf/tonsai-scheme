@@ -1,4 +1,5 @@
-DEBUG   = -DDEBUG -DEVAL_DEBUG
+DEBUG   = -DDEBUG
+#DEBUG   = -DDEBUG -DEVAL_DEBUG -DMEM_DEBUG -DLOOKUP_DEBUG
 CFLAGS  = -Wall $(DEBUG) -g
 PROGRAM = repl
 SOURCES = $(wildcard *.c)
@@ -20,8 +21,6 @@ repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
          sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
          rm -f $@.$$$$
 
-.PHONY: clean
-
 clean:
 	-rm -f -- *.o *.dep *.dep.* *~ core a.out test_token test_cell \
 	test_reader test_symbol test_environment test_eval test_primitives \
@@ -29,3 +28,5 @@ clean:
 	-rm -rf -- *.dSYM
 
 include $(SOURCES:.c=.dep)
+
+.PHONY: clean

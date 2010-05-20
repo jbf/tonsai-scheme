@@ -196,29 +196,37 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
 
 cell_t *find_value(environ_t *env, cell_t *sym) {
   cell_t *ct = value(special_forms, sym);
+#ifdef LOOKUP_DEBUG
   DEBUGPRINT("In special forms, sym is %p\n", ct);
+#endif /* LOOKUP_DEBUG */
   if (ct) {
     return ct;
   }
 
   ct = value(env, sym);
+#ifdef LOOKUP_DEBUG
   DEBUGPRINT("In env, sym is %p\n", ct);
+#endif /* LOOKUP_DEBUG */
   if (ct) {
     return ct;
   }
  
   ct = value(toplevel, sym);
+#ifdef LOOKUP_DEBUG
   DEBUGPRINT("In toplevel, sym is %p\n", ct);
+#endif /* LOOKUP_DEBUG */
   if (ct) {
     return ct;
   }
 
   ct = value(primitives, sym);
+#ifdef LOOKUP_DEBUG
   DEBUGPRINT("In primitives, sym is %p\n", ct);
+#endif /* LOOKUP_DEBUG */
   if (ct) {
     return ct;
   }
 
-  DEBUGPRINT_("Value not bound.\n");
+  undef_ident_error(sym);
   GOTO_TOPLEVEL();
 }

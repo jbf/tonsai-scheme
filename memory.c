@@ -18,8 +18,10 @@ void *mem_sys_safe_alloc(size_t bytes) {
   assert(NULL != mem_sys_heap &&
          NULL != cur &&
          NULL != top);
-
-  DEBUGPRINT("Trying to alloc: %d bytes at %p\n", bytes, cur);
+  
+#ifdef MEM_DEBUG
+  DEBUGPRINT("Trying to alloc: %lu bytes at %p\n", (long) bytes, cur);
+#endif /* MEM_DEBUG */
 
   if (bytes < 0) {
     DEBUGPRINT_("Trying to allocate a negative amount of memory. Aborting.\n");
@@ -64,8 +66,11 @@ void init_mem_sys() {
   
   top = mem_sys_heap + t;
 
-  DEBUGPRINT("mem_sys_heap: %p, top: %p, size: %d\n",
+  DEBUGPRINT("\tmem_sys_heap: %p, top: %p\n"
+             "\t\t\t\theap size: %d bytes\n"
+             "\t\t\t\tsizeof(void *) is %lu bytes\n",
              mem_sys_heap,
              top,
-             (int)(top-mem_sys_heap));
+             (int)(top-mem_sys_heap),
+             sizeof (void *));
 }
