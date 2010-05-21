@@ -28,6 +28,7 @@ void *mem_sys_safe_alloc(size_t bytes) {
     exit(1);
   } else if (cur + bytes > top) {
     DEBUGPRINT_("Out of memory. Aborting.\n");
+    exit(1);
   }
   
   t = cur;

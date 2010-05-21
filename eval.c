@@ -95,6 +95,10 @@ void init_eval() {
   DECLARE_PRIMITIVE("error", prim_error);
   DECLARE_PRIMITIVE("length", prim_length);
   DECLARE_PRIMITIVE("eq?", prim_eq);
+  DECLARE_PRIMITIVE("cons", prim_cons);
+  DECLARE_PRIMITIVE("set-car!", prim_setcar);
+  DECLARE_PRIMITIVE("set-cdr!", prim_setcdr);
+  DECLARE_PRIMITIVE("list", prim_list);
 #undef DECLARE_PRIMITIVE
 }
 

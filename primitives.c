@@ -29,10 +29,10 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
 /*
  * Checks that 'lst' is a proper list, and not cyclic.
  *
- * If target_lenght is != 0 it checks max target_length + 1 cons-cells, and
- * returns 0 if length != target_length or target_lenght if that is lenght.
+ * If target_length is != 0 it checks max target_length + 1 cons-cells, and
+ * returns 0 if length != target_length or target_length if that is length.
  *
- * If target_lenght is 0 it returns:
+ * If target_length is 0 it returns:
  *
  * length for a list
  * 0 for a 0-length list (NIL)
@@ -41,7 +41,7 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
  * -3 if lst is not a list
  * -4 if lst is not a proper list (ie not NIL as last elem)
  * -5 if last elem is a NULL-pointer
- * -6 if target_lenght < 0
+ * -6 if target_length < 0
  */
 int proper_list_length(cell_t *lst, int target_length) {
   int length = 1;
@@ -112,6 +112,78 @@ int list_of(cell_type_t type, cell_t *lst) {
 /*
  * Primitives.
  */
+cell_t *prim_list(cell_t *rest, environ_t *env) {
+  cell_t *first = NULL, *tmp = NULL, *next = NULL;
+  
+  if (NILP(rest)) {
+    first = tmp = nil_cell;
+  } else {
+    first = new(cell_t);
+    first->slot1.car = evaluate(CAR(rest), env);
+    rest = CDR(rest);
+    tmp = first;
+    
+    while (!NILP(rest)) {
+      next = new(cell_t);
+      next->slot1.car = evaluate(CAR(rest), env);
+      tmp->slot2.cdr = next;
+      tmp = next;
+      rest = CDR(rest);
+    }
+    
+    tmp->slot2.cdr = nil_cell;
+  }
+
+  return first;
+}
+
+cell_t *prim_setcar(cell_t *rest, environ_t *env) {
+  cell_t *tmp, *res;
+
+  if (proper_list_length(rest, 2) != 2) {
+    fast_error("wrong arity in call to (set-car! ...) expected 2 arguments.");
+  }
+  
+  tmp = evaluate(CAR(rest), env);
+  if (!PAIRP(tmp)) {
+    fast_error("first operand to set-car! must be a pair.");
+  }
+
+  res = evaluate(CAR(CDR(rest)), env);
+  tmp->slot1.car = res;
+  return tmp;
+}
+
+cell_t *prim_setcdr(cell_t *rest, environ_t *env) {
+  cell_t *tmp, *res;
+
+  if (proper_list_length(rest, 2) != 2) {
+    fast_error("wrong arity in call to (set-cdr! ...) expected 2 arguments.");
+  }
+  
+  tmp = evaluate(CAR(rest), env);
+  if (!PAIRP(tmp)) {
+    fast_error("first operand to set-cdr! must be a pair.");
+  }
+
+  res = evaluate(CAR(CDR(rest)), env);
+  tmp->slot2.cdr = res;
+  return tmp;
+}
+
+cell_t *prim_cons(cell_t *rest, environ_t *env) {
+  cell_t *tmp;
+
+  if (proper_list_length(rest, 2) != 2) {
+    fast_error("wrong arity in call to (cons ...) expected 2 arguments.");
+  }
+  
+  tmp = new(cell_t);
+  tmp->slot1.car = evaluate(CAR(rest), env);
+  tmp->slot2.cdr = evaluate(CAR(CDR(rest)), env);
+  return tmp;
+}
+
 cell_t *prim_length(cell_t *rest, environ_t *env) {
   cell_t *tmp;
   int length;
@@ -262,6 +334,42 @@ cell_t *prim_quote(cell_t *rest, environ_t *env) {
   }
 }
 
+
+cell_t *prim_eq(cell_t *rest, environ_t *env) {
+  /* Rest Need to be a two-element list. */
+  if(!proper_list_length(rest, 2)) {
+    fast_error("wrong arity in call to (eq ...).");
+  }
+
+  return evaluate(CAR(rest),env) == evaluate(CADR(rest),env)
+    ? t_cell
+    : false_cell;
+}
+
+extern int __tl_eval_level;
+extern environ_t *toplevel;
+cell_t *prim_define(cell_t *rest, environ_t *env) {
+  cell_t *val;
+  
+  /* Rest must be a symbol and an expression. */
+  if (proper_list_length(rest,2) != 2) {
+    fast_error("wrong arity in call to (define ...).");
+  }
+  if (!SYMBOLP(CAR(rest))) {
+    fast_error("1:st argument to 'define' must evaluate to a symbol.");
+  }
+  
+  /* Can only define at toplevel. */
+  if (__tl_eval_level != 1) {
+    fast_error("(define ...) only at toplevel.");
+  }
+  
+  val = evaluate(CADR(rest), env);
+  add_to_environment(toplevel, CAR(rest), val);
+  
+  return CAR(rest);
+}
+
 /*
  * (error "string") or (error (form)) where 'form' must be printable.
  *
@@ -320,39 +428,4 @@ void inner_prim_error(cell_t *string_cell) {
 void fast_error(const char *err_msg) {
   printf("error: %s\n", err_msg);
   GOTO_TOPLEVEL();
-}
-
-cell_t *prim_eq(cell_t *rest, environ_t *env) {
-  /* Rest Need to be a two-element list. */
-  if(!proper_list_length(rest, 2)) {
-    fast_error("wrong arity in call to (eq ...).");
-  }
-
-  return evaluate(CAR(rest),env) == evaluate(CADR(rest),env)
-    ? t_cell
-    : false_cell;
-}
-
-extern int __tl_eval_level;
-extern environ_t *toplevel;
-cell_t *prim_define(cell_t *rest, environ_t *env) {
-  cell_t *val;
-  
-  /* Rest must be a symbol and an expression. */
-  if (proper_list_length(rest,2) != 2) {
-    fast_error("wrong arity in call to (define ...).");
-  }
-  if (!SYMBOLP(CAR(rest))) {
-    fast_error("1:st argument to 'define' must evaluate to a symbol.");
-  }
-  
-  /* Can only define at toplevel. */
-  if (__tl_eval_level != 1) {
-    fast_error("(define ...) only at toplevel.");
-  }
-  
-  val = evaluate(CADR(rest), env);
-  add_to_environment(toplevel, CAR(rest), val);
-  
-  return CAR(rest);
 }

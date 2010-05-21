@@ -72,7 +72,9 @@ void pp_list(cell_t *cell) {
       pp(CAR(cell));
       cell = CDR(cell);
     } else {
-      printf("ERROR in list\n");
+      printf(" . ");
+      pp(cell); /* Improper list */
+      break;
     }
   }
 }
