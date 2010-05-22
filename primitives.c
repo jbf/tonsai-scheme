@@ -20,7 +20,7 @@ void string_error(const char *err_msg);
 int scheme_to_c_truth(cell_t *c, environ_t *env) {
   if (NULL == c) return EINVALID_TRUTH; /* error */
   
-  if (ATOMP(c) && value(env, c) == false_cell) {
+  if (ATOMP(c) && find_value(env, c) == false_cell) {
     return FALSE;
   }
   return TRUE;
@@ -30,11 +30,12 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
  * Checks that 'lst' is a proper list, and not cyclic.
  *
  * If target_length is != 0 it checks max target_length + 1 cons-cells, and
- * returns 0 if length != target_length or target_length if that is length.
+ * returns 0 if length != target_length or target_length if lenght ==
+ * target_length.
  *
  * If target_length is 0 it returns:
  *
- * length for a list
+ * length for a proper list
  * 0 for a 0-length list (NIL)
  * -1 if lst is NULL
  * -2 if lst i a cyclic list

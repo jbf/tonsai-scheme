@@ -28,7 +28,7 @@ int main(int argc, char **argv, char **envp) {
   }
   while ((cell = read_intern(stdin, global_symtab))) {
     orig_sexpr = cell;
-    res = evaluate(cell, special_forms);
+    res = evaluate(cell, NULL);
     if (res) {
       pretty_print(res);
     } else {
