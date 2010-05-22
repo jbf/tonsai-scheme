@@ -52,7 +52,7 @@ void init_mem_sys() {
     exit(1);
   }
   cur = mem_sys_heap = mmap(NULL,
-                            t = (size_t)(1 * page_size),
+                            t = (size_t)(2 * page_size),
                             PROT_READ | PROT_WRITE,
                             MAP_ANON | MAP_PRIVATE,
                             -1,

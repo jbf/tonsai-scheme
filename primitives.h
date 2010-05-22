@@ -31,7 +31,8 @@ cell_t *prim_setcar(cell_t *rest, environ_t *env);
 cell_t *prim_setcdr(cell_t *rest, environ_t *env);
 cell_t *prim_list(cell_t *rest, environ_t *env);
 
-cell_t *definternal(cell_t* rest, environ_t *paren_lexical_env);
+cell_t *prim_definternal(cell_t* rest, environ_t *paren_lexical_env);
+cell_t *prim_deflibrary(cell_t* rest, environ_t *paren_lexical_env);
 
 int proper_list_length(cell_t *lst, int target_length);
 void fast_error(const char *err_msg);

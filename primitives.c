@@ -328,14 +328,46 @@ cell_t *prim_lambda(cell_t *rest, environ_t *paren_lexical_env) {
   return tmp;
 }
 
-/* This is also used for library code. */
-cell_t *definternal(cell_t *rest, environ_t *paren_lexical_env) {
-  if (NULL == paren_lexical_env) {
-    return prim_lambda(rest, internal);
-  } else {
-    return prim_lambda(rest, paren_lexical_env);
+/* add fun-name to internal env, do as if rest is lambda */
+extern environ_t *internal;
+cell_t *prim_definternal(cell_t *rest, environ_t *paren_lexical_env) {
+  cell_t *val, *name_param = CAR(CAR(rest));
+  rest->slot1.car = rest->slot1.car->slot2.cdr;
+  
+  if (!SYMBOLP(name_param)) {
+    fast_error("1:st argument to 'define' must evaluate to a symbol.");
   }
+    
+  if (NULL == paren_lexical_env) {
+    val = prim_lambda(rest, internal); /* internal is the global internal env */
+  } else {
+    val = prim_lambda(rest, paren_lexical_env);
+  }
+
+  add_to_environment(internal, name_param, val);
+  return val;
 }
+
+/* add fun-name to lib env, do as if rest is lambda */
+extern environ_t *lib;
+cell_t *prim_deflibrary(cell_t *rest, environ_t *paren_lexical_env) {
+  cell_t *val, *name_param = CAR(CAR(rest));
+  rest->slot1.car = rest->slot1.car->slot2.cdr;
+  
+  if (!SYMBOLP(name_param)) {
+    fast_error("1:st argument to 'define' must evaluate to a symbol.");
+  }
+    
+  if (NULL == paren_lexical_env) {
+    val = prim_lambda(rest, internal); /* lib also got internal env internal env */
+  } else {
+    val = prim_lambda(rest, paren_lexical_env);
+  }
+
+  add_to_environment(lib, name_param, val);
+  return val;
+}
+
 
 cell_t *prim_quote(cell_t *rest, environ_t *env) {
   if (PAIRP(rest) && proper_list_length(rest,1) == 1) { 
@@ -427,7 +459,7 @@ void undefun_error(cell_t *first, cell_t *exp) {
 }
 
 void undef_ident_error(cell_t *sym) {
-  printf("error: undefined identiier '");
+  printf("error: undefined identifier: ");
   pretty_print(sym);
   GOTO_TOPLEVEL();
 }

@@ -2,12 +2,14 @@
 #include "bootstrap.h"
 #undef _BOOTSTRAP_C
 
+#include <setjmp.h>
 #include <stdio.h>
 
 #include "cell.h"
 #include "symbol.h"
 #include "errors.h"
 #include "reader.h"
+#include "eval.h"
 
 static cell_t nil_c;
 static cell_t false_c;
@@ -20,6 +22,12 @@ static symbol_entry_t t_s = {(unsigned char *)"T", &t_c};
 static cell_t nil_c = {{.type = PAYLOAD_NIL}, {.symbol = &nil_s}};
 static cell_t false_c = {{.type = PAYLOAD_SYMBOL}, {.symbol = &false_s}};
 static cell_t t_c = {{.type = PAYLOAD_SYMBOL}, {.symbol = &t_s}};
+
+extern jmp_buf __jmp_env;
+extern cell_t *orig_sexpr;
+extern environ_t *internal;
+
+extern symbol_table *global_symtab;
 
 cell_t *nil_cell = &nil_c;
 cell_t *false_cell = &false_c;
@@ -60,7 +68,7 @@ int boot(symbol_table *tab, environ_t **env) {
  * Load shceme ibrary from "lib/lib_boot.scm" into lib or internal environment.
  */
 int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
-  cell_t *tmp;
+  cell_t *cell, *res;
   FILE *f;
   
   if ((f = fopen("lib/lib_boot.scm", "r")) == NULL) {
@@ -69,8 +77,29 @@ int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
     return 0;
   }
 
-  while((tmp = read_intern(f, symtab))) {
+  /* set up a mini-repl here that aborts on any error */
+  if (setjmp(__jmp_env)) {
+    DEBUGPRINT_("Error evaluating \"lib/lib_boot.scm\". Exiting. \n");
+    return 0;
+  }
+
+  while ((cell = read_intern(f, global_symtab))) {
     DEBUGPRINT_("Found form in lib/lib_boot.scm\n");
+
+    /* mini-eval each form with internal as initial env*/
+    orig_sexpr = cell;
+    res = evaluate(cell, internal);
+    if (res) {
+#ifdef DEBUG_BOOT
+      pretty_print(res);
+#endif /* DEBUG_BOOT */
+    } else {
+      DEBUGPRINT_("Got NULL from eval of: ");
+      pretty_print(orig_sexpr);
+      DEBUGPRINT_("Error evaluating \"lib/lib_boot.scm\". Exiting. \n");
+      return 0;
+    }
+    orig_sexpr = NULL;
   }
 
   fclose(f);

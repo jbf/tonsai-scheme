@@ -1,4 +1,5 @@
-(definternal (use-vm-func name args-list))
-
-(deflibrafy (debug-info)
-  (use-vm-func "print_debug" (list 0)))
+(definternal (foo bar baz) "aaa")
+(definternal (noo c) (+ 1 c))
+(deflibrary (baz mun) "ooo")
+(deflibrary (gaa) (foo 10 20))
+(deflibrary (maa a) (noo a))

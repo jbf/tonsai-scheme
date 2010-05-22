@@ -59,6 +59,8 @@ void init_eval() {
   boot(global_symtab, &special_forms);
   create_empty_environment(&toplevel);
   create_empty_environment(&primitives);
+  create_empty_environment(&internal);
+  create_empty_environment(&lib);
 
 #define DECLARE_SPECIAL(n, prim_op) do {                                \
     cell_t *s, *v = new(cell_t);                                        \
@@ -84,12 +86,26 @@ void init_eval() {
     add_to_environment(primitives, s, v);                               \
   } while (0)
 
+#define DECLARE_INTERNAL(n, prim_op) do {                               \
+    cell_t *s, *v = new(cell_t);                                        \
+    primitive_t *p = new(primitive_t);                                  \
+                                                                        \
+    p->fun = &prim_op;                                                  \
+    p->name = (unsigned char *)n;                                       \
+    v->slot1.type = PRIMITIVE;                                          \
+    v->slot2.prim = p;                                                  \
+    s = intern((unsigned char *)n, global_symtab);                      \
+    add_to_environment(internal, s, v);                                 \
+  } while (0)
+
+  /*SPECIALS*/
   DECLARE_SPECIAL("if", prim_if);
   DECLARE_SPECIAL("lambda", prim_lambda);
   DECLARE_SPECIAL("quote", prim_quote);
   DECLARE_SPECIAL("define", prim_define);
 #undef DECLARE_SPECIAL
 
+  /*PRIMITIVES*/
   DECLARE_PRIMITIVE("+", prim_plus);
   DECLARE_PRIMITIVE("*", prim_mul);
   DECLARE_PRIMITIVE("=", prim_number_equals);
@@ -103,8 +119,11 @@ void init_eval() {
   DECLARE_PRIMITIVE("list", prim_list);
 #undef DECLARE_PRIMITIVE
 
-  create_empty_environment(&lib);
-  create_empty_environment(&internal);
+  /*INTERNAL*/
+  DECLARE_INTERNAL("definternal", prim_definternal);
+  DECLARE_INTERNAL("deflibrary", prim_deflibrary);
+#undef DECLARE_INTERNAL
+
   if (load_lib_scm(global_symtab, lib, internal) == 0) {
     DEBUGPRINT_("Can not load \"lib/lib_boot.scm\". Exiting.\n");
     exit(1);
@@ -165,7 +184,7 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   int i;
   cell_t *tmp, *head = nil_cell, *tail;
 
-  if (!(length = proper_list_length(args, 0))) return NULL; /* error */
+  if ((length = proper_list_length(args, 0)) < 0) return NULL; /* error */
   if (length > 16) return NULL; /* can only handle 16 args atm */
 
   for (i = 0; i < length; i++, args = CDR(args)) {
