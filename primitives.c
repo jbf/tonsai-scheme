@@ -13,6 +13,9 @@
 void inner_prim_error(cell_t *string_cell);
 void string_error(const char *err_msg);
 
+extern environ_t *internal; /* Lib of vm-internal scheme functions. */
+extern environ_t *lib; /* Lib of public shceme functions. */
+
 /*
  * Helpers.
  */
@@ -303,7 +306,7 @@ cell_t *prim_if(cell_t *rest, environ_t *env) {
 }
 
 
-cell_t *prim_lambda(cell_t *rest, environ_t *env) {
+cell_t *prim_lambda(cell_t *rest, environ_t *paren_lexical_env) {
   cell_t *tmp;
   function_t *fun;
 
@@ -316,13 +319,22 @@ cell_t *prim_lambda(cell_t *rest, environ_t *env) {
   fun = new(function_t);
 
   fun->fun_cell = tmp;
-  fun->lexical_env = env;
+  fun->lexical_env = paren_lexical_env;
   fun->param_list = CAR(rest);
   fun->code = CDR(rest);
 
   tmp->slot1.type = FUNCTION;
   tmp->slot2.fun = fun;
   return tmp;
+}
+
+/* This is also used for library code. */
+cell_t *definternal(cell_t *rest, environ_t *paren_lexical_env) {
+  if (NULL == paren_lexical_env) {
+    return prim_lambda(rest, internal);
+  } else {
+    return prim_lambda(rest, paren_lexical_env);
+  }
 }
 
 cell_t *prim_quote(cell_t *rest, environ_t *env) {

@@ -2,9 +2,12 @@
 #include "bootstrap.h"
 #undef _BOOTSTRAP_C
 
+#include <stdio.h>
+
 #include "cell.h"
 #include "symbol.h"
 #include "errors.h"
+#include "reader.h"
 
 static cell_t nil_c;
 static cell_t false_c;
@@ -50,5 +53,26 @@ int boot(symbol_table *tab, environ_t **env) {
 
   create_empty_environment(env);
   fill_initial_environment(*env);
+  return 1;
+}
+
+/*
+ * Load shceme ibrary from "lib/lib_boot.scm" into lib or internal environment.
+ */
+int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
+  cell_t *tmp;
+  FILE *f;
+  
+  if ((f = fopen("lib/lib_boot.scm", "r")) == NULL) {
+    perror(AT);
+    DEBUGPRINT_("Can't open \"lib/lib_boot.scm\".\n");
+    return 0;
+  }
+
+  while((tmp = read_intern(f, symtab))) {
+    DEBUGPRINT_("Found form in lib/lib_boot.scm\n");
+  }
+
+  fclose(f);
   return 1;
 }

@@ -6,6 +6,7 @@
 #include "environment.h"
 
 int boot(symbol_table *tab, environ_t **env);
+int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal);
 
 #ifndef _BOOTSTRAP_C
 extern cell_t *nil_cell;

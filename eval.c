@@ -13,6 +13,8 @@
 environ_t *special_forms;
 environ_t *toplevel;
 environ_t *primitives;
+environ_t *lib;
+environ_t *internal;
 static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
@@ -100,6 +102,13 @@ void init_eval() {
   DECLARE_PRIMITIVE("set-cdr!", prim_setcdr);
   DECLARE_PRIMITIVE("list", prim_list);
 #undef DECLARE_PRIMITIVE
+
+  create_empty_environment(&lib);
+  create_empty_environment(&internal);
+  if (load_lib_scm(global_symtab, lib, internal) == 0) {
+    DEBUGPRINT_("Can not load \"lib/lib_boot.scm\". Exiting.\n");
+    exit(1);
+  }
 }
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {
@@ -198,6 +207,11 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
   return ret;
 }
 
+/* This fixes the lookup order. If S is defined in an env looked into
+ * earlier, it will override later environments.
+ *
+ * For example library code overrides primitives.
+ */
 cell_t *find_value(environ_t *env, cell_t *sym) {
   cell_t *ct = value(special_forms, sym);
 #ifdef LOOKUP_DEBUG
@@ -218,6 +232,14 @@ cell_t *find_value(environ_t *env, cell_t *sym) {
   ct = value(toplevel, sym);
 #ifdef LOOKUP_DEBUG
   DEBUGPRINT("In toplevel, sym is %p\n", ct);
+#endif /* LOOKUP_DEBUG */
+  if (ct) {
+    return ct;
+  }
+
+  ct = value(lib, sym);
+#ifdef LOOKUP_DEBUG
+  DEBUGPRINT("In library, sym is %p\n", ct);
 #endif /* LOOKUP_DEBUG */
   if (ct) {
     return ct;

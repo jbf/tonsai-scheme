@@ -4,6 +4,8 @@
 #include "symbol.h"
 #include "memory.h"
 
+cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table);
+
 cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
   token_t tok;
   cell_t *cell; 
