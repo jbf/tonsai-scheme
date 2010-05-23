@@ -27,3 +27,10 @@
 (list "a"), ("a")
 (list 10 10 10), (10 10 10)
 (list "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"), ("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z")
+(lib-test-one 10), 11
+(lib-test-zero), "lib-test0"
+(vm-lib-test-one 10), 11
+(vm-lib-test-zeroone), 11
+(vm-lib-test-zero), "vm-test0"
+(vm-test-one), error: undefined identifier: vm-test-one
+(vm-test-zero), error: undefined identifier: vm-test-zero
