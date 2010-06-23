@@ -11,7 +11,8 @@ all: $(DEPS) $(OBJECTS) $(PROGRAM)
 depend: $(DEPS)
 
 repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
-       environment.o bootstrap.o function.o memory.o errors.o
+       environment.o bootstrap.o function.o memory.o errors.o \
+       liveness.o
 
 
 %.dep: %.c %.h

@@ -6,12 +6,25 @@
 #include <sys/mman.h>
 #include <errno.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "util.h"
 
 static void *mem_sys_heap = NULL;
 static void *cur = NULL;
 static void *top = NULL;
+
+void *malloc_or_bail(size_t bytes) {
+  void *tmp;
+  tmp = malloc(bytes);
+
+  if (NULL == tmp) {
+    DEBUGPRINT_("Out ouf memory. Aborting.\n");
+    bail(1);
+  }
+
+  return tmp;
+}
 
 void *mem_sys_safe_alloc(size_t bytes) {
   void *t;

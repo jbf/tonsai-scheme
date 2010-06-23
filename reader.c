@@ -3,6 +3,7 @@
 #include "token.h"
 #include "symbol.h"
 #include "memory.h"
+#include "liveness.h"
 
 cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table);
 
