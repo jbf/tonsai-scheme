@@ -1,1 +1,2 @@
 - VM segfaults on symbols that contain numbers.
+- "(+ 10 10(" exits repl without error
