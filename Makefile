@@ -1,8 +1,8 @@
-DEBUG   = -DDEBUG
-#DEBUG   = -DDEBUG -DEVAL_DEBUG -DMEM_DEBUG -DLOOKUP_DEBUG
+DEBUG   = -DDEBUG -DLIVENESS_DEBUG
+#DEBUG   = -DDEBUG -DEVAL_DEBUG -DMEM_DEBUG -DLOOKUP_DEBUG -DLIVENESS_DEBUG
 CFLAGS  = -Wall $(DEBUG) -g
 PROGRAM = repl
-SOURCES = $(wildcard *.c)
+SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
 
@@ -10,10 +10,8 @@ all: $(DEPS) $(OBJECTS) $(PROGRAM)
 
 depend: $(DEPS)
 
-repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
-       environment.o bootstrap.o function.o memory.o errors.o \
-       liveness.o
-
+repl: $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
 %.dep: %.c %.h
 	@set -e; rm -f $@; \
@@ -23,10 +21,9 @@ repl : eval.o token.o symbol.o cell.o reader.o primitives.o \
          rm -f $@.$$$$
 
 clean:
-	-rm -f -- *.o *.dep *.dep.* *~ core a.out test_token test_cell \
-	test_reader test_symbol test_environment test_eval test_primitives \
-	repl
+	-rm -f -- *.o *.dep *.dep.* *~ core a.out repl
 	-rm -rf -- *.dSYM
+	-rm -f -- src/*.o src/*.dep src/*.dep.* src/*~
 
 include $(SOURCES:.c=.dep)
 

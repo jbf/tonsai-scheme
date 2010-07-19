@@ -39,9 +39,9 @@ frame_t *new_liveframe(int nr_live, ...) {
 
   va_start(ap, nr_live);
   for (i = 0; i < nr_live; i++) {
-     cell_t *foo = va_arg(ap, cell_t *);
-     *arr = foo;
-     arr++;
+    cell_t *foo = va_arg(ap, cell_t *);
+    *arr = foo;
+    arr++;
   }
   va_end(ap);
 
@@ -68,21 +68,21 @@ void dealloc_frames(frame_t **top) {
 }
 
 void print_frames(frame_t *first) {
-   frame_t *f = first;
-   while(f != NULL) {
-      print_single_frame(f);
-      f=f->next_frame;
-   }
+  frame_t *f = first;
+  while(f != NULL) {
+    print_single_frame(f);
+    f=f->next_frame;
+  }
 }
 
 void print_single_frame(frame_t *f) {
-   cell_t **cp = f->live_cells;
-   int i = 0;
-   while (i < f->nr_live) {
-      DEBUGPRINT("Live cell_t at: %p ", *cp);
-      pp(*cp);
-      printf("\n");
-      i++;
-      cp++;
-   }
+  cell_t **cp = f->live_cells;
+  int i = 0;
+  while (i < f->nr_live) {
+    DEBUGPRINT("Live cell_t at: %p ", *cp);
+    pp(*cp);
+    printf("\n");
+    i++;
+    cp++;
+  }
 }

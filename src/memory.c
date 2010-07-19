@@ -10,6 +10,11 @@
 
 #include "util.h"
 
+#ifdef LIVENESS_DEBUG
+#include "liveness.h"
+extern frame_t *live_root;
+#endif /* LIVENESS_DEBUG */
+
 static void *mem_sys_heap = NULL;
 static void *cur = NULL;
 static void *top = NULL;
@@ -35,6 +40,10 @@ void *mem_sys_safe_alloc(size_t bytes) {
 #ifdef MEM_DEBUG
   DEBUGPRINT("Trying to alloc: %lu bytes at %p\n", (long) bytes, cur);
 #endif /* MEM_DEBUG */
+
+#ifdef LIVENESS_DEBUG
+  print_frames(live_root);
+#endif /* LIVENESS_DEBUG */
 
   if (bytes < 0) {
     DEBUGPRINT_("Trying to allocate a negative amount of memory. Aborting.\n");
