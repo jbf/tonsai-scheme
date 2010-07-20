@@ -37,14 +37,14 @@ cell_t *intern(unsigned char *sym, symbol_table *tab) {
     symbol_entry_t *new_sym;
     cell_t *new_cell;
    
-    new_tab = new(symtab_entry_t);
-    new_sym = new(symbol_entry_t);
+    new_tab = new_malloc(symtab_entry_t);
+    new_sym = new_malloc(symbol_entry_t);
     new_cell = new(cell_t);
     
     if (NULL == new_tab || NULL == new_sym || NULL == new_cell) {
       free(new_tab);
       free(new_sym);
-      free(new_cell);
+      /* new_cell is on-heap, gc:d */
       return 0; /* Out of memory. */
     }
 

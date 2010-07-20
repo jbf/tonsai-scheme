@@ -15,7 +15,8 @@
  *           string 0000000101
  *           number 0000001101 
  *        PRIMITIVE 0000010101
- *         FUNCTION 0000011101 
+ *         FUNCTION 0000011101
+ *             u8[] 0000100101 tag word for u8[] alloced on heap
  */
 
 typedef enum {
@@ -25,6 +26,7 @@ typedef enum {
   PAYLOAD_NUMBER = 13,
   PRIMITIVE      = 21,
   FUNCTION       = 29,
+  U8VEC          = 37,
 } cell_type_t;
 
 struct environ_t;

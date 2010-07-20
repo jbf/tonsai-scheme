@@ -32,7 +32,6 @@ int main(int argc, char **argv, char **envp) {
     dealloc_frames(&live_root);
   }
   while (1) {
-    /* TODO: must edit read_intern for global liveness */
     cell = read_intern(stdin, global_symtab);
 
     if(!cell) {

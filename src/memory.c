@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "util.h"
+#include "cell.h"
 
 #ifdef LIVENESS_DEBUG
 #include "liveness.h"
@@ -19,6 +20,7 @@ static void *mem_sys_heap = NULL;
 static void *cur = NULL;
 static void *top = NULL;
 
+/* Off-heap malloc that only returns if it succeeds */
 void *malloc_or_bail(size_t bytes) {
   void *tmp;
   tmp = malloc(bytes);
@@ -31,6 +33,7 @@ void *malloc_or_bail(size_t bytes) {
   return tmp;
 }
 
+/* On-heap malloc that only returns if it succeeds */
 void *mem_sys_safe_alloc(size_t bytes) {
   void *t;
   assert(NULL != mem_sys_heap &&
@@ -48,7 +51,11 @@ void *mem_sys_safe_alloc(size_t bytes) {
   if (bytes < 0) {
     DEBUGPRINT_("Trying to allocate a negative amount of memory. Aborting.\n");
     exit(1);
-  } else if (cur + bytes > top) {
+  } 
+
+  bytes = (((bytes-1)/(sizeof(void*)))+1)*sizeof(void *); /* align to sizeof(void *) */
+
+  if (cur + bytes > top) {
     DEBUGPRINT_("Out of memory. Aborting.\n");
     exit(1);
   }
@@ -58,6 +65,44 @@ void *mem_sys_safe_alloc(size_t bytes) {
   return t;
 }
   
+void *u8_new(size_t bytes) {
+#ifdef MEM_DEBUG
+  int orig = bytes;
+#endif /* MEM_DEBUG */
+  cell_t *c;
+  void *t;
+  char *b;
+  long *l;
+
+  if (bytes < 0) {
+    DEBUGPRINT_("Trying to allocate an u8-vec of negative size. Aborting.\n");
+    exit(1);
+  }
+
+  bytes += sizeof(void *)*2; /* add space for tag word and size */
+  bytes = (((bytes-1)/(sizeof(void*)))+1)*sizeof(void *); /* align to sizeof(void *) */
+
+#ifdef MEM_DEBUG
+  DEBUGPRINT("Trying to alloc u8-vec: %u bytes became %u after " +
+             "align, tag and size.\n",
+             orig, bytes);
+#endif /* MEM_DEBUG */
+
+  t = mem_sys_safe_alloc(bytes);
+
+  c = (cell_t *)t;
+  c->slot1.type = U8VEC; /* tag */
+
+  b = (char *)t;
+  b += sizeof(void *);
+  l = (long *)b;
+  *l = bytes; /* size */
+
+  b = (char *)l;
+  b += sizeof(void *);
+  t = (void *)b; /* return pointer to free mem 2x(void *) in */
+  return t;
+}
 
 /* Inits the managed memory subsytem. Should only be done once. */
 void init_mem_sys() {
