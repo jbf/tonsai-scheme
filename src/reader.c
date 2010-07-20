@@ -5,6 +5,9 @@
 #include "memory.h"
 #include "liveness.h"
 
+extern frame_t *live_root;
+extern cell_t *nil_cell;
+
 cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table);
 
 cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
@@ -61,6 +64,9 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
   do {
     ret = get_token(stream, &tok);
     if (ret != TOKEN_OK) {
+      if (first) {
+        pop_liveness(&live_root);
+      }
       return NULL;
     }
 
@@ -68,13 +74,20 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
 
     /* Will leak all read token payloads' memory in OOM situation. */
     if (!current) {
+      if (first) {
+        pop_liveness(&live_root); 
+      }
       return NULL;
     }
+
+    current->slot2.cdr = nil_cell; /* pretend this is a proper list so we can
+                                      print liveness */
 
     if (last) {
       last->slot2.cdr = current;
     } else { /* This is the first in the list. */
       first = current;
+      push_liveness(&live_root, new_liveframe(1, first));
     }
 
     switch(tok.type) {
@@ -84,11 +97,15 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
     case TOKEN_RPAREN:
       current->slot1.type = PAYLOAD_NIL;
       current->slot2.cdr = NULL;
+      pop_liveness(&live_root);
       return first;
     case TOKEN_SYMBOL:
       /* We also need to free or steal the payload part. */
       temp = intern(tok.atom_name, symbol_table);
       if (!temp) {
+        if (first) {
+          pop_liveness(&live_root); 
+        }
         return NULL;
       }
       current->slot1.car = temp;
@@ -96,6 +113,9 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
     case TOKEN_NUMBER:
       temp = new(cell_t);
       if (!temp) {
+        if (first) {
+          pop_liveness(&live_root); 
+        }
         return NULL;
       }
       current->slot1.car = temp;
@@ -106,6 +126,9 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       /* As with symbols, we need to free or steal the token payload. */
       temp = new(cell_t);
       if (!temp) {
+        if (first) {
+          pop_liveness(&live_root); 
+        }
         return NULL;
       }
       current->slot1.car = temp;
@@ -113,11 +136,17 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       temp->slot2.string = tok.string_val;
       break;
     default:
+      if (first) {
+        pop_liveness(&live_root); 
+      }
       return NULL;
     }
 
     last = current;
   } while (1);
 
+  if (first) {
+    pop_liveness(&live_root); 
+  }
   return first;
 }

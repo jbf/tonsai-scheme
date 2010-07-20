@@ -40,8 +40,12 @@ frame_t *new_liveframe(int nr_live, ...) {
   va_start(ap, nr_live);
   for (i = 0; i < nr_live; i++) {
     cell_t *foo = va_arg(ap, cell_t *);
-    *arr = foo;
-    arr++;
+    if (NULL != foo) {
+      *arr = foo;
+      arr++;
+    } else {
+      frame->nr_live--;
+    }  
   }
   va_end(ap);
 
