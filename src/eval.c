@@ -8,6 +8,7 @@
 #include "bootstrap.h"
 #include "function.h"
 #include "errors.h"
+#include "liveness.h"
 
 /* Some of theses should be per thread, and some global but protected. */
 environ_t *special_forms;
@@ -19,6 +20,7 @@ static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
 cell_t *orig_sexpr;
+extern frame_t *live_root;
 
 cell_t *find_value(environ_t *env, cell_t *sym);
 
@@ -63,8 +65,9 @@ void init_eval() {
   create_empty_environment(&lib);
 
 #define DECLARE_SPECIAL(n, prim_op) do {                                \
+    /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
-    primitive_t *p = new(primitive_t);                                  \
+    primitive_t *p = new_malloc(primitive_t);                           \
                                                                         \
     p->fun = &prim_op;                                                  \
     p->name = (unsigned char *)n;                                       \
@@ -75,8 +78,9 @@ void init_eval() {
   } while (0)
 
 #define DECLARE_PRIMITIVE(n, prim_op) do {                              \
+    /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
-    primitive_t *p = new(primitive_t);                                  \
+    primitive_t *p = new_malloc(primitive_t);                           \
                                                                         \
     p->fun = &prim_op;                                                  \
     p->name = (unsigned char *)n;                                       \
@@ -87,8 +91,9 @@ void init_eval() {
   } while (0)
 
 #define DECLARE_INTERNAL(n, prim_op) do {                               \
+    /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
-    primitive_t *p = new(primitive_t);                                  \
+    primitive_t *p = new_malloc(primitive_t);                           \
                                                                         \
     p->fun = &prim_op;                                                  \
     p->name = (unsigned char *)n;                                       \
@@ -192,11 +197,20 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   }
 
   for (i = length - 1; i >= 0; i--) {
-    tmp = new(cell_t);
+    tmp = new(cell_t); // liveness ok
+    if (head != nil_cell) {
+      pop_liveness(&live_root);
+    }
     tail = head;
     head = argsarray[i];
     CONS(tmp, head, tail);
     head = tmp;
+    
+    push_liveness(&live_root, new_liveframe(1, head));
+  }
+
+  if (length > 0) {
+    pop_liveness(&live_root);
   }
 
   return head;

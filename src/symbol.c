@@ -39,7 +39,7 @@ cell_t *intern(unsigned char *sym, symbol_table *tab) {
    
     new_tab = new_malloc(symtab_entry_t);
     new_sym = new_malloc(symbol_entry_t);
-    new_cell = new(cell_t);
+    new_cell = new(cell_t); // nothing extra live at call to new
     
     if (NULL == new_tab || NULL == new_sym || NULL == new_cell) {
       free(new_tab);
@@ -73,7 +73,7 @@ int init_symbol_table(symbol_table *tab) {
 }
 
 int push(symbol_table *tab, symbol_entry_t *s) {
-  symtab_entry_t *t = new(symtab_entry_t);
+  symtab_entry_t *t = new_malloc(symtab_entry_t);
   t->next = tab->head;
   t->symbol = s;
   tab->head = t;

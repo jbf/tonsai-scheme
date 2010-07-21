@@ -33,7 +33,7 @@ cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
     }
     return cell;
   case TOKEN_NUMBER:
-    cell = new(cell_t);
+    cell = new(cell_t); // nothing extra live
     if (NULL == cell) {
       return NULL;
     }
@@ -42,7 +42,7 @@ cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
     return cell;
   case TOKEN_STRING:
     /* As with symbols, we need to free or steal the token payload. */
-    cell = new(cell_t);
+    cell = new(cell_t); // nothing extra live
     if (NULL == cell) {
       return NULL;
     }
@@ -70,7 +70,7 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       return NULL;
     }
 
-    current = new(cell_t);
+    current = new(cell_t); // liveness tracked through 'first'
 
     /* Will leak all read token payloads' memory in OOM situation. */
     if (!current) {
@@ -90,6 +90,7 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       push_liveness(&live_root, new_liveframe(1, first));
     }
 
+    /* All liveness tracked through first */
     switch(tok.type) {
     case TOKEN_LPAREN:
       current->slot1.car = read_list_intern(stream, symbol_table);
@@ -111,7 +112,7 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       current->slot1.car = temp;
       break;
     case TOKEN_NUMBER:
-      temp = new(cell_t);
+      temp = new(cell_t); // liveness ok
       if (!temp) {
         if (first) {
           pop_liveness(&live_root); 
@@ -124,7 +125,7 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       break;
     case TOKEN_STRING:
       /* As with symbols, we need to free or steal the token payload. */
-      temp = new(cell_t);
+      temp = new(cell_t); // liveness ok
       if (!temp) {
         if (first) {
           pop_liveness(&live_root); 

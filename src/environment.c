@@ -13,7 +13,7 @@ cell_t *value(environ_t *env, cell_t *sym) {
 }
 
 int create_empty_environment(environ_t **env) {
-  *env = new(environ_t);
+  *env = new_malloc(environ_t);
 
   if (NULL == *env) return EOOM;
 
@@ -28,8 +28,8 @@ int create_empty_environment(environ_t **env) {
  * do that.
  */
 int alloc_sym_value_pair(value_container_t **sym, value_container_t **val) {
-  *sym = new(value_container_t);
-  *val = new(value_container_t);
+  *sym = new_malloc(value_container_t);
+  *val = new_malloc(value_container_t);
   int oom = FALSE;
 
   if (NULL == *sym) {
