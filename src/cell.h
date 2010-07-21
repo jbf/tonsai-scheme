@@ -66,11 +66,11 @@ typedef struct cell_t {
 #define STRING_VAL(c) ((c)->slot2.string)
 
 /* Constructor. */
-#define CONS(target, src1, src2)   \
-  do {                             \
-    cell_t *__CONS_TMP = (target);     \
-    __CONS_TMP->slot1.car = (src1);      \
-    __CONS_TMP->slot2.cdr = (src2);      \
+#define CONS(target, src1, src2)    \
+  do {                              \
+    cell_t *__CONS_TMP = (target);  \
+    __CONS_TMP->slot1.car = (src1); \
+    __CONS_TMP->slot2.cdr = (src2); \
   } while (0)
 
 void print_cell(cell_t *cell);
