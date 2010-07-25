@@ -136,7 +136,7 @@ void init_mem_sys() {
 
   DEBUGPRINT("\tmem_sys_heap: %p, top: %p\n"
              "\t\t\t\theap size: %d bytes\n"
-             "\t\t\t\tsizeof(void *) is %lu bytes\n",
+             "\t\t\t\tsizeof(void *) is %d bytes\n",
              mem_sys_heap,
              top,
              (int)(top-mem_sys_heap),
