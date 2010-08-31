@@ -28,7 +28,7 @@ clean:
 	-rm -f -- *.o *.dep *.dep.* *~ core a.out repl
 	-rm -rf -- *.dSYM
 	-rm -f -- src/*.o src/*.dep src/*.dep.* src/*~
-	-rm -f -- TAGS
+	-rm -f -- TAGS GPATH  GRTAGS  GSYMS  GTAGS
 
 tags:
 	find . -name "*.[c|h]" | xargs etags
