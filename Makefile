@@ -32,5 +32,6 @@ clean:
 
 tags:
 	find . -name "*.[c|h]" | xargs etags
+	gtags -v
 
 .PHONY: clean
