@@ -140,5 +140,5 @@ void init_mem_sys() {
              mem_sys_heap,
              top,
              (int)(top-mem_sys_heap),
-             sizeof (void *));
+             (int)sizeof (void *));
 }
