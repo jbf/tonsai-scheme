@@ -36,6 +36,6 @@ tags:
 	gtags -v
 
 src/vm/cpp_vm.o: src/vm/cpp_vm.cpp src/vm/cpp_vm.hpp
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o src/vm/$@ $<
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o $@ $<
 
 .PHONY: clean
