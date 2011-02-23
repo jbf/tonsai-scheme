@@ -18,6 +18,7 @@ public:
   public:
     
     friend class Context;
+    friend class TestContext;
   };
   
   class Registers {
