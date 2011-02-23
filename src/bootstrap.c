@@ -71,7 +71,8 @@ int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
   cell_t *cell, *res;
   FILE *f;
   
-  if ((f = fopen("lib/lib_boot.scm", "r")) == NULL) {
+  if (((f = fopen("lib/lib_boot.scm", "r")) == NULL) &&
+      ((f = fopen("lib/lib_boot_test.scm", "r")) == NULL)) {
     perror(AT);
     DEBUGPRINT_("Can't open \"lib/lib_boot.scm\".\n");
     return 0;

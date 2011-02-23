@@ -1,7 +1,0 @@
-(definternal (vm-test-zero) "vm-test0")
-(definternal (vm-test-one a) (+ 1 a))
-(deflibrary (vm-lib-test-zero) (vm-test-zero))
-(deflibrary (vm-lib-test-zeroone) (vm-test-one 10))
-(deflibrary (vm-lib-test-one c) (vm-test-one c))
-(deflibrary (lib-test-zero) "lib-test0")
-(deflibrary (lib-test-one a) (+ 1 a))
