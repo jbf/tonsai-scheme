@@ -1,14 +1,30 @@
 #include "cpp_vm.hpp"
+#include <iostream>
 
+/* Frame */
 Context::Frame::Frame(int s, Frame *p) :
   prev(p),
   next(0),
   size(s),
+  top(0),
   u(0)
 {
-  ;
+  u = new stack_entry[size];
+  for (int i = 0; i < size; i++) {
+    *(u+i)=0;
+  }
 }
 
+std::ostream& operator<<(std::ostream& os, const Context::Frame& f) {
+  os << "Frame at: " << &f << ", size: " << f.size;
+  return os;
+}
+
+Context::Frame::~Frame() {
+  delete [] u; // what happens to each element now?
+}
+
+/* Context */
 Context::Context(int initial_frame_size) :
   top(0),
   bottom(0)
@@ -61,6 +77,34 @@ void Context::pop_frame() {
     bottom->next = 0;
   }
   delete f;
+}
+
+void Context::push_on(stack_entry s) {
+  if (bottom == 0) {
+    //CMH: error
+    return;
+  }
+  if(bottom->top == bottom->size) {
+    //CMH: error
+    return;
+  }
+  *(bottom->u + bottom->top) = s;
+  bottom->top++;
+}
+
+Context::stack_entry Context::pop_off(bool zero) {
+  if (bottom->top < 1) {
+    //CMH: error
+    return 0;
+  }
+
+  bottom->top--;
+  stack_entry t = *(bottom->u + bottom->top);
+  if(zero) {
+    *(bottom->u + bottom->top) = 0;
+  }
+
+  return t;
 }
 
 Context::Context() :
