@@ -7,7 +7,7 @@ SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
 
-all: depend $(PROGRAM) src/vm/cpp_vm.o src/vm/test/test_context
+all: depend $(PROGRAM) src/vm/cpp_vm.o test/test_context
 
 depend: $(DEPS)
 
@@ -31,6 +31,9 @@ clean:
 	-rm -f -- src/*.o src/*.dep src/*.dep.* src/*~
 	-rm -f -- TAGS GPATH  GRTAGS  GSYMS  GTAGS
 	-rm -f -- src/vm/*.o src/vm/*.dep src/vm/*.dep.* src/vm/*~
+	-rm -f -- src/vm/test/*.o src/vm/test/*.dep src/vm/test/*.dep.* \
+                  src/vm/test/*~ test/test_context
+
 tags:
 	find . -name "*.[c|h]" | xargs etags
 	gtags -v
@@ -41,7 +44,7 @@ src/vm/cpp_vm.o: src/vm/cpp_vm.cpp src/vm/cpp_vm.hpp
 src/vm/test/test_context.o: src/vm/test/test_context.cpp src/vm/cpp_vm.hpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o $@ $<
 
-src/vm/test/test_context: src/vm/cpp_vm.o src/vm/test/test_context.o
+test/test_context: src/vm/cpp_vm.o src/vm/test/test_context.o
 	$(CXX) $(LDFLAGS) -o $@ $^
 
 .PHONY: clean
