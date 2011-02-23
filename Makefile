@@ -7,7 +7,7 @@ SOURCES = $(wildcard src/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
 
-all: depend $(PROGRAM) src/vm/cpp_vm.o
+all: depend $(PROGRAM) src/vm/cpp_vm.o src/vm/test/test_context
 
 depend: $(DEPS)
 
@@ -37,5 +37,11 @@ tags:
 
 src/vm/cpp_vm.o: src/vm/cpp_vm.cpp src/vm/cpp_vm.hpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o $@ $<
+
+src/vm/test/test_context.o: src/vm/test/test_context.cpp src/vm/cpp_vm.hpp
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o $@ $<
+
+src/vm/test/test_context: src/vm/cpp_vm.o src/vm/test/test_context.o
+	$(CXX) $(LDFLAGS) -o $@ $^
 
 .PHONY: clean
