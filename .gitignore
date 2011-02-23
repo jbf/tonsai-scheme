@@ -16,3 +16,4 @@ test_reader
 /GTAGS
 repl
 TAGS
+/src/vm/test/test_context.cpp~
