@@ -17,3 +17,4 @@ test_reader
 repl
 TAGS
 /src/vm/test/test_context.cpp~
+/test/test_context
