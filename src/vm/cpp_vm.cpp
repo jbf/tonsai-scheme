@@ -1,8 +1,9 @@
 #include "cpp_vm.hpp"
+
 #include <iostream>
 
 /* Frame */
-Context::Frame::Frame(int s, Frame *p) :
+context::frame::frame(int s, frame *p) :
   prev(p),
   next(0),
   size(s),
@@ -15,21 +16,21 @@ Context::Frame::Frame(int s, Frame *p) :
   }
 }
 
-std::ostream& operator<<(std::ostream& os, const Context::Frame& f) {
+std::ostream& operator<<(std::ostream& os, const context::frame& f) {
   os << "Frame at: " << &f << ", size: " << f.size;
   return os;
 }
 
-Context::Frame::~Frame() {
+context::frame::~frame() {
   delete [] u; // what happens to each element now?
 }
 
 /* Context */
-Context::Context(int initial_frame_size) :
+context::context(int initial_frame_size) :
   top(0),
   bottom(0)
 { 
-  Frame *t = new Frame(initial_frame_size, 0);
+  frame *t = new frame(initial_frame_size, 0);
   top = t;
   bottom = t;
 }
@@ -52,8 +53,8 @@ Context::Context(int initial_frame_size) :
  * and
  * bottom->prev == top->prev == 0
  */
-Context::Frame * Context::push_new_frame(int size) {
-  Frame *f = new Frame(size, bottom); //bottom is 0 if this is first frame
+context::frame * context::push_new_frame(int size) {
+  frame *f = new frame(size, bottom); //bottom is 0 if this is first frame
 
   if (top == 0) {
     top = f;
@@ -65,10 +66,12 @@ Context::Frame * Context::push_new_frame(int size) {
   return f;
 }
 
-void Context::pop_frame() {
-  // Check for underflow/null
+void context::pop_frame() {
+  if (bottom == 0) {
+    throw vm_error(); //pop one frame to manny, ey?
+  }
 
-  Frame *f = bottom;
+  frame *f = bottom;
   
   if (top == bottom) {
     top = bottom = 0;
@@ -79,23 +82,21 @@ void Context::pop_frame() {
   delete f;
 }
 
-void Context::push_on(stack_entry s) {
+void context::push_on(stack_entry s) {
   if (bottom == 0) {
-    //CMH: error
-    return;
+    throw vm_error(); //stack is not initialized, we have no frame
   }
   if(bottom->top == bottom->size) {
-    //CMH: error
+    throw context::frame_overflow("");
     return;
   }
   *(bottom->u + bottom->top) = s;
   bottom->top++;
 }
 
-Context::stack_entry Context::pop_off(bool zero) {
+context::stack_entry context::pop_off(bool zero) {
   if (bottom->top < 1) {
-    //CMH: error
-    return 0;
+    throw context::frame_underflow("");
   }
 
   bottom->top--;
@@ -107,14 +108,14 @@ Context::stack_entry Context::pop_off(bool zero) {
   return t;
 }
 
-Context::Context() :
+context::context() :
   top(0),
   bottom(0)
 { }
 
-Context::~Context() {
+context::~context() {
   while(bottom != top) {
-    Frame *t = bottom->prev;
+    frame *t = bottom->prev;
     delete bottom;
     bottom = t;
   }

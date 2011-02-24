@@ -1,70 +1,91 @@
 #ifndef CPP_VM_HPP
 #define CPP_VM_HPP 1
 
+#include "vm_error.hpp"
+
 #include <iosfwd>
 
-class Context {
+class context {
   typedef uint64_t stack_entry;
 
 public:
-  /* Frame */
-  class Frame {
+  /* frame */
+  class frame {
   private:
-    Frame *prev;
-    Frame *next;
+    frame *prev;
+    frame *next;
     int size;
     int top;
     stack_entry *u;
 
-    Frame(int s, Frame *p);
+    frame(int s, frame *p);
 
-    Frame(const Frame&);
-    Frame& operator=(const Frame&);
+    frame(const frame&);
+    frame& operator=(const frame&);
 
   public:
-    ~Frame();
+    ~frame();
 
-    friend class Context;
-    friend class TestContext;
-    friend std::ostream& operator<<(std::ostream&, const Context::Frame&);
+    friend class context;
+    friend class test_context;
+    friend std::ostream& operator<<(std::ostream&, const context::frame&);
   };
   
   /* Registers */
   class Registers {
-    friend class Context;
+    friend class context;
   };
 
   /* Handler */
   class Handler {
-    friend class Context;
+    friend class context;
   };
 
   /* Meta */
   class Meta {
-    friend class Context;
+    friend class context;
+  };
+
+  /* Errors */
+  class frame_overflow : public virtual std::overflow_error,
+                         public virtual vm_error {
+  public:
+    explicit frame_overflow(const std::string& s) :
+      std::overflow_error(s)
+    {
+    }
+  };
+
+  class frame_underflow : public virtual std::underflow_error,
+                          public virtual vm_error {
+  public:
+    explicit frame_underflow(const std::string& s) :
+      std::underflow_error(s)
+    {
+    }
   };
 
 private:
-  Frame *top;    //Frame stack grows from top to bottom
-  Frame *bottom;
+  frame *top;    //Frame stack grows from top to bottom
+  frame *bottom;
 
-  Context(const Context&); //private copy-constructor
-  Context& operator=(const Context&); //private operator=
+  context(const context&); //private copy-constructor
+  context& operator=(const context&); //private operator=
 
 public:
-  Context();
-  explicit Context(int initial_frame_size); // no conversion constructor
-  ~Context();
+  context();
+  explicit context(int initial_frame_size); // no conversion constructor
+  ~context();
 
   /* Frame management */
-  Frame * push_new_frame(int size);
+  frame * push_new_frame(int size);
   void pop_frame();
 
   /* Values on frame */
   void push_on(stack_entry);
   stack_entry pop_off(bool zero=false);
 
-  friend class TestContext;
+  friend class test_context;
 };
 
 #endif /* CPP_VM_HPP */
