@@ -38,6 +38,9 @@ tags:
 	find . -name "*.[c|h]" | xargs etags
 	gtags -v
 
+cloc: clean
+	cloc src Makefile dev-tools lib test/test_primitives.c test.rb
+
 src/vm/cpp_vm.o: src/vm/cpp_vm.cpp src/vm/cpp_vm.hpp
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o $@ $<
 
