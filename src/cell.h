@@ -6,8 +6,9 @@
 #include <stdint.h>
 
 /*
- *                  binary position
- * symbol payloads: 9876543210
+ *                  binary position:
+ *                  9876543210
+ * symbol payloads: 
  *
  *        cons cell xxxxxxxxx0 both car and cdr point to other cells
  *          symbols 0000000011
