@@ -122,3 +122,11 @@ context::~context() {
 
   delete top;
 }
+
+context::context(const context::context&) {
+  throw vm_error();
+}
+
+context::context& context::operator=(const context::context&) {
+  throw vm_error();
+}
