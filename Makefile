@@ -3,7 +3,7 @@ DEBUG   = -DDEBUG
 CFLAGS  = -Wall $(DEBUG) -g
 CXXFLAGS_EXTRA = -Wall -g
 PROGRAM = repl
-SOURCES = $(wildcard src/*.c)
+SOURCES = $(wildcard src/ast-walker/*.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
 
