@@ -31,6 +31,25 @@ public:
     friend class test_context;
     friend std::ostream& operator<<(std::ostream&, const context::frame&);
   };
+
+  /* iterator */
+  class iterator {
+  private:
+    frame *current;
+    iterator();
+  public:
+    explicit iterator(frame *f); // no auto-conversion
+    ~iterator();
+    
+    iterator(const iterator&); // copy constructor
+    iterator& operator=(const iterator&); //assignment
+
+    iterator& operator++();
+    frame& operator*();
+    frame* operator->();
+    bool operator==(const iterator&);
+    bool operator!=(const iterator&);
+  };
   
   /* Registers */
   class Registers {
