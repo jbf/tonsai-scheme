@@ -45,6 +45,6 @@ cloc: clean
 	cloc src Makefile dev-tools lib test/test_primitives.c test.rb
 
 vm:
-	PATH=../redo:$(PATH) redo src/vm/vm
+	@PATH=../redo:$(PATH) redo src/vm/vm
 
 .PHONY: clean
