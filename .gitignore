@@ -19,3 +19,6 @@ TAGS
 /src/vm/test/test_context.cpp~
 /test/test_context
 /src/vm/vm_error.hpp~
+/.redo/*
+/src/vm/cpp_vm.d
+/src/vm/test/test_context.d

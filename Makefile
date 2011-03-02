@@ -1,13 +1,13 @@
-DEBUG   = -DDEBUG
-#DEBUG   = -DDEBUG -DEVAL_DEBUG -DMEM_DEBUG -DLOOKUP_DEBUG -DLIVENESS_DEBUG
-CFLAGS  = -Wall $(DEBUG) -g
-CXXFLAGS_EXTRA = -Wall -g
-PROGRAM = repl
-SOURCES = $(wildcard src/ast-walker/*.c)
-OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
-DEPS    = $(patsubst %.c,%.dep,$(SOURCES))
+DEBUG           = -DDEBUG
+#DEBUG          = -DDEBUG -DEVAL_DEBUG -DMEM_DEBUG -DLOOKUP_DEBUG -DLIVENESS_DEBUG
+CFLAGS          = -Wall $(DEBUG) -g
+CXXFLAGS_EXTRA  = -Wall -g
+PROGRAM         = repl
+SOURCES         = $(wildcard src/ast-walker/*.c)
+OBJECTS         = $(patsubst %.c,%.o,$(SOURCES))
+DEPS            = $(patsubst %.c,%.dep,$(SOURCES))
 
-all: depend $(PROGRAM) src/vm/cpp_vm.o test/test_context
+all: depend $(PROGRAM) vm
 
 depend: $(DEPS)
 
@@ -32,9 +32,10 @@ clean:
 	-rm -f -- src/ast-walker/*.o src/ast-walker/*.dep \
                   src/ast-walker/*.dep.* src/ast-walker/*~
 	-rm -f -- TAGS GPATH  GRTAGS  GSYMS  GTAGS
-	-rm -f -- src/vm/*.o src/vm/*.dep src/vm/*.dep.* src/vm/*~
+	-rm -f -- src/vm/*.o src/vm/*.dep src/vm/*.dep.* src/vm/*~ \
+                  src/vm/cpp_vm.d
 	-rm -f -- src/vm/test/*.o src/vm/test/*.dep src/vm/test/*.dep.* \
-                  src/vm/test/*~ test/test_context
+                  src/vm/test/*~ test/test_context src/vm/test/test_context.d
 
 tags:
 	find . -name "*.[c|h]" | xargs etags
@@ -43,13 +44,7 @@ tags:
 cloc: clean
 	cloc src Makefile dev-tools lib test/test_primitives.c test.rb
 
-src/vm/cpp_vm.o: src/vm/cpp_vm.cpp src/vm/cpp_vm.hpp
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o $@ $<
-
-src/vm/test/test_context.o: src/vm/test/test_context.cpp src/vm/cpp_vm.hpp
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXTRA) -c -o $@ $<
-
-test/test_context: src/vm/cpp_vm.o src/vm/test/test_context.o
-	$(CXX) $(LDFLAGS) -o $@ $^
+vm:
+	PATH=../redo:$(PATH) redo src/vm/vm
 
 .PHONY: clean
