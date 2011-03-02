@@ -29,6 +29,8 @@ clean:
 	-rm -f -- *.o *.dep *.dep.* *~ core a.out repl
 	-rm -rf -- *.dSYM
 	-rm -f -- src/*.o src/*.dep src/*.dep.* src/*~
+	-rm -f -- src/ast-walker/*.o src/ast-walker/*.dep \
+                  src/ast-walker/*.dep.* src/ast-walker/*~
 	-rm -f -- TAGS GPATH  GRTAGS  GSYMS  GTAGS
 	-rm -f -- src/vm/*.o src/vm/*.dep src/vm/*.dep.* src/vm/*~
 	-rm -f -- src/vm/test/*.o src/vm/test/*.dep src/vm/test/*.dep.* \
