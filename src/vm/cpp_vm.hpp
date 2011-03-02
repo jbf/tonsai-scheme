@@ -12,13 +12,14 @@ public:
   /* frame */
   class frame {
   private:
+    context *parent;
     frame *prev;
     frame *next;
     int size;
     int top;
     stack_entry *u;
 
-    frame(int s, frame *p);
+    frame(context *prnt, frame *p, int s);
 
     frame(const frame&);
     frame& operator=(const frame&);

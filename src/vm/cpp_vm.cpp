@@ -3,7 +3,8 @@
 #include <iostream>
 
 /* Frame */
-context::frame::frame(int s, frame *p) :
+context::frame::frame(context::context *prnt, frame *p, int s) :
+  parent(prnt),
   prev(p),
   next(0),
   size(s),
@@ -23,6 +24,10 @@ std::ostream& operator<<(std::ostream& os, const context::frame& f) {
 
 context::frame::~frame() {
   delete [] u; // what happens to each element now?
+  size = top = 0;
+  parent = 0;
+  prev = next = 0;
+  u = 0;
 }
 
 /* Context */
@@ -30,7 +35,7 @@ context::context(int initial_frame_size) :
   top(0),
   bottom(0)
 { 
-  frame *t = new frame(initial_frame_size, 0);
+  frame *t = new frame(this, 0, initial_frame_size);
   top = t;
   bottom = t;
 }
@@ -54,7 +59,7 @@ context::context(int initial_frame_size) :
  * bottom->prev == top->prev == 0
  */
 context::frame * context::push_new_frame(int size) {
-  frame *f = new frame(size, bottom); //bottom is 0 if this is first frame
+  frame *f = new frame(this, bottom, size); //bottom is 0 if this is first frame
 
   if (top == 0) {
     top = f;
@@ -121,6 +126,7 @@ context::~context() {
   }
 
   delete top;
+  top = bottom = 0;
 }
 
 context::context(const context::context&) {
