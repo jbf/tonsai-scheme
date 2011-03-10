@@ -128,11 +128,3 @@ context::~context() {
   delete top;
   top = bottom = 0;
 }
-
-context::context(const context::context&) {
-  throw vm_error();
-}
-
-context::context& context::operator=(const context::context&) {
-  throw vm_error();
-}
