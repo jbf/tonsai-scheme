@@ -184,13 +184,14 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
 }
 
 cell_t *evargs(cell_t *args, environ_t *env) {
-  cell_t *argsarray[16];
+#define MAX_LISP_ARGS 16
+  cell_t *argsarray[MAX_LISP_ARGS];
   int length;
   int i;
   cell_t *tmp, *head = nil_cell, *tail;
 
   if ((length = proper_list_length(args, 0)) < 0) return NULL; /* error */
-  if (length > 16) return NULL; /* can only handle 16 args atm */
+  if (length > MAX_LISP_ARGS) return NULL; /* can only handle 16 args atm */
 
   for (i = 0; i < length; i++, args = CDR(args)) {
     argsarray[i] = evaluate(CAR(args), env);
