@@ -5,11 +5,34 @@
 
 #include <iosfwd>
 
-class context {
+namespace context {
   typedef uint64_t stack_entry;
+  class frame;
 
-public:
-  /* frame */
+  class context {
+  private:
+    frame *top;    //Frame stack grows from top to bottom
+    frame *bottom;
+
+    context(const context&); //private copy-constructor
+    context& operator=(const context&); //private operator=
+
+  public:
+    context();
+    explicit context(int initial_frame_size); // no conversion constructor
+    ~context();
+
+    /* Frame management */
+    frame * push_new_frame(int size);
+    void pop_frame();
+
+    /* Values on frame */
+    void push_on(stack_entry);
+    stack_entry pop_off(bool zero=false);
+
+    friend class test_context;
+  };
+
   class frame {
   private:
     context *parent;
@@ -29,7 +52,7 @@ public:
 
     friend class context;
     friend class test_context;
-    friend std::ostream& operator<<(std::ostream&, const context::frame&);
+    friend std::ostream& operator<<(std::ostream&, const frame&);
   };
 
   /* iterator */
@@ -51,19 +74,13 @@ public:
     bool operator!=(const iterator&);
   };
   
-  /* Registers */
   class Registers {
-    friend class context;
   };
 
-  /* Handler */
   class Handler {
-    friend class context;
   };
 
-  /* Meta */
   class Meta {
-    friend class context;
   };
 
   /* Errors */
@@ -84,28 +101,5 @@ public:
     {
     }
   };
-
-private:
-  frame *top;    //Frame stack grows from top to bottom
-  frame *bottom;
-
-  context(const context&); //private copy-constructor
-  context& operator=(const context&); //private operator=
-
-public:
-  context();
-  explicit context(int initial_frame_size); // no conversion constructor
-  ~context();
-
-  /* Frame management */
-  frame * push_new_frame(int size);
-  void pop_frame();
-
-  /* Values on frame */
-  void push_on(stack_entry);
-  stack_entry pop_off(bool zero=false);
-
-  friend class test_context;
-};
-
+}
 #endif /* CPP_VM_HPP */
