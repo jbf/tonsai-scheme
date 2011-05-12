@@ -8,7 +8,7 @@ context::frame::frame(context::context *prnt, frame *p, int s) :
   prev(p),
   next(0),
   size(s),
-  top(0),
+  sp(0),
   u(0)
 {
   u = new stack_entry[size];
@@ -24,7 +24,7 @@ std::ostream& operator<<(std::ostream& os, const context::frame& f) {
 
 context::frame::~frame() {
   delete [] u; // what happens to each element now?
-  size = top = 0;
+  size = sp = 0;
   parent = 0;
   prev = next = 0;
   u = 0;
@@ -40,7 +40,7 @@ context::context(int initial_frame_size) :
   bottom = t;
 }
 
-/* Frame invariants:
+/* Context invariants:
  *
  * Either
  * top == bottom == 0
@@ -91,23 +91,22 @@ void context::push_on(stack_entry s) {
   if (bottom == 0) {
     throw vm_error(); //stack is not initialized, we have no frame
   }
-  if(bottom->top == bottom->size) {
+  if(bottom->sp == bottom->size) {
     throw context::frame_overflow("");
-    return;
   }
-  *(bottom->u + bottom->top) = s;
-  bottom->top++;
+  *(bottom->u + bottom->sp) = s;
+  bottom->sp++;
 }
 
 context::stack_entry context::pop_off(bool zero) {
-  if (bottom->top < 1) {
+  if (bottom->sp < 1) {
     throw context::frame_underflow("");
   }
 
-  bottom->top--;
-  stack_entry t = *(bottom->u + bottom->top);
+  bottom->sp--;
+  stack_entry t = *(bottom->u + bottom->sp);
   if(zero) {
-    *(bottom->u + bottom->top) = 0;
+    *(bottom->u + bottom->sp) = 0;
   }
 
   return t;

@@ -7,132 +7,98 @@ public:
   static void test_frames() {
     context  c;
     context::frame *t;
+    int error = 0;
 
     std::cout << "===test_frames===" << std::endl;
 
     c.push_new_frame(0);
-    std::cout << "frame 0" << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
+    try {
+      c.push_on(1);
+      throw new vm_error();
+    } catch (const context::frame_overflow& e) {
+      ;
     }
-
-    c.push_new_frame(1);
-    std::cout << "frame 1" << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
-    }
-
     c.push_new_frame(2);
-    std::cout << "frame 2" << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
+    c.push_on(22);
+    c.push_on(33);
+
+    int j = c.pop_off();
+    int k = c.pop_off();
+    
+    if (j != 33 || k != 22) {
+      throw new vm_error();
     }
 
-    c.push_new_frame(3);
-    std::cout << "frame 3" << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
-    }
-
-    c.pop_frame();
-    std::cout << "frame 2" << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
-    }
-
-    c.pop_frame();
-    std::cout << "frame 1" << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
+    try {
+      j = c.pop_off();
+      error = 1;
+    } catch (const context::frame_underflow& e) {
+      ;
     }
 
     c.pop_frame();
-    std::cout << "frame 0" << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
-    }
-
     c.pop_frame();
-    std::cout << "frame NULL" << std::endl;
-    std::cout << "top: " << c.top << ", bottom: " << c.bottom << std::endl;
-    for(t = c.top; t != 0; t = t->next) {
-      std::cout << *t << std::endl;
-    }
 
     try {
       c.pop_frame();
       std::cout << "stack underflow allowed. we shoud not! be here" << std::endl;
+      error = 1;
     } catch (const vm_error& e) {
-      std::cout << "Stack underflow detected which is good!" << std::endl;
+      ;
+    }
+    if (error) {
+      throw new vm_error();
     }
   }
 
   static void test_values() {
     context  c;
     context::frame *t;
-    
-    std::cout << std::endl << "===test_values==" << std::endl;
+    int i;
+
+    std::cout << "===test_values==" << std::endl;
 
     c.push_new_frame(5);
     c.push_on(1);
     c.push_on(2);
     c.push_on(3);
 
-    std::cout << "frame 0" << std::endl;
     t = c.bottom;
-    std::cout << *t << std::endl;
-    for (int i = 0; i < t->top; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
-    std::cout << "unused stack:" << std::endl;    
-    for (int i = t->top; i < t->size; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
+    for (i = 0; i < t->sp; i++) ;
+    if (i != 3) throw new vm_error();
+    for (i = t->sp; i < t->size; i++) ;
+    if (i != 5) throw new vm_error();
     
     c.push_new_frame(10);
     c.push_on(11);
     c.push_on(12);
 
-    std::cout << "frame 1" << std::endl;
     t = c.bottom;
-    std::cout << *t << std::endl;
-    for (int i = 0; i < t->top; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
-    std::cout << "unused stack:" << std::endl;
-    for (int i = t->top; i < t->size; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
-    
+    for (i = 0; i < t->sp; i++) ;
+    if (i != 2 ) throw new vm_error();
+    for (i = t->sp; i < t->size; i++) ;
+    if (i != 10) throw new vm_error();
     c.pop_frame();
     c.pop_off(true);
 
-    std::cout << "frame 0" << std::endl;
     t = c.bottom;
-    std::cout << *t << std::endl;
-    for (int i = 0; i < t->top; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
-    std::cout << "unused stack:" << std::endl;    
-    for (int i = t->top; i < t->size; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
+    for (i = 0; i < t->sp; i++) ;
+    if (i != 2) throw new vm_error();
+    for (i = t->sp; i < t->size; i++) ;
+    if (i != 5) throw new vm_error();
 
     c.push_on(3);
     c.push_on(4);
     c.push_on(5);
+
+    int error = 0;
     try {
       c.push_on(6);
-      std::cout << "frame overflow allowed. we shoud not! be here" << std::endl;
-    } catch (const vm_error& e) { //could use context::frame_overflow
-      std::cout << "Frame overflow detected which is good!" << std::endl;
+      error = 1;
+    } catch (const context::frame_overflow& e) { //could use context::frame_overflow
+      ;
     }
+    if (error) throw new vm_error();
 
     c.pop_off(true);
     c.pop_off(true);
@@ -143,25 +109,19 @@ public:
       c.pop_off(true);
       std::cout << "frame underflow allowed. we shoud not! be here" << std::endl;
     } catch (const context::frame_underflow& e) { // could use vm_error
-      std::cout << "Frame underflow error detected which is good!" << std::endl;
+      ;
     }
 
-    std::cout << "frame 0" << std::endl;
     t = c.bottom;
-    std::cout << *t << std::endl;
-    for (int i = 0; i < t->top; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
-    std::cout << "unused stack:" << std::endl;    
-    for (int i = t->top; i < t->size; i++) {
-      std::cout << "i: " << i << ", content: " << (t->u + i) <<
-	", value: " << *(t->u + i) << std::endl;
-    }
+    for (i = 0; i < t->sp; i++) ;
+    if (i != 0) throw new vm_error();
+    for (i = t->sp; i < t->size; i++) ;
+    if (i != 5) throw new vm_error();
   }
 };
 
 int main(void) {
   test_context::test_frames();
   test_context::test_values();
+  std::cout << "All ok" << std::endl;
 }

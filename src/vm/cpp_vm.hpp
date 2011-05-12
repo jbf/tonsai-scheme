@@ -16,7 +16,7 @@ public:
     frame *prev;
     frame *next;
     int size;
-    int top;
+    int sp;
     stack_entry *u;
 
     frame(context *prnt, frame *p, int s);
