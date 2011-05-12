@@ -64,28 +64,29 @@ public:
     c.push_on(3);
 
     t = c.bottom;
-    for (i = 0; i < t->sp; i++) ;
-    if (i != 3) throw new vm_error();
-    for (i = t->sp; i < t->size; i++) ;
-    if (i != 5) throw new vm_error();
+
+    std::cout << *t << std::endl;
+    if (t->size != 5) throw new vm_error();
+    if (t->size - t->sp != 3) throw new vm_error();
     
     c.push_new_frame(10);
     c.push_on(11);
     c.push_on(12);
 
     t = c.bottom;
-    for (i = 0; i < t->sp; i++) ;
-    if (i != 2 ) throw new vm_error();
-    for (i = t->sp; i < t->size; i++) ;
-    if (i != 10) throw new vm_error();
+
+    std::cout << *t << std::endl;
+    if (t->size != 10) throw new vm_error();
+    if (t->size - t->sp != 2) throw new vm_error();
+
     c.pop_frame();
     c.pop_off(true);
 
     t = c.bottom;
-    for (i = 0; i < t->sp; i++) ;
-    if (i != 2) throw new vm_error();
-    for (i = t->sp; i < t->size; i++) ;
-    if (i != 5) throw new vm_error();
+
+    std::cout << *t << std::endl;
+    if (t->size != 5) throw new vm_error();
+    if (t->size - t->sp != 2) throw new vm_error();
 
     c.push_on(3);
     c.push_on(4);
@@ -100,6 +101,9 @@ public:
     }
     if (error) throw new vm_error();
 
+    if (t->size != 5) throw new vm_error();
+    if (t->size - t->sp != 5) throw new vm_error();
+
     c.pop_off(true);
     c.pop_off(true);
     c.pop_off(true);
@@ -113,10 +117,10 @@ public:
     }
 
     t = c.bottom;
-    for (i = 0; i < t->sp; i++) ;
-    if (i != 0) throw new vm_error();
-    for (i = t->sp; i < t->size; i++) ;
-    if (i != 5) throw new vm_error();
+    if (t->size != 5) throw new vm_error();
+    if (t->size - t->sp != 0) throw new vm_error();
+
+    std::cout << *t << std::endl;
   }
 };
 

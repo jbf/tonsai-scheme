@@ -8,7 +8,7 @@ context::frame::frame(context::context *prnt, frame *p, int s) :
   prev(p),
   next(0),
   size(s),
-  sp(0),
+  sp(s),
   u(0)
 {
   u = new stack_entry[size];
@@ -18,7 +18,9 @@ context::frame::frame(context::context *prnt, frame *p, int s) :
 }
 
 std::ostream& operator<<(std::ostream& os, const context::frame& f) {
-  os << "Frame at: " << &f << ", size: " << f.size;
+  os << "Frame at: " << &f 
+     << ", size: " << f.size 
+     << ", occupied: " << (f.size - f.sp);
   return os;
 }
 
@@ -91,24 +93,22 @@ void context::push_on(stack_entry s) {
   if (bottom == 0) {
     throw vm_error(); //stack is not initialized, we have no frame
   }
-  if(bottom->sp == bottom->size) {
+  if(bottom->sp < 1) {
     throw context::frame_overflow("");
   }
-  *(bottom->u + bottom->sp) = s;
-  bottom->sp++;
+  *(bottom->u + --bottom->sp) = s;
 }
 
 context::stack_entry context::pop_off(bool zero) {
-  if (bottom->sp < 1) {
+  if (bottom->sp == bottom->size) {
     throw context::frame_underflow("");
   }
 
-  bottom->sp--;
   stack_entry t = *(bottom->u + bottom->sp);
   if(zero) {
     *(bottom->u + bottom->sp) = 0;
   }
-
+  bottom->sp++;
   return t;
 }
 
