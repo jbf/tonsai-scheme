@@ -22,7 +22,7 @@ int main(int argc, char **argv, char **envp) {
   cell_t *cell=NULL;
   cell_t *res=NULL;
 
-  init_mem_sys();
+  init_mem_sys__safe();
   init_eval();
   if (setjmp(__jmp_env)) {
     __tl_eval_level = 0;

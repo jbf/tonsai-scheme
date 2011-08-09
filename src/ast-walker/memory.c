@@ -105,7 +105,7 @@ void *u8_new(size_t bytes) {
 }
 
 /* Inits the managed memory subsytem. Should only be done once. */
-void init_mem_sys() {
+void init_mem_sys__safe() {
   int page_size = getpagesize();
   size_t t;
   
