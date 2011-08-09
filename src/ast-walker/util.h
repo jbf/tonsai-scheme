@@ -39,9 +39,22 @@ typedef struct value_container_t {
 
 #define WHERESTR  "[file %s, line %d]: "
 #define WHEREARG  __FILE__, __LINE__
-#define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__)
+#define DEBUGPRINT2(...) fprintf(stderr, __VA_ARGS__)
 #define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG, __VA_ARGS__)
 #define DEBUGPRINT_(_fmt)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG)
 
 #define bail(x) exit(x)
+
+#define CHECK(x,y) ({                                   \
+      typeof(x) _x = (x);                               \
+      typeof(y) _y = (y);                               \
+      (_x != _y) ? ({ bail(1); NULL; }) : _x; })
+
+#define CHECK_NOT(x,y) ({                               \
+      typeof(x) _x = (x);                               \
+      typeof(y) _y = (y);                               \
+      (_x == _y) ? ({ bail(1); NULL; }) : _x; })
+
+#define CHECK_NULL(x) CHECK_NOT(x, NULL)
+
 #endif /* __UTIL_H */
