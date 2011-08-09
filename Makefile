@@ -1,4 +1,5 @@
 DEBUG           = -DDEBUG
+# All defined debug levels
 #DEBUG          = -DDEBUG -DEVAL_DEBUG -DMEM_DEBUG -DLOOKUP_DEBUG -DLIVENESS_DEBUG
 CFLAGS          = -Wall $(DEBUG) -g
 CXXFLAGS_EXTRA  = -Wall -g
@@ -38,7 +39,7 @@ clean:
                   src/vm/test/*~ test/test_context src/vm/test/test_context.d
 
 tags:
-	find . -name "*.[c|h]" | xargs etags
+	find . -name "*.[c|h]" | xargs etags -I
 	gtags -v
 
 cloc: clean
@@ -47,4 +48,4 @@ cloc: clean
 vm:
 	@PATH=../redo:$(PATH) redo src/vm/vm
 
-.PHONY: clean
+.PHONY: clean tags cloc
