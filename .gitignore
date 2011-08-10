@@ -22,3 +22,4 @@ TAGS
 /.redo/*
 /src/vm/cpp_vm.d
 /src/vm/test/test_context.d
+/tlisp

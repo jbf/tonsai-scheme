@@ -7,7 +7,7 @@ f = File.new("test/sanity.test")
 failed = false
 f.each do | line |
   m = /(.*),([^#]*)/.match(line)
-  cmd = "echo \'#{m[1]}\' | ./repl 2>/dev/null"
+  cmd = "echo \'#{m[1]}\' | ./tlisp 2>/dev/null"
   want = m[2].strip
   ret = `#{cmd}`
   begin
