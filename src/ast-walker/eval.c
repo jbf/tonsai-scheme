@@ -64,7 +64,7 @@ void init_eval() {
   create_empty_environment(&internal);
   create_empty_environment(&lib);
 
-#define DECLARE_SPECIAL(n, prim_op) do {                                \
+#define DECLARE_NAMED_SPECIAL(n, prim_op) do {                          \
     /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
@@ -77,7 +77,9 @@ void init_eval() {
     add_to_environment(special_forms, s, v);                            \
   } while (0)
 
-#define DECLARE_PRIMITIVE(n, prim_op) do {                              \
+#define DECLARE_SPECIAL(name) DECLARE_NAMED_SPECIAL(#name, prim_ ## name)
+
+#define DECLARE_NAMED_PRIMITIVE(n, prim_op) do {                        \
     /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
@@ -90,7 +92,9 @@ void init_eval() {
     add_to_environment(primitives, s, v);                               \
   } while (0)
 
-#define DECLARE_INTERNAL(n, prim_op) do {                               \
+#define DECLARE_PRIMITIVE(name) DECLARE_NAMED_PRIMITIVE(#name, prim_ ## name)
+
+#define DECLARE_NAMED_INTERNAL(n, prim_op) do {                         \
     /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
@@ -103,31 +107,36 @@ void init_eval() {
     add_to_environment(internal, s, v);                                 \
   } while (0)
 
+#define DECLARE_INTERNAL(name) DECLARE_NAMED_INTERNAL(#name, prim_ ## name)
+
   /*SPECIALS*/
-  DECLARE_SPECIAL("if", prim_if);
-  DECLARE_SPECIAL("lambda", prim_lambda);
-  DECLARE_SPECIAL("quote", prim_quote);
-  DECLARE_SPECIAL("define", prim_define);
+  DECLARE_SPECIAL(if);
+  DECLARE_SPECIAL(lambda);
+  DECLARE_SPECIAL(quote);
+  DECLARE_SPECIAL(define);
 #undef DECLARE_SPECIAL
+#undef DECLARE_NAMED_SPECIAL
 
   /*PRIMITIVES*/
-  DECLARE_PRIMITIVE("+", prim_plus);
-  DECLARE_PRIMITIVE("*", prim_mul);
-  DECLARE_PRIMITIVE("=", prim_number_equals);
-  DECLARE_PRIMITIVE("-", prim_minus);
-  DECLARE_PRIMITIVE("error", prim_error);
-  DECLARE_PRIMITIVE("length", prim_length);
-  DECLARE_PRIMITIVE("eq?", prim_eq);
-  DECLARE_PRIMITIVE("cons", prim_cons);
-  DECLARE_PRIMITIVE("set-car!", prim_setcar);
-  DECLARE_PRIMITIVE("set-cdr!", prim_setcdr);
-  DECLARE_PRIMITIVE("list", prim_list);
+  DECLARE_NAMED_PRIMITIVE("+", prim_plus);
+  DECLARE_NAMED_PRIMITIVE("*", prim_mul);
+  DECLARE_NAMED_PRIMITIVE("=", prim_number_equals);
+  DECLARE_NAMED_PRIMITIVE("-", prim_minus);
+  DECLARE_PRIMITIVE(error);
+  DECLARE_PRIMITIVE(length);
+  DECLARE_NAMED_PRIMITIVE("eq?", prim_eq);
+  DECLARE_PRIMITIVE(cons);
+  DECLARE_NAMED_PRIMITIVE("set-car!", prim_setcar);
+  DECLARE_NAMED_PRIMITIVE("set-cdr!", prim_setcdr);
+  DECLARE_NAMED_PRIMITIVE("list", prim_list);
 #undef DECLARE_PRIMITIVE
+#undef DECLARE_NAMED_PRIMITIVE
 
   /*INTERNAL*/
-  DECLARE_INTERNAL("definternal", prim_definternal);
-  DECLARE_INTERNAL("deflibrary", prim_deflibrary);
+  DECLARE_INTERNAL(definternal);
+  DECLARE_INTERNAL(deflibrary);
 #undef DECLARE_INTERNAL
+#undef DECLARE_NAMED_INTERNAL
 
   if (load_lib_scm(global_symtab, lib, internal) == 0) {
     DEBUGPRINT_("Can not load \"lib/lib_boot.scm\". Exiting.\n");
