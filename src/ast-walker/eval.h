@@ -4,7 +4,7 @@
 #include "cell.h"
 #include "environment.h"
 
-void init_eval();
+void init_eval__safe();
 cell_t *evaluate(cell_t *exp, environ_t *env);
 cell_t *evargs(cell_t *args, environ_t *env);
 cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env);

@@ -32,7 +32,6 @@ int run_in_thread(const char *code) {
     dealloc_frames(&live_root);
     
     /* Handle thread cleanup */
-    return 0;
   }
   while (1) {
     cell = read_intern(stdin, global_symtab);
