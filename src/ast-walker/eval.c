@@ -67,8 +67,7 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
   if (NULL == exp) {
     DRETURN(RET_VAL, NULL);
   } else if (NILP(exp)) {
-    fast_error("() is not autoquoting.");
-    return NULL; /* Unreachable fast_error() does not return. */
+    DRETURN(RET_VAL, nil_cell);
   } else if (ATOMP(exp)) {
     if (SYMBOLP(exp)) {
       DRETURN(RET_VAL, find_value(env, exp));
