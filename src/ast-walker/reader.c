@@ -64,17 +64,24 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
   do {
     ret = get_token(stream, &tok);
     if (ret != TOKEN_OK) {
-      if (first) {
+      if (first) { // if first, this is the second time in the loop,
+                   // pop the liveframe on error
         pop_liveness(&live_root);
       }
       return NULL;
     }
 
-    current = new(cell_t); // liveness tracked through 'first'
+    // special case nil
+    if(tok.type == TOKEN_RPAREN) {
+      current = nil_cell;
+    } else {
+      current = new(cell_t); // liveness tracked through 'first'
+    }
 
     /* Will leak all read token payloads' memory in OOM situation. */
     if (!current) {
-      if (first) {
+      if (first) { // if first, this is the second time in the loop,
+                   // pop the liveframe on error
         pop_liveness(&live_root); 
       }
       return NULL;
@@ -96,15 +103,15 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       current->slot1.car = read_list_intern(stream, symbol_table);
       break;
     case TOKEN_RPAREN:
-      current->slot1.type = PAYLOAD_NIL;
-      current->slot2.cdr = NULL;
+      // see special case above
       pop_liveness(&live_root);
       return first;
     case TOKEN_SYMBOL:
       /* We also need to free or steal the payload part. */
       temp = intern(tok.atom_name, symbol_table);
       if (!temp) {
-        if (first) {
+        if (first) {  // if first, this is the second time in the loop,
+                      // pop the liveframe on error
           pop_liveness(&live_root); 
         }
         return NULL;
@@ -114,7 +121,8 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
     case TOKEN_NUMBER:
       temp = new(cell_t); // liveness ok
       if (!temp) {
-        if (first) {
+        if (first) {  // if first, this is the second time in the loop,
+                      // pop the liveframe on error
           pop_liveness(&live_root); 
         }
         return NULL;
@@ -137,7 +145,8 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       temp->slot2.string = tok.string_val;
       break;
     default:
-      if (first) {
+      if (first) { // if first, this is the second time in the loop,
+                   // pop the liveframe on error
         pop_liveness(&live_root); 
       }
       return NULL;

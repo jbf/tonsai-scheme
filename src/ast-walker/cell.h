@@ -52,6 +52,7 @@ typedef struct cell_t {
 /* Predicates. */
 #define PAIRP(c) (((c)->slot1.type & 1) == 0)
 #define ATOMP(c) (((c)->slot1.type & 1) == 1)
+extern cell_t *nil_cell;
 #define NILP(c) ((c) == nil_cell)
 #define SYMBOLP(c) (((c)->slot1.type & 2) == 2)
 #define NUMBERP(c) ((c)->slot1.type == PAYLOAD_NUMBER)
