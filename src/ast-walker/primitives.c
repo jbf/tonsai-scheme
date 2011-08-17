@@ -22,6 +22,10 @@ extern environ_t *lib; /* Lib of public shceme functions. */
 
 int scheme_to_c_truth(cell_t *c, environ_t *env) {
   if (NULL == c) return EINVALID_TRUTH; /* error */
+
+  if (NILP(c)) {
+    return FALSE;
+  }
   
   if (ATOMP(c)) {
     cell_t *tmp = find_value(env, c);
