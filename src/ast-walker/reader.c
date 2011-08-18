@@ -76,6 +76,8 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       current = nil_cell;
     } else {
       current = new(cell_t); // liveness tracked through 'first'
+      current->slot2.cdr = nil_cell; /* pretend this is a proper list so we can
+                                        print liveness */
     }
 
     /* Will leak all read token payloads' memory in OOM situation. */
@@ -86,9 +88,6 @@ cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
       }
       return NULL;
     }
-
-    current->slot2.cdr = nil_cell; /* pretend this is a proper list so we can
-                                      print liveness */
 
     if (last) {
       last->slot2.cdr = current;
