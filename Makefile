@@ -32,13 +32,13 @@ clean:
 	-rm -f -- src/*.o src/*.dep src/*.dep.* src/*~
 	-rm -f -- src/ast-walker/*.o src/ast-walker/*.dep \
                   src/ast-walker/*.dep.* src/ast-walker/*~
-	-rm -f -- TAGS GPATH  GRTAGS  GSYMS  GTAGS
 	-rm -f -- src/vm/*.o src/vm/*.dep src/vm/*.dep.* src/vm/*~ \
                   src/vm/cpp_vm.d
 	-rm -f -- src/vm/test/*.o src/vm/test/*.dep src/vm/test/*.dep.* \
                   src/vm/test/*~ test/test_context src/vm/test/test_context.d
 
 tags:
+	-rm -f -- TAGS GTAGS GRTAGS GSYMS GPATH
 	find . -name "*.[c|h]" | xargs etags -I
 	gtags -v
 
