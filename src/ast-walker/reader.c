@@ -8,9 +8,9 @@
 extern frame_t *live_root;
 extern cell_t *nil_cell;
 
-cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table);
+cell_t *read_list_intern(STREAM *stream, symbol_table *symbol_table);
 
-cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
+cell_t *read_intern(STREAM *stream, symbol_table *symbol_table) {
   token_t tok;
   cell_t *cell; 
   int ret;
@@ -54,7 +54,7 @@ cell_t *read_intern(FILE *stream, symbol_table *symbol_table) {
   }
 }
 
-cell_t *read_list_intern(FILE *stream, symbol_table *symbol_table) {
+cell_t *read_list_intern(STREAM *stream, symbol_table *symbol_table) {
   cell_t *last, *current, *first, *temp;
   token_t tok;
   int ret;

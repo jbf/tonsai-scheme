@@ -3,9 +3,8 @@
 
 #include "cell.h"
 #include "symbol.h"
+#include "t_stream.h"
 
-#include <stdio.h>
-
-cell_t *read_intern(FILE *stream, symbol_table *symbol_table);
+cell_t *read_intern(STREAM *stream, symbol_table *symbol_table);
 
 #endif /* _READER_H */

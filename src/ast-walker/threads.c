@@ -9,6 +9,7 @@
 #include "memory.h"
 #include "liveness.h"
 #include "errors.h"
+#include "t_stream.h"
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -23,6 +24,8 @@ int run_in_thread(const char *code) {
   frame_t *live_root = NULL;
   cell_t *cell=NULL;
   cell_t *res=NULL;
+  STREAM s;
+  make_filestream(&s, stdin);
 
   if (setjmp(__jmp_env)) {
     __tl_eval_level = 0;
@@ -34,7 +37,7 @@ int run_in_thread(const char *code) {
     /* Handle thread cleanup */
   }
   while (1) {
-    cell = read_intern(stdin, global_symtab);
+    cell = read_intern(&s, global_symtab);
     
     if(!cell) {
       break;

@@ -1,7 +1,6 @@
 #include "token.h"
 
 #include <stdint.h>
-#include <stdio.h>
 #include <limits.h>
 #include <ctype.h>
 #include <string.h>
@@ -9,13 +8,13 @@
 
 #include "errors.h"
 
-int read_plus_minus(FILE *stream, int first, int index, unsigned char token_string[], token_t *tok);
-int readstring(FILE *stream, int index, unsigned char token_string[], token_t *tok);
-int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *tok);
-int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *tok);
+int read_plus_minus(STREAM *stream, int first, int index, unsigned char token_string[], token_t *tok);
+int readstring(STREAM *stream, int index, unsigned char token_string[], token_t *tok);
+int readnumber(STREAM *stream, int index, unsigned char token_string[], token_t *tok);
+int readsymbol(STREAM *stream, int index, unsigned char token_string[], token_t *tok);
 
 int issymb(int c);
-int isstop_pushback(FILE *stream, int c);
+int isstop_pushback(STREAM *stream, int c);
 
 /*
  * Frees any extra memory possibly associated with 'tok'.
@@ -37,11 +36,11 @@ void free_token_payload(token_t *tok) {
  * Some tokens require additional memory to be allocated. Use
  * 'free_token_payload' to free any extra memory.
  */
-int get_token(FILE *stream, token_t *tok) {
+int get_token(STREAM *stream, token_t *tok) {
   int c, token_index = 0;
   unsigned char token[MAX_TOKEN_LENGTH+1];
 
-  while ((c = fgetc(stream)) != EOF &&
+  while ((c = stream_getc(stream)) != EOF &&
          token_index < MAX_TOKEN_LENGTH) {
 
     if (c < 0 || c > UCHAR_MAX) {
@@ -72,7 +71,7 @@ int get_token(FILE *stream, token_t *tok) {
     }
 
     if(c == '0') {
-      int next = fgetc(stream);
+      int next = stream_getc(stream);
       if (isstop_pushback(stream, next)) {
         tok->type = TOKEN_NUMBER;
         tok->i_val = 0;
@@ -120,14 +119,14 @@ int get_token(FILE *stream, token_t *tok) {
 }
 
 /* First char was '+'/'-'. */
-int read_plus_minus(FILE *stream,
+int read_plus_minus(STREAM *stream,
                     int first,
                     int token_index,
                     unsigned char token[],
                     token_t *tok) {
   int next;
 
-  next = fgetc(stream);
+  next = stream_getc(stream);
   
   /* If the next char is a whitespace, the symbol was '+' or '-'. */
   if(isstop_pushback(stream, next) ||
@@ -172,11 +171,11 @@ int read_plus_minus(FILE *stream,
 }
 
 /* First char was symbol-constituent. */
-int readsymbol(FILE *stream, int index, unsigned char token_string[], token_t *tok) {
+int readsymbol(STREAM *stream, int index, unsigned char token_string[], token_t *tok) {
   int c;
   
   while(index < MAX_TOKEN_LENGTH) {
-    c = fgetc(stream);
+    c = stream_getc(stream);
 
     if (issymb(c)) {
       token_string[index] = (unsigned char)c;
@@ -232,23 +231,23 @@ int issymb(int c) {
     c == '#';
 }
 
-/* Peek at next char in 'FILE', return true if we should stop reading this symbol. */
-int isstop_pushback(FILE *stream, int c) {
+/* Peek at next char in 'STREAM', return true if we should stop reading this symbol. */
+int isstop_pushback(STREAM *stream, int c) {
   if (isspace(c)) {
     return 1;
   } else if (c == ')') {
-    ungetc(c, stream);
+    stream_ungetc(c, stream);
     return 1;
   } else {
     return 0;
   }
 }
 
-int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *tok) {
+int readnumber(STREAM *stream, int index, unsigned char token_string[], token_t *tok) {
   int c;
 
   while(index < MAX_TOKEN_LENGTH) {
-    c = fgetc(stream);
+    c = stream_getc(stream);
 
     if(isstop_pushback(stream, c) ||
        c == EOF) {
@@ -305,14 +304,14 @@ int readnumber(FILE *stream, int index, unsigned char token_string[], token_t *t
   return ERROR_TOKEN_TO_LONG;
 }
 
-int readstring(FILE *stream, int index, unsigned char token_string[], token_t *tok) {
+int readstring(STREAM *stream, int index, unsigned char token_string[], token_t *tok) {
   int c;
 
   /* The loop works, but is off by one. Don't care to fix it yet.*/
   index--;
   
   while(index < MAX_TOKEN_LENGTH) {
-    c = fgetc(stream);
+    c = stream_getc(stream);
 
     if (c < 0 || c > UCHAR_MAX) {
       return ERROR_UNREDABLE_CHAR;
@@ -349,7 +348,7 @@ int readstring(FILE *stream, int index, unsigned char token_string[], token_t *t
 }
 
 /*
- * Prints token 'tok' to FILE 'stream'. Since tokens are not first class
+ * Prints token 'tok'. Since tokens are not first class
  * objects this is mostly for (VM) debugging purposes.
  */
 int print_token(const token_t *tok) {

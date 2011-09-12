@@ -2,7 +2,7 @@
 #define _TOKEN_H 1
 
 #include <stdint.h>
-#include <stdio.h>
+#include "t_stream.h"
 
 /*
  * These are the tokens recognized by this parser.
@@ -44,7 +44,7 @@ typedef struct {
  * Some tokens require additional memory to be allocated. Use
  * 'free_token_payload' to free any extra memory.
  */
-int get_token(FILE *stream, token_t *tok);
+int get_token(STREAM *stream, token_t *tok);
 
 /*
  * Frees any extra memory possibly associated with 'tok'.
@@ -52,7 +52,7 @@ int get_token(FILE *stream, token_t *tok);
 void free_token_payload(token_t *tok);
 
 /*
- * Prints token 'tok' to FILE 'stream'. Since tokens are not first class
+ * Prints token 'tok'. Since tokens are not first class
  * objects this is mostly for (VM) debugging purposes.
  */
 int print_token(const token_t *tok);

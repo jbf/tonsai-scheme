@@ -10,6 +10,7 @@
 #include "errors.h"
 #include "reader.h"
 #include "eval.h"
+#include "t_stream.h"
 
 static cell_t nil_c;
 static cell_t false_c;
@@ -49,7 +50,7 @@ int fill_initial_environment(environ_t *env) {
 }
 
 /*
- * push is defined in symbol.c why do I do this?
+v * push is defined in symbol.c why do I do this?
 */
 int push(symbol_table *tab, symbol_entry_t *s);
 
@@ -69,6 +70,7 @@ int boot(symbol_table *tab, environ_t **env) {
  */
 int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
   cell_t *cell, *res;
+  STREAM s;
   FILE *f;
   
   if (((f = fopen("lib/lib_boot.scm", "r")) == NULL) &&
@@ -81,10 +83,12 @@ int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
   /* set up a mini-repl here that aborts on any error */
   if (setjmp(__jmp_env)) {
     DEBUGPRINT_("Error evaluating \"lib/lib_boot.scm\". Exiting. \n");
+    fclose(f); /* this is bad, but works for now */
     return 0;
   }
 
-  while ((cell = read_intern(f, global_symtab))) {
+  make_filestream(&s, f);
+  while ((cell = read_intern(&s, global_symtab))) {
     DEBUGPRINT_("Found form in lib/lib_boot.scm\n");
 
     /* mini-eval each form with internal as initial env*/
@@ -98,11 +102,12 @@ int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
       DEBUGPRINT_("Got NULL from eval of: ");
       pretty_print(orig_sexpr);
       DEBUGPRINT_("Error evaluating \"lib/lib_boot.scm\". Exiting. \n");
+      fclose(f); /* this is bad, but works for now */
       return 0;
     }
     orig_sexpr = NULL;
   }
 
-  fclose(f);
+  stream_close(&s); /* this closes FILE *f as well */
   return 1;
 }
