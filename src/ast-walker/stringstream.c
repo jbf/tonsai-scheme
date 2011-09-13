@@ -67,5 +67,6 @@ int stringstream_flush(STREAM *stream) {
 int stringstream_close(STREAM *stream) {
   free_malloced(((string_info *)stream->payload)->str);
   free_malloced(stream->payload);
+  stream->payload = NULL;
   return 1;
 }
