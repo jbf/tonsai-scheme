@@ -30,7 +30,7 @@ int make_stringstream(STREAM *stream, const char *str, size_t size) {
   }
   
   target = malloc_or_bail(size);
-  strcpy(target, str); // we got here, len(target) >= len(str + 1) 
+  strcpy(target, str); // we got here, size(target) >= len(str + 1) 
   s->len = size-1;
   s->index = 0;
   s->str = target;
