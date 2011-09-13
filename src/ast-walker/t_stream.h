@@ -14,7 +14,4 @@ int stream_ungetc(int ch, STREAM *stream);
 int stream_flush(STREAM *stream);
 int stream_close(STREAM *stream);
 
-#include <stdio.h>
-STREAM *make_filestream(STREAM *stream, FILE *f);
-
 #endif /* _T_STREAM_H */

@@ -33,6 +33,11 @@ void *malloc_or_bail(size_t bytes) {
   return tmp;
 }
 
+/* Off-heap free. */
+void free_malloced(void *ptr) {
+  free(ptr);
+}
+
 /* On-heap malloc that only returns if it succeeds */
 void *mem_sys_safe_alloc(size_t bytes) {
   void *t;
