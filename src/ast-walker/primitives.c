@@ -28,6 +28,10 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
   }
   
   if (ATOMP(c)) {
+    if (STRINGP(c)) {
+      return TRUE;
+    }
+    
     cell_t *tmp = find_value(env, c);
     if (tmp == false_cell ||tmp == nil_cell) {
       return FALSE;
