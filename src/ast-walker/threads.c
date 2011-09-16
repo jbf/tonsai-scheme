@@ -10,6 +10,7 @@
 #include "liveness.h"
 #include "errors.h"
 #include "t_stream.h"
+#include "filestream.h"
 
 #include <stdio.h>
 #include <setjmp.h>

@@ -41,13 +41,20 @@ typedef struct cell_t {
   } slot1;
   union {
     int32_t i_val;
+    long u8_data_size; /* this is size exclusive of the cell_t header */
     struct symbol_entry_t *symbol;
-    unsigned char *string;
+    struct cell_t *string;
     struct cell_t *cdr;
     struct primitive_t *prim;
     struct function_t *fun;
   } slot2;
 } cell_t;
+
+/* remember, size in header refers to size of data */ 
+typedef struct u8_cell_t {
+  cell_t header;
+  unsigned char data[];
+} u8_cell_t;
 
 /* Predicates. */
 #define PAIRP(c) (((c)->slot1.type & 1) == 0)
@@ -59,13 +66,18 @@ extern cell_t *nil_cell;
 #define STRINGP(c) ((c)->slot1.type == PAYLOAD_STRING)
 #define PRIMITIVEP(c) ((c)->slot1.type == PRIMITIVE)
 #define FUNCTIONP(c) ((c)->slot1.type == FUNCTION)
+#define U8VECP(c) ((c)->-slot1.type == U8VEC)
 
 /* Accessors. */
 #define CAR(c) ((c)->slot1.car)
 #define CDR(c) ((c)->slot2.cdr)
 #define CELL_SYMBOL(c) ((c)->slot2.symbol)
 #define I_VAL(c) ((c)->slot2.i_val)
-#define STRING_VAL(c) ((c)->slot2.string)
+
+/* u8_vectors */
+#define U8LEN(v) ((v)->slot2.u8_data_size)
+#define U8DATA(v) (((u8_cell_t *)v)->data)
+#define STRING_VAL(c) U8DATA(((c)->slot2.string))
 
 /* Constructor. */
 #define CONS(target, src1, src2)    \

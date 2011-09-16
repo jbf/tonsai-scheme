@@ -4,7 +4,7 @@
 #include "liveness.h"
 #include "memory.h"
 
-#define destroy_vm() do { ; } while(0)
+#define destroy_vm() do { destroy_mem_sys__safe(); } while(0)
 
 int main(int argc, char **argv, char **envp) {
   int repl_thread;

@@ -61,6 +61,7 @@ cell_t *intern(unsigned char *sym, symbol_table *tab) {
 
     return new_cell;
   } else {
+    free(sym);
     return existing;
   }
 }

@@ -7,9 +7,9 @@
 #include <errno.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util.h"
-#include "cell.h"
 
 #ifdef LIVENESS_DEBUG
 #include "liveness.h"
@@ -17,6 +17,7 @@ extern frame_t *live_root;
 #endif /* LIVENESS_DEBUG */
 
 static void *mem_sys_heap = NULL;
+static size_t mem_sys_heap_size = 0;
 static void *cur = NULL;
 static void *top = NULL;
 
@@ -70,14 +71,10 @@ void *mem_sys_safe_alloc(size_t bytes) {
   return t;
 }
   
-void *u8_new(size_t bytes) {
-#ifdef MEM_DEBUG
-  int orig = bytes;
-#endif /* MEM_DEBUG */
-  cell_t *c;
+u8_cell_t *u8_new(size_t bytes) {
+  size_t orig = bytes;
+  u8_cell_t *c;
   void *t;
-  char *b;
-  long *l;
 
   if (bytes < 0) {
     DEBUGPRINT_("Trying to allocate an u8-vec of negative size. Aborting.\n");
@@ -88,25 +85,18 @@ void *u8_new(size_t bytes) {
   bytes = (((bytes-1)/(sizeof(void*)))+1)*sizeof(void *); /* align to sizeof(void *) */
 
 #ifdef MEM_DEBUG
-  DEBUGPRINT("Trying to alloc u8-vec: %u bytes became %u after " +
+  DEBUGPRINT("Trying to alloc u8-vec: %zu bytes became %zu after "
              "align, tag and size.\n",
              orig, bytes);
 #endif /* MEM_DEBUG */
 
   t = mem_sys_safe_alloc(bytes);
 
-  c = (cell_t *)t;
-  c->slot1.type = U8VEC; /* tag */
-
-  b = (char *)t;
-  b += sizeof(void *);
-  l = (long *)b;
-  *l = bytes; /* size */
-
-  b = (char *)l;
-  b += sizeof(void *);
-  t = (void *)b; /* return pointer to free mem 2x(void *) in */
-  return t;
+  c = (u8_cell_t *)t;
+  c->header.slot1.type = U8VEC; /* tag */
+  c->header.slot2.u8_data_size = bytes-sizeof(cell_t);
+  memset(c->data, 0, c->header.slot2.u8_data_size);
+  return c;
 }
 
 /* Inits the managed memory subsytem. Should only be done once. */
@@ -138,12 +128,27 @@ void init_mem_sys__safe() {
   }
   
   top = mem_sys_heap + t;
+  mem_sys_heap_size = (size_t)(top-mem_sys_heap);
 
-  DEBUGPRINT("\tmem_sys_heap: %p, top: %p\n"
-             "\t\t\t\theap size: %d bytes\n"
-             "\t\t\t\tsizeof(void *) is %d bytes\n",
-             mem_sys_heap,
-             top,
-             (int)(top-mem_sys_heap),
-             (int)sizeof (void *));
+  fprintf(stderr,
+          "\tmem_sys_heap: %p, top: %p\n"
+          "\theap size: %ld bytes\n"
+          "\tsizeof(void *) is %d bytes\n",
+          mem_sys_heap,
+          top,
+          (long)mem_sys_heap_size,
+          (int)sizeof (void *));
+}
+
+void destroy_mem_sys__safe() {
+  int ret;
+  fprintf(stderr,
+          "\tunmapping %ld bytes at page(s): %p\n",
+          (long)mem_sys_heap_size,
+          mem_sys_heap);
+  ret = munmap(mem_sys_heap, mem_sys_heap_size);
+  if (ret != 0) {
+    fprintf(stderr, "\terror unmapping heap\n");
+    perror(NULL);
+  }
 }

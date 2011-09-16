@@ -11,6 +11,7 @@
 #include "reader.h"
 #include "eval.h"
 #include "t_stream.h"
+#include "filestream.h"
 
 static cell_t nil_c;
 static cell_t false_c;
@@ -50,8 +51,8 @@ int fill_initial_environment(environ_t *env) {
 }
 
 /*
-v * push is defined in symbol.c why do I do this?
-*/
+ * push is defined in symbol.c why do I do this?
+ */
 int push(symbol_table *tab, symbol_entry_t *s);
 
 int boot(symbol_table *tab, environ_t **env) {

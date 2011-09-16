@@ -3,14 +3,17 @@
 
 #include <stdlib.h>
 
+#include "cell.h"
+
 void *mem_sys_safe_alloc(size_t bytes);
 void *malloc_or_bail(size_t bytes);
 void free_malloced(void *ptr);
-void *u8_new(size_t bytes);
+u8_cell_t *u8_new(size_t bytes);
 
 #define new(type) ((type *)mem_sys_safe_alloc(sizeof(type)/sizeof(char)))
 #define new_malloc(type) ((type *)malloc_or_bail(sizeof(type)/sizeof(char)))
 
 void init_mem_sys__safe();
+void destroy_mem_sys__safe();
 
 #endif /* _MEMORY_H */

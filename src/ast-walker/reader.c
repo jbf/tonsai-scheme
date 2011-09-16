@@ -5,6 +5,8 @@
 #include "memory.h"
 #include "liveness.h"
 
+#include <string.h>
+
 extern frame_t *live_root;
 extern cell_t *nil_cell;
 
@@ -14,6 +16,8 @@ cell_t *read_intern(STREAM *stream, symbol_table *symbol_table) {
   token_t tok;
   cell_t *cell; 
   int ret;
+  size_t slen;
+  u8_cell_t* string;
 
   ret = get_token(stream, &tok);
   if (ret != TOKEN_OK) {
@@ -46,8 +50,12 @@ cell_t *read_intern(STREAM *stream, symbol_table *symbol_table) {
     if (NULL == cell) {
       return NULL;
     }
+    slen = strlen((char *)tok.string_val)+1; /* Add '\0' sigh */
+    string = u8_new(slen);
+    strncpy((char*)U8DATA(string), (char*)tok.string_val, slen);
     cell->slot1.type = PAYLOAD_STRING;
-    cell->slot2.string = tok.string_val;
+    cell->slot2.string = (cell_t *)string;
+    free(tok.string_val);
     return cell;
   default:
     return NULL;
@@ -58,6 +66,8 @@ cell_t *read_list_intern(STREAM *stream, symbol_table *symbol_table) {
   cell_t *last, *current, *first, *temp;
   token_t tok;
   int ret;
+  size_t slen;
+  u8_cell_t* string;
 
   last = current = first = temp = NULL;
 
@@ -139,9 +149,13 @@ cell_t *read_list_intern(STREAM *stream, symbol_table *symbol_table) {
         }
         return NULL;
       }
+      slen = strlen((char *)tok.string_val)+1; /* Add '\0' sigh */
+      string = u8_new(slen);
+      strncpy((char*)U8DATA(string), (char*)tok.string_val, slen);
       current->slot1.car = temp;
       temp->slot1.type = PAYLOAD_STRING;
-      temp->slot2.string = tok.string_val;
+      temp->slot2.string = (cell_t *)string;
+      free(tok.string_val);
       break;
     default:
       if (first) { // if first, this is the second time in the loop,
