@@ -212,6 +212,13 @@ cell_t *find_value(environ_t *env, cell_t *sym) {
   GOTO_TOPLEVEL();
 }
 
+typedef struct prim_container {
+  struct prim_container *next;
+  primitive_t *prim;
+} prim_container;
+
+static prim_container *all_prims = NULL;
+
 void init_eval__safe() {
   boot(global_symtab, &special_forms);
   create_empty_environment(&toplevel);
@@ -226,5 +233,17 @@ void init_eval__safe() {
   if (load_lib_scm(global_symtab, lib, internal) == 0) {
     DEBUGPRINT_("Can not load \"lib/lib_boot.scm\". Exiting.\n");
     exit(1);
+  }
+}
+
+void destroy_eval__safe() {
+  prim_container *c = all_prims;
+
+  while (c != NULL) {
+    prim_container *t;
+    free_malloced(c->prim);
+    t = c;
+    c = c->next;
+    free_malloced(t);
   }
 }

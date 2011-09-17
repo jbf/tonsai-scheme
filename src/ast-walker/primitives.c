@@ -1,4 +1,7 @@
+#include <assert.h>
+
 #include "primitives.h"
+
 #include "cell.h"
 #include "environment.h"
 #include "eval.h"
@@ -8,7 +11,6 @@
 #include "function.h"
 #include "memory.h"
 
-#include <assert.h>
 
 void inner_prim_error(cell_t *string_cell);
 void string_error(const char *err_msg);

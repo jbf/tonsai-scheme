@@ -2,6 +2,16 @@
     /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
+    prim_container *c = new_malloc(prim_container);                     \
+    c->next = NULL;                                                     \
+                                                                        \
+    if (all_prims == NULL) {                                            \
+      all_prims = c;                                                    \
+    } else {                                                            \
+      c->next = all_prims;                                              \
+      all_prims = c;                                                    \
+    }                                                                   \
+    all_prims->prim = p;                                                \
                                                                         \
     p->fun = &prim_op;                                                  \
     p->name = (unsigned char *)n;                                       \
@@ -17,6 +27,16 @@
     /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
+    prim_container *c = new_malloc(prim_container);                     \
+    c->next = NULL;                                                     \
+                                                                        \
+    if (all_prims == NULL) {                                            \
+      all_prims = c;                                                    \
+    } else {                                                            \
+      c->next = all_prims;                                              \
+      all_prims = c;                                                    \
+    }                                                                   \
+    all_prims->prim = p;                                                \
                                                                         \
     p->fun = &prim_op;                                                  \
     p->name = (unsigned char *)n;                                       \
@@ -32,6 +52,16 @@
     /* liveness tracked through environment */                          \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
+    prim_container *c = new_malloc(prim_container);                     \
+    c->next = NULL;                                                     \
+                                                                        \
+    if (all_prims == NULL) {                                            \
+      all_prims = c;                                                    \
+    } else {                                                            \
+      c->next = all_prims;                                              \
+      all_prims = c;                                                    \
+    }                                                                   \
+    all_prims->prim = p;                                                \
                                                                         \
     p->fun = &prim_op;                                                  \
     p->name = (unsigned char *)n;                                       \
