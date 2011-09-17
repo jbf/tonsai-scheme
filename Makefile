@@ -1,8 +1,8 @@
-DEBUG           = -DDEBUG
+DEBUG           = -DDEBUG -DMEM_DEBUG
 # All defined debug levels
 #DEBUG          = -DDEBUG -DEVAL_DEBUG -DMEM_DEBUG -DLOOKUP_DEBUG -DLIVENESS_DEBUG
-CFLAGS          = -Wall $(DEBUG) -g
-CXXFLAGS_EXTRA  = -Wall -g
+CFLAGS          = -Wall $(DEBUG) -g -Werror
+CXXFLAGS_EXTRA  = -Wall -g -Werror
 PROGRAM         = tlisp
 SOURCES         = $(wildcard src/ast-walker/*.c)
 OBJECTS         = $(patsubst %.c,%.o,$(SOURCES))
