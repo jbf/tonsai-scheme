@@ -59,10 +59,10 @@ void push_liveness(frame_t **top, frame_t *new_top) {
 
 void pop_liveness(frame_t **top) {
   frame_t *t;
-  free((*top)->live_cells);
+  free_malloced((*top)->live_cells);
   t = *top;
   *top = (*top)->next_frame;
-  free(t);
+  free_malloced(t);
 }
 
 void dealloc_frames(frame_t **top) {

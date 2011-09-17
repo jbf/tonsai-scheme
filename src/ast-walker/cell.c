@@ -1,8 +1,9 @@
+#include <stdio.h>
+
 #include "cell.h"
 #include "function.h"
 #include "primitives.h"
-
-#include <stdio.h>
+#include "util.h"
 
 void pp_list(cell_t *cell);
 void pp(cell_t *cell);
@@ -77,4 +78,15 @@ void pp_list(cell_t *cell) {
       break;
     }
   }
+}
+
+const char *object_type_str(cell_t *cell) {
+#define DECLARE_OBJECT_TYPE(x, y) if ( x ## P (cell)) { return QUOTEME(x) ; } else 
+#include "heap_objects_declare.h"
+#undef DECLARE_OBJECT_TYPE
+  { /* this continues the last else from macro expansion */
+    return "Unknwn object";
+  }
+
+  return "Unknown object";
 }

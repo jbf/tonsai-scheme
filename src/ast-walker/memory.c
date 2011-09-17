@@ -1,5 +1,3 @@
-#include "memory.h"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -8,6 +6,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "memory.h"
 
 #include "util.h"
 
@@ -150,5 +150,22 @@ void destroy_mem_sys__safe() {
   if (ret != 0) {
     fprintf(stderr, "\terror unmapping heap\n");
     perror(NULL);
+  }
+}
+
+void scan_heap() {
+  char *start, *base, *end;
+
+  start = (char *)mem_sys_heap;
+  end = start + mem_sys_heap_size;
+
+  for (base = start; base < end; ) {
+    cell_t *obj = (cell_t *)base;
+    
+    if (U8VECP(obj)) {
+      base = base + sizeof(cell_t) + U8LEN(obj);
+    } else {
+      base += sizeof(cell_t);
+    }
   }
 }

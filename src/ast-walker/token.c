@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "errors.h"
+#include "memory.h"
 
 int read_plus_minus(STREAM *stream, int first, int index, unsigned char token_string[], token_t *tok);
 int readstring(STREAM *stream, int index, unsigned char token_string[], token_t *tok);
@@ -23,7 +24,7 @@ int isstop_pushback(STREAM *stream, int c);
 void free_token_payload(token_t *tok) {
   if (tok->type == TOKEN_SYMBOL ||
       tok->type == TOKEN_STRING) {
-    free(tok->payload);
+    free_malloced(tok->payload);
   }
 }
 
@@ -133,7 +134,7 @@ int read_plus_minus(STREAM *stream,
   if(isstop_pushback(stream, next) ||
      next == EOF) {
     unsigned char *str;
-    str = malloc(2);
+    str = malloc_or_bail(2);
 
     if (!str) {
       return EOOM;

@@ -21,9 +21,9 @@ static symbol_entry_t nil_s = {(unsigned char *)"NIL", &nil_c};
 static symbol_entry_t false_s = {(unsigned char *)"FALSE", &false_c};
 static symbol_entry_t t_s = {(unsigned char *)"T", &t_c};
 
-static cell_t nil_c = {{.type = PAYLOAD_NIL}, {.symbol = &nil_s}};
-static cell_t false_c = {{.type = PAYLOAD_SYMBOL}, {.symbol = &false_s}};
-static cell_t t_c = {{.type = PAYLOAD_SYMBOL}, {.symbol = &t_s}};
+static cell_t nil_c = {{.type = SYMBOL}, {.symbol = &nil_s}};
+static cell_t false_c = {{.type = SYMBOL}, {.symbol = &false_s}};
+static cell_t t_c = {{.type = SYMBOL}, {.symbol = &t_s}};
 
 extern jmp_buf __jmp_env;
 extern cell_t *orig_sexpr;

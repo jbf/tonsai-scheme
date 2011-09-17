@@ -49,8 +49,8 @@ int add_to_environment(environ_t *env, cell_t *symbol, cell_t *value) {
   ok = alloc_sym_value_pair(&sym, &val);
 
   if (!ok) {
-    free(sym);
-    free(val);
+    free_malloced(sym);
+    free_malloced(val);
     return EOOM;
   }
 

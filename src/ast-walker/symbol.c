@@ -42,13 +42,13 @@ cell_t *intern(unsigned char *sym, symbol_table *tab) {
     new_cell = new(cell_t); // nothing extra live at call to new
     
     if (NULL == new_tab || NULL == new_sym || NULL == new_cell) {
-      free(new_tab);
-      free(new_sym);
+      free_malloced(new_tab);
+      free_malloced(new_sym);
       /* new_cell is on-heap, gc:d */
       return 0; /* Out of memory. */
     }
 
-    new_cell->slot1.type = PAYLOAD_SYMBOL;
+    new_cell->slot1.type = SYMBOL;
     new_cell->slot2.symbol = new_sym;
 
     new_sym->symbol_name = sym; /* Keep old string. */
@@ -61,7 +61,7 @@ cell_t *intern(unsigned char *sym, symbol_table *tab) {
 
     return new_cell;
   } else {
-    free(sym);
+    free_malloced(sym);
     return existing;
   }
 }

@@ -114,7 +114,7 @@ int proper_list_length(cell_t *lst, int target_length) {
  * Do not use on symbol.
  */
 int list_of(cell_type_t type, cell_t *lst) {
-  assert(type != PAYLOAD_SYMBOL);
+  assert(type != SYMBOL);
   if (NULL == lst) return -1;
   
   for (; lst != NULL && PAIRP(lst); lst = CDR(lst)) {
@@ -211,7 +211,7 @@ cell_t *prim_length(cell_t *rest, environ_t *env) {
   length = proper_list_length(tmp, 0);
   if (length >= 0) {
     tmp = new(cell_t);
-    tmp->slot1.type = PAYLOAD_NUMBER;
+    tmp->slot1.type = NUMBER;
     tmp->slot2.i_val = length;
     return tmp;
   } else {
@@ -222,7 +222,7 @@ cell_t *prim_length(cell_t *rest, environ_t *env) {
 
 cell_t *prim_plus(cell_t *rest, environ_t *env) {
   cell_t *args = evargs(rest, env);
-  int ok = list_of(PAYLOAD_NUMBER, args);
+  int ok = list_of(NUMBER, args);
 
   if (ok < 1) {
     return NULL; /* ERROR */
@@ -234,7 +234,7 @@ cell_t *prim_plus(cell_t *rest, environ_t *env) {
       tmp += I_VAL(CAR(args));
     }
 
-    rc->slot1.type = PAYLOAD_NUMBER;
+    rc->slot1.type = NUMBER;
     rc->slot2.i_val = tmp;
     return rc;
   }
@@ -242,7 +242,7 @@ cell_t *prim_plus(cell_t *rest, environ_t *env) {
 
 cell_t *prim_mul(cell_t *rest, environ_t *env) {
   cell_t *args = evargs(rest, env);
-  int ok = list_of(PAYLOAD_NUMBER, args);
+  int ok = list_of(NUMBER, args);
 
   if (ok < 1) {
     return NULL; /* ERROR */
@@ -254,7 +254,7 @@ cell_t *prim_mul(cell_t *rest, environ_t *env) {
       tmp *= I_VAL(CAR(args));
     }
 
-    rc->slot1.type = PAYLOAD_NUMBER;
+    rc->slot1.type = NUMBER;
     rc->slot2.i_val = tmp;
     return rc;
   }
@@ -262,7 +262,7 @@ cell_t *prim_mul(cell_t *rest, environ_t *env) {
 
 cell_t *prim_number_equals(cell_t *rest, environ_t *env) {
   cell_t *args = evargs(rest, env);
-  int ok = list_of(PAYLOAD_NUMBER, args);
+  int ok = list_of(NUMBER, args);
 
   if (ok < 1) {
     return NULL; /* ERROR */
@@ -281,7 +281,7 @@ cell_t *prim_number_equals(cell_t *rest, environ_t *env) {
 
 cell_t *prim_minus(cell_t *rest, environ_t *env) {
   cell_t *args = evargs(rest, env);
-  int ok = list_of(PAYLOAD_NUMBER, args);
+  int ok = list_of(NUMBER, args);
 
   if (ok < 1) {
     return NULL; /* ERROR */
@@ -293,7 +293,7 @@ cell_t *prim_minus(cell_t *rest, environ_t *env) {
       tmp -= I_VAL(CAR(args));
     }
 
-    rc->slot1.type = PAYLOAD_NUMBER;
+    rc->slot1.type = NUMBER;
     rc->slot2.i_val = tmp;
     return rc;
   }

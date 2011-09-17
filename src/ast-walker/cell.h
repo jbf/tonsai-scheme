@@ -5,34 +5,16 @@
 
 #include <stdint.h>
 
-/*
- *                  binary position:
- *                  9876543210
- * symbol payloads: 
- *
- *        cons cell xxxxxxxxx0 both car and cdr point to other cells
- *          symbols 0000000011
- *       nil-symbol 0000000111 only symbols have bit 1 (zero-indexed) set
- *           string 0000000101
- *           number 0000001101 
- *        PRIMITIVE 0000010101
- *         FUNCTION 0000011101
- *             u8[] 0000100101 tag word for u8[] alloced on heap
- */
-
-typedef enum {
-  PAYLOAD_SYMBOL = 3,
-  PAYLOAD_NIL    = 7,
-  PAYLOAD_STRING = 5,
-  PAYLOAD_NUMBER = 13,
-  PRIMITIVE      = 21,
-  FUNCTION       = 29,
-  U8VEC          = 37,
-} cell_type_t;
-
 struct environ_t;
 struct function_t;
 struct primitive_t;
+
+/* cell type enum */
+#define DECLARE_OBJECT_TYPE(x, y) x = y,
+typedef enum {
+#include "heap_objects_declare.h"
+} cell_type_t;
+#undef DECLARE_OBJECT_TYPE
 
 typedef struct cell_t {
   union {
@@ -61,12 +43,14 @@ typedef struct u8_cell_t {
 #define ATOMP(c) (((c)->slot1.type & 1) == 1)
 extern cell_t *nil_cell;
 #define NILP(c) ((c) == nil_cell)
-#define SYMBOLP(c) (((c)->slot1.type & 2) == 2)
-#define NUMBERP(c) ((c)->slot1.type == PAYLOAD_NUMBER)
-#define STRINGP(c) ((c)->slot1.type == PAYLOAD_STRING)
+
+/* declare content predicates */
+#define SYMBOLP(c) ((c)->slot1.type == SYMBOL)
+#define NUMBERP(c) ((c)->slot1.type == NUMBER)
+#define STRINGP(c) ((c)->slot1.type == STRING)
 #define PRIMITIVEP(c) ((c)->slot1.type == PRIMITIVE)
 #define FUNCTIONP(c) ((c)->slot1.type == FUNCTION)
-#define U8VECP(c) ((c)->-slot1.type == U8VEC)
+#define U8VECP(c) ((c)->slot1.type == U8VEC)
 
 /* Accessors. */
 #define CAR(c) ((c)->slot1.car)
@@ -91,4 +75,5 @@ void print_cell(cell_t *cell);
 void pretty_print(cell_t *cell);
 void pp(cell_t *cell);
 
+const char *object_type_str(cell_t *cell);
 #endif /* _CELL_H */
