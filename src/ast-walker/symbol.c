@@ -1,6 +1,7 @@
 #include "symbol.h"
 #include "memory.h"
 #include "cell.h"
+#include "bootstrap.h"
 
 #include <string.h>
 
@@ -80,4 +81,24 @@ int push(symbol_table *tab, symbol_entry_t *s) {
   tab->head = t;
 
   return 1;
+}
+
+void free_symtab(symbol_table *t) {
+  symtab_entry_t *n, *e = t->head;
+  symbol_entry_t *s;
+  while(e != NULL) {
+    n = e->next;
+    s = e->symbol;
+
+    if (freeable_symbol(s)) {
+      /* 1) Free symbol_entry_t (sym part) */
+      free_malloced(s->symbol_name);
+      /* 2) Free symbol_entry_t */
+      free_malloced(s);
+    }
+
+    /* 3) in all cases, free symtab_entry_t */
+    free_malloced(e);
+    e = n;
+  }
 }

@@ -10,6 +10,8 @@
 #include "errors.h"
 #include "liveness.h"
 
+#include <string.h>
+
 /* Some of theses should be per thread, and some global but protected. */
 environ_t *special_forms;
 environ_t *toplevel;
@@ -246,4 +248,21 @@ void destroy_eval__safe() {
     c = c->next;
     free_malloced(t);
   }
+
+  /* Frees containers and non heap values (?) held in
+     environments. */
+  destroy_env(&special_forms);
+  destroy_env(&toplevel);
+  destroy_env(&primitives);
+  destroy_env(&lib);
+  destroy_env(&internal);
+
+
+  //orig_sexpr == NULL;
+  //*live_root;
+
+  /* This will free resources held by symbol representation. */
+  free_symtab(global_symtab);
+  global_symtab = NULL;
+  __gs.head = NULL;
 }

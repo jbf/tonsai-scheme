@@ -34,4 +34,10 @@ cell_t *value(environ_t *env, cell_t *sym);
 
 int extend(environ_t *parent, environ_t *new, cell_t *symbols, cell_t *values);
 
+/*
+ * Frees all resources (except symbols representations) held by an
+ * evironment.
+ */
+void destroy_env(environ_t **env);
+
 #endif /* _ENVIRONMENT_H */

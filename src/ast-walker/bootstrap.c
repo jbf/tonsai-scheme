@@ -112,3 +112,7 @@ int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
   stream_close(&s); /* this closes FILE *f as well */
   return 1;
 }
+
+int freeable_symbol(symbol_entry_t *s) {
+  return s != &nil_s && s != &false_s && s != &t_s;
+}

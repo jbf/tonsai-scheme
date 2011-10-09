@@ -14,4 +14,9 @@ extern cell_t *false_cell;
 extern cell_t *t_cell;
 #endif /* _BOOTSTRAP_C */
 
+/*
+ * Returns true if this symbol is freeable (IE not static).
+ */
+int freeable_symbol(symbol_entry_t *s);
+
 #endif /* _BOOTSTRAP_H */

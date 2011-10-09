@@ -4,9 +4,14 @@
 #include "symbol.h"
 #include "errors.h"
 #include "memory.h"
+#include "util.h"
 
 int alloc_sym_value_pair(value_container_t **sym, value_container_t **val);
 cell_t *_value(environ_t *env, symbol_entry_t *sym);
+
+void free_environ(environ_t *env);
+void free_values(value_container_t *t);
+void free_symbol_container(value_container_t *t);
 
 cell_t *value(environ_t *env, cell_t *sym) {
   return _value(env, CELL_SYMBOL(sym));
@@ -21,6 +26,42 @@ int create_empty_environment(environ_t **env) {
   (*env)->symbols = NULL;
   (*env)->values = NULL;
   return ENV_CREATED_OK;
+}
+
+void destroy_env(environ_t **env) {
+  free_environ(*env);
+  *env = NULL;
+}
+
+void free_environ(environ_t *env) {
+  environ_t *n;
+  while(env != NULL)  {
+    n = env->parent;
+    free_values(env->values);
+    free_symbol_container(env->symbols);
+    free_malloced(env);
+    env = n;
+  }
+}
+
+void free_values(value_container_t *t) {
+  value_container_t *n;
+  while(t != NULL) {
+    n = t->next;
+    // t's payload is a cell, will get gc:d
+    free_malloced(t);
+    t = n;
+  }
+}
+
+void free_symbol_container(value_container_t *t) {
+  value_container_t *n;
+  while(t != NULL) {
+    n = t->next;
+    // t's payload is a symbol, will be freed through symtab free
+    free_malloced(t);
+    t = n;
+  }
 }
 
 /* 

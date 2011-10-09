@@ -1,9 +1,11 @@
-#define DECLARE_NAMED_SPECIAL(n, prim_op) do {                          \
+#define DECLARE_NAMED_SPECIAL(nn, prim_op) do {                         \
     /* liveness tracked through environment */                          \
+    char *n = malloc_or_bail(sizeof(nn));                               \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
     prim_container *c = new_malloc(prim_container);                     \
     c->next = NULL;                                                     \
+    strcpy(n, nn);                                                      \
                                                                         \
     if (all_prims == NULL) {                                            \
       all_prims = c;                                                    \
@@ -23,12 +25,14 @@
 
 #define DECLARE_SPECIAL(name) DECLARE_NAMED_SPECIAL(#name, prim_ ## name)
 
-#define DECLARE_NAMED_PRIMITIVE(n, prim_op) do {                        \
+#define DECLARE_NAMED_PRIMITIVE(nn, prim_op) do {                       \
     /* liveness tracked through environment */                          \
+    char *n = malloc_or_bail(sizeof(nn));                               \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
     prim_container *c = new_malloc(prim_container);                     \
     c->next = NULL;                                                     \
+    strcpy(n, nn);                                                      \
                                                                         \
     if (all_prims == NULL) {                                            \
       all_prims = c;                                                    \
@@ -48,12 +52,14 @@
 
 #define DECLARE_PRIMITIVE(name) DECLARE_NAMED_PRIMITIVE(#name, prim_ ## name)
 
-#define DECLARE_NAMED_INTERNAL(n, prim_op) do {                         \
+#define DECLARE_NAMED_INTERNAL(nn, prim_op) do {                        \
     /* liveness tracked through environment */                          \
+    char *n = malloc_or_bail(sizeof(nn));                               \
     cell_t *s, *v = new(cell_t);                                        \
     primitive_t *p = new_malloc(primitive_t);                           \
     prim_container *c = new_malloc(prim_container);                     \
     c->next = NULL;                                                     \
+    strcpy(n, nn);                                                      \
                                                                         \
     if (all_prims == NULL) {                                            \
       all_prims = c;                                                    \

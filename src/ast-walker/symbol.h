@@ -32,7 +32,7 @@ struct cell_t *lookup(unsigned char *sym, symbol_table *tab);
 int init_symbol_table(symbol_table *tab);
 
 /* need free_symtab() */
-#define free_symtab(t)
+void free_symtab(symbol_table *t);
 
 #define MAX_SYMBOL_UNIQUENESS MAX_TOKEN_LENGTH
 #define SYMTAB_CREATED 1
