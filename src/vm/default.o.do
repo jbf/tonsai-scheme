@@ -1,4 +1,4 @@
-redo-ifchange $1.cpp
-g++ -g -MD -MF $1.d -c -o $3 $1.cpp
-read DEPS <$1.d
+redo-ifchange $2.cpp
+g++ -g -MD -MF $2.d -c -o $3 $2.cpp
+read DEPS <$2.d
 redo-ifchange ${DEPS#*:}
