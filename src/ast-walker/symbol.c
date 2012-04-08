@@ -10,6 +10,7 @@ typedef struct symtab_entry_t {
   struct symtab_entry_t *next;
 } symtab_entry_t;
 
+
 cell_t *_lookup(unsigned char *sym, symtab_entry_t *tab);
 int push(symbol_table *tab, symbol_entry_t *s);
 
@@ -101,4 +102,20 @@ void free_symtab(symbol_table *t) {
     free_malloced(e);
     e = n;
   }
+}
+
+/* Iteration */
+void init_symtab_iterator(symtab_iterator_t *iter, symbol_table *tab) {
+  iter->current = tab->head;
+}
+int symtab_iter_has_next(symtab_iterator_t *iter) {
+  assert(iter != NULL);
+  return iter->current != NULL;
+}
+
+struct cell_t *symtab_iter_next_sym(symtab_iterator_t *iter) {
+  assert(symtab_iter_has_next(iter));
+  struct cell_t *ret = iter->current->symbol->symbol_cell;
+  iter->current = iter->current->next;
+  return ret;
 }

@@ -16,6 +16,8 @@
 extern frame_t *live_root;
 #endif /* LIVENESS_DEBUG */
 
+extern symbol_table *global_symtab;
+
 static void *mem_sys_heap = NULL;
 static size_t mem_sys_heap_size = 0;
 static void *cur = NULL;
@@ -45,7 +47,7 @@ void *mem_sys_safe_alloc(size_t bytes) {
   assert(NULL != mem_sys_heap &&
          NULL != cur &&
          NULL != top);
-  
+
 #ifdef MEM_DEBUG
   DEBUGPRINT("Trying to alloc: %lu bytes at %p\n", (long) bytes, cur);
 #endif /* MEM_DEBUG */
@@ -57,7 +59,7 @@ void *mem_sys_safe_alloc(size_t bytes) {
   if (bytes < 0) {
     DEBUGPRINT_("Trying to allocate a negative amount of memory. Aborting.\n");
     exit(1);
-  } 
+  }
 
   bytes = (((bytes-1)/(sizeof(void*)))+1)*sizeof(void *); /* align to sizeof(void *) */
 
@@ -65,12 +67,12 @@ void *mem_sys_safe_alloc(size_t bytes) {
     DEBUGPRINT_("Out of memory. Aborting.\n");
     exit(1);
   }
-  
+
   t = cur;
   cur = cur + bytes;
   return t;
 }
-  
+
 u8_cell_t *u8_new(size_t bytes) {
   size_t orig = bytes;
   u8_cell_t *c;
@@ -103,7 +105,7 @@ u8_cell_t *u8_new(size_t bytes) {
 void init_mem_sys__safe() {
   int page_size = getpagesize();
   size_t t;
-  
+
   if (NULL != mem_sys_heap) {
     DEBUGPRINT_("Memory subsystem is already initialized! aborting!\n");
     exit(1);
@@ -126,7 +128,7 @@ void init_mem_sys__safe() {
     DEBUGPRINT_("Can't map memory, aborting!\n");
     exit(1);
   }
-  
+
   top = mem_sys_heap + t;
   mem_sys_heap_size = (size_t)(top-mem_sys_heap);
 
@@ -161,11 +163,26 @@ void scan_heap() {
 
   for (base = start; base < end; ) {
     cell_t *obj = (cell_t *)base;
-    
+
     if (U8VECP(obj)) {
       base = base + sizeof(cell_t) + U8LEN(obj);
     } else {
       base += sizeof(cell_t);
     }
   }
+}
+
+
+void print_roots() {
+  symtab_iterator_t sym_iter, *i;
+  cell_t *c;
+
+  i = &sym_iter;
+  init_symtab_iterator(i, global_symtab);
+  while(symtab_iter_has_next(i)) {
+    c = symtab_iter_next_sym(i);
+    pretty_print(c);
+  }
+
+
 }

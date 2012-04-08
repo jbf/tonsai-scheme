@@ -17,7 +17,8 @@ int main(int argc, char **argv, char **envp) {
 
   /* Handle error here */
   repl_thread = run_in_thread("(repl)");
-    
+
+
   destroy_vm();
   return 0;
 }

@@ -11,6 +11,8 @@
 #ifndef _SYMBOL_H
 #define _SYMBOL_H 1
 
+#include <assert.h>
+
 #include "cell.h"
 #include "token.h"
 
@@ -36,5 +38,14 @@ void free_symtab(symbol_table *t);
 
 #define MAX_SYMBOL_UNIQUENESS MAX_TOKEN_LENGTH
 #define SYMTAB_CREATED 1
+
+/* Iteration */
+typedef struct symtab_iterator {
+  struct symtab_entry_t *current;
+} symtab_iterator_t;
+
+void init_symtab_iterator(symtab_iterator_t *iter, symbol_table *tab);
+int symtab_iter_has_next(symtab_iterator_t *iter);
+struct cell_t *symtab_iter_next_sym(symtab_iterator_t *iter);
 
 #endif /* _SYMBOL_H */
