@@ -47,8 +47,8 @@ void *mem_sys_safe_alloc(size_t bytes) {
   DEBUGPRINT("Trying to alloc: %lu bytes at %p\n", (long) bytes, cur);
 #endif /* MEM_DEBUG */
 
-  if (bytes < 0) {
-    DEBUGPRINT_("Trying to allocate a negative amount of memory. Aborting.\n");
+  if (bytes <= 0) {
+    DEBUGPRINT_("Trying to allocate zero or a negative amount of memory. Aborting.\n");
     exit(1);
   }
 
@@ -69,8 +69,8 @@ u8_cell_t *u8_new(size_t bytes) {
   u8_cell_t *c;
   void *t;
 
-  if (bytes < 0) {
-    DEBUGPRINT_("Trying to allocate an u8-vec of negative size. Aborting.\n");
+  if (bytes <= 0) {
+    DEBUGPRINT_("Trying to allocate an u8-vec of zero or negative size. Aborting.\n");
     exit(1);
   }
 
