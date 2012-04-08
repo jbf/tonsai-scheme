@@ -8,7 +8,7 @@ SOURCES         = $(wildcard src/ast-walker/*.c)
 OBJECTS         = $(patsubst %.c,%.o,$(SOURCES))
 DEPS            = $(patsubst %.c,%.dep,$(SOURCES))
 
-all: depend $(PROGRAM) vm
+all: depend $(PROGRAM)
 
 depend: $(DEPS)
 
@@ -44,8 +44,5 @@ tags:
 
 cloc: clean
 	cloc src Makefile dev-tools lib test/test_primitives.c test.rb
-
-vm:
-	@PATH=../redo:$(PATH) redo src/vm/vm
 
 .PHONY: clean tags cloc
