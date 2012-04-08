@@ -4,7 +4,7 @@ DEBUG           = -DDEBUG -DMEM_DEBUG
 CFLAGS          = -Wall $(DEBUG) -g -Werror
 CXXFLAGS_EXTRA  = -Wall -g -Werror
 PROGRAM         = tlisp
-SOURCES         = $(wildcard src/ast-walker/*.c)
+SOURCES         = $(wildcard src/*.c)
 OBJECTS         = $(patsubst %.c,%.o,$(SOURCES))
 DEPS            = $(patsubst %.c,%.dep,$(SOURCES))
 
@@ -30,8 +30,8 @@ clean:
 	-rm -f -- *.o *.dep *.dep.* *~ core a.out repl
 	-rm -rf -- *.dSYM
 	-rm -f -- src/*.o src/*.dep src/*.dep.* src/*~
-	-rm -f -- src/ast-walker/*.o src/ast-walker/*.dep \
-                  src/ast-walker/*.dep.* src/ast-walker/*~
+	-rm -f -- src/*.o src/*.dep \
+                  src/*.dep.* src/*~
 	-rm -f -- src/vm/*.o src/vm/*.dep src/vm/*.dep.* src/vm/*~ \
                   src/vm/cpp_vm.d
 	-rm -f -- src/vm/test/*.o src/vm/test/*.dep src/vm/test/*.dep.* \
