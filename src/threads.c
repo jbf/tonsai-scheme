@@ -7,7 +7,6 @@
 #include "eval.h"
 #include "environment.h"
 #include "memory.h"
-#include "liveness.h"
 #include "errors.h"
 #include "t_stream.h"
 #include "filestream.h"
@@ -22,7 +21,6 @@ extern jmp_buf __jmp_env;
 int run_in_thread(const char *code) {
   int __tl_eval_level = 0;
   cell_t *orig_sexpr = NULL;
-  frame_t *live_root = NULL;
   cell_t *cell=NULL;
   cell_t *res=NULL;
   STREAM s;
@@ -33,8 +31,6 @@ int run_in_thread(const char *code) {
     orig_sexpr = NULL;
     res = NULL;
     orig_sexpr = NULL;
-    dealloc_frames(&live_root);
-    
     /* Handle thread cleanup */
   }
   while (1) {
@@ -46,9 +42,7 @@ int run_in_thread(const char *code) {
     
     orig_sexpr = cell;
     
-    push_liveness(&live_root, new_liveframe(2, cell, orig_sexpr));
     res = evaluate(cell, NULL);
-    pop_liveness(&live_root);
 
     if (res) {
       pretty_print(res);

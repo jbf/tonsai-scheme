@@ -1,7 +1,6 @@
 #include "tlisp.h"
 #include "threads.h"
 #include "eval.h"
-#include "liveness.h"
 #include "memory.h"
 
 #define destroy_vm() do {                       \

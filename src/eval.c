@@ -8,7 +8,6 @@
 #include "bootstrap.h"
 #include "function.h"
 #include "errors.h"
-#include "liveness.h"
 
 #include <string.h>
 
@@ -22,7 +21,6 @@ static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
 cell_t *orig_sexpr;
-extern frame_t *live_root;
 
 cell_t *find_value(environ_t *env, cell_t *sym);
 
@@ -121,20 +119,11 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   }
 
   for (i = length - 1; i >= 0; i--) {
-    tmp = new(cell_t); // liveness ok
-    if (head != nil_cell) {
-      pop_liveness(&live_root);
-    }
+    tmp = new(cell_t);
     tail = head;
     head = argsarray[i];
     CONS(tmp, head, tail);
     head = tmp;
-    
-    push_liveness(&live_root, new_liveframe(1, head));
-  }
-
-  if (length > 0) {
-    pop_liveness(&live_root);
   }
 
   return head;
