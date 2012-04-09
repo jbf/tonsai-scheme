@@ -8,6 +8,7 @@
 #include "bootstrap.h"
 #include "function.h"
 #include "errors.h"
+#include "handles.h"
 
 #include <string.h>
 
@@ -109,7 +110,8 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   cell_t *argsarray[MAX_LISP_ARGS];
   int length;
   int i;
-  cell_t *tmp, *head = nil_cell, *tail;
+  cell_t *tmp, *head = nil_cell, *tail = nil_cell;
+  handle_t *hhandle, *thandle;
 
   if ((length = proper_list_length(args, 0)) < 0) return NULL; /* error */
   if (length > MAX_LISP_ARGS) return NULL; /* can only handle 16 args atm */
@@ -118,13 +120,23 @@ cell_t *evargs(cell_t *args, environ_t *env) {
     argsarray[i] = evaluate(CAR(args), env);
   }
 
+  hhandle = handle_push(head);
+  thandle = handle_push(tail);
   for (i = length - 1; i >= 0; i--) {
-    tmp = new(cell_t);
+    tmp = new(cell_t); // head and tail protected by handles
+    head = handle_get(hhandle);
+    tail = handle_get(thandle);
+
     tail = head;
     head = argsarray[i];
     CONS(tmp, head, tail);
     head = tmp;
+
+    handle_set(hhandle, head);
+    handle_set(thandle, tail);
   }
+  handle_pop(hhandle);
+  handle_pop(thandle);
 
   return head;
 }
