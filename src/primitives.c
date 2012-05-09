@@ -10,7 +10,7 @@
 #include "scheme-utils.h"
 #include "function.h"
 #include "memory.h"
-
+#include "handles.h"
 
 void inner_prim_error(cell_t *string_cell);
 void string_error(const char *err_msg);
@@ -131,26 +131,56 @@ int list_of(cell_type_t type, cell_t *lst) {
  */
 cell_t *prim_list(cell_t *rest, environ_t *env) {
   cell_t *first = NULL, *tmp = NULL, *next = NULL;
-  
+  handle_t *hf, *ht, *htt, *hr;
+
+  hf = handle_push(first);
+  hr = handle_push(rest);
+
   if (NILP(rest)) {
-    first = tmp = nil_cell;
+    first = nil_cell;
   } else {
-    first = new(cell_t);
-    first->slot1.car = evaluate(CAR(rest), env);
+    first = new(cell_t); // rest protected by handle
+    handle_set(hf, first);
+    tmp = evaluate(CAR(rest), env); // rest, first protected by handle
+    first = handle_get(hf);
+    rest = handle_get(hr);
+
+    first->slot1.car = tmp;
+
     rest = CDR(rest);
     tmp = first;
+    ht = handle_push(tmp);
+
+    handle_set(hf, first);
+    handle_set(hr, rest);
     
     while (!NILP(rest)) {
-      next = new(cell_t);
-      next->slot1.car = evaluate(CAR(rest), env);
+      cell_t *t = evaluate(CAR(rest), env); //rest, first, tmp handled
+      htt = handle_push(t);
+      next = new(cell_t); //rest, first, tmp,t handled
+      t = handle_get(htt);
+      handle_pop(htt);
+      next->slot1.car = t;
+
+      rest = handle_get(hr);
+      tmp = handle_get(ht);
+
       tmp->slot2.cdr = next;
       tmp = next;
       rest = CDR(rest);
+
+      handle_set(hr, rest);
+      handle_set(ht, tmp);
     }
-    
+
     tmp->slot2.cdr = nil_cell;
+    handle_pop(tmp);
+
+    first = handle_get(hf);
   }
 
+  handle_pop(hr);
+  handle_pop(hf);
   return first;
 }
 
