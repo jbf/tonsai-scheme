@@ -2,8 +2,4 @@ AST-walker
 - segfaults on symbols that contain numbers.
 - "(+ 10 10(" exits repl without error
 - leak cons cells (IE no gc)
-
-VM
-- class vm_error should be an error
-- do I really want a frame-iterator?
-- perhaps both frame and live-iterators?
+- must handle orig_sexpr

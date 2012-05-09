@@ -186,35 +186,55 @@ cell_t *prim_list(cell_t *rest, environ_t *env) {
 
 cell_t *prim_setcar(cell_t *rest, environ_t *env) {
   cell_t *tmp, *res;
+  handle_t *hr, *ht;
 
   if (proper_list_length(rest, 2) != 2) {
     fast_error("wrong arity in call to (set-car! ...) expected 2 arguments.");
   }
   
-  tmp = evaluate(CAR(rest), env);
+  hr = handle_push(rest);
+  tmp = evaluate(CAR(rest), env); // rest handled
   if (!PAIRP(tmp)) {
+    handle_pop(hr);
     fast_error("first operand to set-car! must be a pair.");
   }
+  
+  ht = handle_push(tmp);
+  rest = handle_get(hr);
+  res = evaluate(CAR(CDR(rest)), env); // tmp, rest handled
 
-  res = evaluate(CAR(CDR(rest)), env);
+  tmp = handle_get(ht);
   tmp->slot1.car = res;
+  
+  handle_pop(ht);
+  handle_pop(hr);
   return tmp;
 }
 
 cell_t *prim_setcdr(cell_t *rest, environ_t *env) {
   cell_t *tmp, *res;
+  handle_t *hr, *ht;
 
   if (proper_list_length(rest, 2) != 2) {
     fast_error("wrong arity in call to (set-cdr! ...) expected 2 arguments.");
   }
   
-  tmp = evaluate(CAR(rest), env);
+  hr = handle_push(rest);
+  tmp = evaluate(CAR(rest), env); // rest handled
   if (!PAIRP(tmp)) {
+    handle_pop(hr);
     fast_error("first operand to set-cdr! must be a pair.");
   }
 
-  res = evaluate(CAR(CDR(rest)), env);
+  ht = handle_push(tmp);
+  rest = handle_get(hr);
+  res = evaluate(CAR(CDR(rest)), env); // tmp, rest handled
+  
+  tmp = handle_get(ht);
   tmp->slot2.cdr = res;
+
+  handle_pop(ht);
+  handle_pop(hr);
   return tmp;
 }
 

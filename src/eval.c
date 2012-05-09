@@ -81,7 +81,10 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
       return NULL; /* unreachable */
     }
   } else { /* list */
-    cell_t *first = evaluate(CAR(exp), env);
+    handle_t *he = handle_push(exp);
+    cell_t *first = evaluate(CAR(exp), env); // exp handled
+    exp = handle_get(he);
+    handle_pop(he);
     cell_t *rest = CDR(exp);
     
     if (DFLAG) {
@@ -98,7 +101,15 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
       cell_t *(*f)(cell_t *, environ_t *) = CELL_PRIMITIVE(first);
       DRETURN(RET_PRIM, (*f)(rest, env));
     } else if (FUNCTIONP(first)) { /* function call */
-      DRETURN(RET_FUNCALL, invoke(first, evargs(rest, env), env));
+      cell_t *t;
+      handle_t *hf;
+
+      hf = handle_push(first);
+      t = evargs(rest, env); // first handled
+      first = handle_get(hf);
+      handle_pop(hf);
+      
+      DRETURN(RET_FUNCALL, invoke(first, t, env)); // no need for handles
     }
     undefun_error(first, exp); /* Not primitive or funcall, error.*/
     return NULL; /* Unreachable, undefun_error() does not return. */
@@ -107,7 +118,7 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
 
 cell_t *evargs(cell_t *args, environ_t *env) {
 #define MAX_LISP_ARGS 16
-  cell_t *argsarray[MAX_LISP_ARGS];
+  handle_t *harray[MAX_LISP_ARGS];
   int length;
   int i;
   cell_t *tmp, *head = nil_cell, *tail = nil_cell;
@@ -117,7 +128,11 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   if (length > MAX_LISP_ARGS) return NULL; /* can only handle 16 args atm */
 
   for (i = 0; i < length; i++, args = CDR(args)) {
-    argsarray[i] = evaluate(CAR(args), env);
+    harray[i] = handle_push(CAR(args));
+  }
+  for (i = 0; i < length; i++) {
+    cell_t *t = handle_get(harray[i]);
+    handle_set(harray[i], evaluate(t, env)); // everything handled
   }
 
   hhandle = handle_push(head);
@@ -128,7 +143,7 @@ cell_t *evargs(cell_t *args, environ_t *env) {
     tail = handle_get(thandle);
 
     tail = head;
-    head = argsarray[i];
+    head = handle_get(harray[i]);
     CONS(tmp, head, tail);
     head = tmp;
 
@@ -137,6 +152,10 @@ cell_t *evargs(cell_t *args, environ_t *env) {
   }
   handle_pop(hhandle);
   handle_pop(thandle);
+
+  for (i = length - 1; i >= 0; i--) {
+    handle_pop(harray[i]);
+  }
 
   return head;
 }
@@ -147,6 +166,7 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
   function_t *func = fun->slot2.fun;
   cell_t *ret;
   cell_t *code;
+  handle_t *hc;
 
   argslen = proper_list_length(args,0);
   paramlen = proper_list_length(func->param_list, 0);
@@ -157,10 +177,15 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
   extend(func->lexical_env, new_env, func->param_list, args);
 
   code = func->code;
+  hc = handle_push(code);
   while (NULL != code && !NILP(code)) {
-    ret = evaluate(CAR(code), new_env);
+    ret = evaluate(CAR(code), new_env); // code handled
+    
+    code = handle_get(hc);
     code = CDR(code);
+    handle_set(hc, code);
   }
+  handle_pop(hc);
 
   return ret;
 }
