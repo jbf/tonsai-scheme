@@ -240,14 +240,22 @@ cell_t *prim_setcdr(cell_t *rest, environ_t *env) {
 
 cell_t *prim_cons(cell_t *rest, environ_t *env) {
   cell_t *tmp;
+  handle_t *hr;
 
   if (proper_list_length(rest, 2) != 2) {
     fast_error("wrong arity in call to (cons ...) expected 2 arguments.");
   }
-  
-  tmp = new(cell_t);
-  tmp->slot1.car = evaluate(CAR(rest), env);
-  tmp->slot2.cdr = evaluate(CAR(CDR(rest)), env);
+
+  hr = handle_push(rest);
+  tmp = new(cell_t); //rest handled
+  rest = handle_get(hr);
+
+  tmp->slot1.car = evaluate(CAR(rest), env); //rest handled
+  rest = handle_get(hr);
+
+  tmp->slot2.cdr = evaluate(CAR(CDR(rest)), env); //rest handeld
+
+  handle_pop(hr);
   return tmp;
 }
 
@@ -259,10 +267,10 @@ cell_t *prim_length(cell_t *rest, environ_t *env) {
     fast_error("wrong arity in call to (length ...) expected 1 argument of type list.");
   }
 
-  tmp = evaluate(CAR(rest), env);
+  tmp = evaluate(CAR(rest), env); //no handles needed
   length = proper_list_length(tmp, 0);
   if (length >= 0) {
-    tmp = new(cell_t);
+    tmp = new(cell_t); //no handles neede
     tmp->slot1.type = NUMBER;
     tmp->slot2.i_val = length;
     return tmp;
@@ -279,11 +287,16 @@ cell_t *prim_plus(cell_t *rest, environ_t *env) {
   if (ok < 1) {
     return NULL; /* ERROR */
   } else {
+    handle_t *ha;
     int tmp = 0;
-    cell_t *rc = new(cell_t);
+
+    ha = handle_push(args);
+    cell_t *rc = new(cell_t); // args handled
+    args = handle_get(ha);
+    handle_pop(ha);
 
     for (; args != NULL && PAIRP(args); args = CDR(args)) {
-      tmp += I_VAL(CAR(args));
+      tmp += I_VAL(CAR(args)); //this might overflow :)
     }
 
     rc->slot1.type = NUMBER;
@@ -299,11 +312,16 @@ cell_t *prim_mul(cell_t *rest, environ_t *env) {
   if (ok < 1) {
     return NULL; /* ERROR */
   } else {
+    handle_t *ha;
     int tmp = 1;
-    cell_t *rc = new(cell_t);
 
-    for (; args != NULL && PAIRP(args) && tmp; args = CDR(args)) {
-      tmp *= I_VAL(CAR(args));
+    ha = handle_push(args);
+    cell_t *rc = new(cell_t); // args handled
+    args = handle_get(ha);
+    handle_pop(ha);
+
+    for (; args != NULL && PAIRP(args); args = CDR(args)) {
+      tmp *= I_VAL(CAR(args)); // overflow!
     }
 
     rc->slot1.type = NUMBER;
@@ -313,7 +331,7 @@ cell_t *prim_mul(cell_t *rest, environ_t *env) {
 }
 
 cell_t *prim_number_equals(cell_t *rest, environ_t *env) {
-  cell_t *args = evargs(rest, env);
+  cell_t *args = evargs(rest, env); //this implies strictness
   int ok = list_of(NUMBER, args);
 
   if (ok < 1) {
@@ -324,6 +342,7 @@ cell_t *prim_number_equals(cell_t *rest, environ_t *env) {
 
     for (; args != NULL && PAIRP(args) && tmp; args = CDR(args)) {
       tmp = I_VAL(CAR(args)) == I_VAL(last);
+      if (!tmp) break;
       last = CAR(args);
     }
 
@@ -338,8 +357,13 @@ cell_t *prim_minus(cell_t *rest, environ_t *env) {
   if (ok < 1) {
     return NULL; /* ERROR */
   } else {
+    handle_t *ha;
     int tmp = 2*I_VAL(CAR(args));
-    cell_t *rc = new(cell_t);
+
+    ha = handle_push(args);
+    cell_t *rc = new(cell_t); // args handled
+    args = handle_get(ha);
+    handle_pop(ha);
 
     for (; args != NULL && PAIRP(args); args = CDR(args)) {
       tmp -= I_VAL(CAR(args));

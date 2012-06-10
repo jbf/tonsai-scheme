@@ -3,3 +3,4 @@ AST-walker
 - "(+ 10 10(" exits repl without error
 - leak cons cells (IE no gc)
 - must handle orig_sexpr
+- must handle symtab
