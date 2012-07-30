@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "cell.h"
+#include "memory.h"
 
 void *mem_sys_safe_alloc(size_t bytes);
 void *malloc_or_bail(size_t bytes);

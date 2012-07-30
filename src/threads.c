@@ -10,6 +10,7 @@
 #include "errors.h"
 #include "t_stream.h"
 #include "filestream.h"
+#include "handles.h"
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -23,14 +24,19 @@ int run_in_thread(const char *code) {
   cell_t *orig_sexpr = NULL;
   cell_t *cell=NULL;
   cell_t *res=NULL;
+  handle_t *handle_orig, *mark;
+
   STREAM s;
   make_filestream(&s, stdin);
 
+  handle_orig = handle_push(orig_sexpr);
+  mark = get_mark();
+
   if (setjmp(__jmp_env)) {
     __tl_eval_level = 0;
-    orig_sexpr = NULL;
     res = NULL;
     orig_sexpr = NULL;
+    pop_to_mark(mark);
     /* Handle thread cleanup */
   }
   while (1) {
@@ -41,8 +47,10 @@ int run_in_thread(const char *code) {
     }
     
     orig_sexpr = cell;
+    handle_set(handle_orig, orig_sexpr);
     
-    res = evaluate(cell, NULL);
+    res = evaluate(cell, NULL);  // orig_sexpr handled
+    orig_sexpr = handle_get(handle_orig);
 
     if (res) {
       pretty_print(res);
@@ -53,5 +61,6 @@ int run_in_thread(const char *code) {
     orig_sexpr = NULL;
   }
 
+  handle_pop(handle_orig);
   return 0;
 }

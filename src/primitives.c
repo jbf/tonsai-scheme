@@ -22,6 +22,7 @@ extern environ_t *lib; /* Lib of public shceme functions. */
  * Helpers.
  */
 
+/* Is this aloc-safe? */
 int scheme_to_c_truth(cell_t *c, environ_t *env) {
   if (NULL == c) return EINVALID_TRUTH; /* error */
 
@@ -174,7 +175,7 @@ cell_t *prim_list(cell_t *rest, environ_t *env) {
     }
 
     tmp->slot2.cdr = nil_cell;
-    handle_pop(tmp);
+    handle_pop(ht);
 
     first = handle_get(hf);
   }
@@ -377,18 +378,22 @@ cell_t *prim_minus(cell_t *rest, environ_t *env) {
 
 cell_t *prim_if(cell_t *rest, environ_t *env) {
   cell_t *pred;
+  handle_t *hrest;
 
   if (proper_list_length(rest, 3) != 3) return NULL;
 
-  pred = evaluate(CAR(rest), env);
+  hrest = handle_push(rest);
+  pred = evaluate(CAR(rest), env); //rest handled
   int truth_value = scheme_to_c_truth(pred, env);
+  rest = handle_get(hrest);
+  handle_pop(hrest);
 
   if(truth_value < 0) {
     return NULL;
   } else if (truth_value) {
-    return evaluate(CADR(rest), env);
+    return evaluate(CADR(rest), env); // safe due to return
   } else {
-    return evaluate(CADDR(rest), env);
+    return evaluate(CADDR(rest), env); // safe due to return
   }
 }
 
@@ -396,14 +401,23 @@ cell_t *prim_if(cell_t *rest, environ_t *env) {
 cell_t *prim_lambda(cell_t *rest, environ_t *paren_lexical_env) {
   cell_t *tmp;
   function_t *fun;
+  handle_t *hrest, *htmp;
 
   if (proper_list_length(rest, 0) < 2) return NULL;
   if (!(NILP(CAR(rest)) || proper_list_length(CAR(rest),0) > 0)) return NULL;
 
   /* asert params only symbols */
 
-  tmp = new(cell_t);
-  fun = new(function_t);
+  hrest = handle_push(rest);
+  tmp = new(cell_t); // rest handled
+
+  htmp = handle_push(tmp);
+  fun = new(function_t); // rest, tmp handled
+
+  tmp = handle_get(htmp);
+  rest = handle_get(hrest);
+  handle_pop(htmp);
+  handle_pop(hrest);
 
   fun->fun_cell = tmp;
   fun->lexical_env = paren_lexical_env;
@@ -473,7 +487,7 @@ cell_t *prim_eq(cell_t *rest, environ_t *env) {
     fast_error("wrong arity in call to (eq ...).");
   }
 
-  return evaluate(CAR(rest),env) == evaluate(CADR(rest),env)
+  return evaluate(CAR(rest),env) == evaluate(CADR(rest),env) // protected by return
     ? t_cell
     : false_cell;
 }
@@ -482,7 +496,8 @@ extern int __tl_eval_level;
 extern environ_t *toplevel;
 cell_t *prim_define(cell_t *rest, environ_t *env) {
   cell_t *val;
-  
+  handle_t *hrest;
+ 
   /* Rest must be a symbol and an expression. */
   if (proper_list_length(rest,2) != 2) {
     fast_error("wrong arity in call to (define ...).");
@@ -496,7 +511,11 @@ cell_t *prim_define(cell_t *rest, environ_t *env) {
     fast_error("(define ...) only at toplevel.");
   }
   
-  val = evaluate(CADR(rest), env);
+  hrest = handle_push(rest);
+  val = evaluate(CADR(rest), env); // rest protected
+  rest = handle_get(hrest);
+  handle_pop(hrest);
+
   add_to_environment(toplevel, CAR(rest), val);
   
   return CAR(rest);
@@ -525,7 +544,7 @@ cell_t *prim_error(cell_t *rest, environ_t *env) {
     inner_prim_error(CAR(rest));
   } else {
     cell_t *tmp;
-    tmp = evaluate(CAR(rest), env);
+    tmp = evaluate(CAR(rest), env); // no protection, only tmp used
     printf("error: ");
     pretty_print(tmp);
     GOTO_TOPLEVEL();

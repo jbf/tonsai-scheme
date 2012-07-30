@@ -94,7 +94,7 @@ int load_lib_scm(symbol_table *symtab, environ_t *lib, environ_t *internal) {
 
     /* mini-eval each form with internal as initial env*/
     orig_sexpr = cell;
-    res = evaluate(cell, internal); // orig_sexpr protected in eval.c
+    res = evaluate(cell, internal); // UNSAFE!
     if (res) {
 #ifdef DEBUG_BOOT
       pretty_print(res);

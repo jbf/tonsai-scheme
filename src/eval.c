@@ -150,8 +150,8 @@ cell_t *evargs(cell_t *args, environ_t *env) {
     handle_set(hhandle, head);
     handle_set(thandle, tail);
   }
-  handle_pop(hhandle);
   handle_pop(thandle);
+  handle_pop(hhandle);
 
   for (i = length - 1; i >= 0; i--) {
     handle_pop(harray[i]);
@@ -190,8 +190,8 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
   return ret;
 }
 
-/* This fixes the lookup order. If S is defined in an env looked into
- * earlier, it will override later environments.
+/* This fixates the lookup order. If S is defined in an env looked
+ * into earlier, it will override later environments.
  *
  * For example library code overrides primitives.
  */
@@ -248,6 +248,7 @@ typedef struct prim_container {
 static prim_container *all_prims = NULL;
 
 void init_eval__safe() {
+  /* TODO: fix this for robustness */
   boot(global_symtab, &special_forms);
   create_empty_environment(&toplevel);
   create_empty_environment(&primitives);
