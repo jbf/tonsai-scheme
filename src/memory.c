@@ -13,8 +13,13 @@
 
 extern symbol_table *global_symtab;
 
-static void *mem_sys_heap = NULL;
-static size_t mem_sys_heap_size = 0;
+static void *mem_sys_heap1 = NULL;
+static void *mem_sys_heap2 = NULL;
+static void *red_pages = NULL;
+
+static size_t mem_sys_heap1_size = 0;
+static size_t mem_sys_heap2_size = 0;
+
 static void *cur = NULL;
 static void *top = NULL;
 
@@ -39,7 +44,7 @@ void free_malloced(void *ptr) {
 /* On-heap malloc that only returns if it succeeds */
 void *mem_sys_safe_alloc(size_t bytes) {
   void *t;
-  assert(NULL != mem_sys_heap &&
+  assert(NULL != mem_sys_heap1 &&
          NULL != cur &&
          NULL != top);
 
@@ -97,7 +102,8 @@ void init_mem_sys__safe() {
   int page_size = getpagesize();
   size_t t;
 
-  if (NULL != mem_sys_heap) {
+  if (NULL != mem_sys_heap1 ||
+      NULL != mem_sys_heap2) {
     DEBUGPRINT_("Memory subsystem is already initialized! aborting!\n");
     exit(1);
   }
@@ -106,40 +112,67 @@ void init_mem_sys__safe() {
     DEBUGPRINT("page_size to weird: %d aborting!\n", page_size);
     exit(1);
   }
-  cur = mem_sys_heap = mmap(NULL,
+  cur = mem_sys_heap1 = mmap(NULL,
                             t = (size_t)(2 * page_size),
                             PROT_READ | PROT_WRITE,
                             MAP_ANON | MAP_PRIVATE,
                             -1,
                             0);
-
-  if (mem_sys_heap == MAP_FAILED) {
+  if (mem_sys_heap1 == MAP_FAILED) {
     /* Find out what errno is stupid! */
     perror(AT);
-    DEBUGPRINT_("Can't map memory, aborting!\n");
+    DEBUGPRINT_("Can't map memory heap, aborting!\n");
     exit(1);
   }
+  top = mem_sys_heap1 + t;
+  mem_sys_heap1_size = (size_t)(top-mem_sys_heap1);
 
-  top = mem_sys_heap + t;
-  mem_sys_heap_size = (size_t)(top-mem_sys_heap);
+  red_pages = mmap(NULL,
+                   t = (size_t)(2 * page_size),
+                   PROT_NONE,
+                   MAP_ANON | MAP_PRIVATE,
+                   -1,
+                   0);
+  mprotect(red_pages, mem_sys_heap2_size, PROT_NONE);
+
+  mem_sys_heap2 = mmap(NULL,
+                       t = (size_t)(2 * page_size),
+                       PROT_NONE,
+                       MAP_ANON | MAP_PRIVATE,
+                       -1,
+                       0);
+  if (mem_sys_heap2 == MAP_FAILED) {
+    /* Find out what errno is stupid! */
+    perror(AT);
+    DEBUGPRINT_("Can't map memory for heap, aborting!\n");
+    exit(1);
+  }
+  mem_sys_heap2_size = (size_t)t;
+  mprotect(mem_sys_heap2, mem_sys_heap2_size, PROT_NONE);
+
+  /* Test that red pages are between the areas */
 
   fprintf(stderr,
-          "\tmem_sys_heap: %p, top: %p\n"
+          "\tmem_sys_heap1: %p, top: %p\n"
           "\theap size: %ld bytes\n"
-          "\tsizeof(void *) is %d bytes\n",
-          mem_sys_heap,
+          "\tsizeof(void *) is %d bytes\n"
+          "\tmem_sys_heap2: %p\n"
+          "\theap size: %ld bytes\n",
+          mem_sys_heap1,
           top,
-          (long)mem_sys_heap_size,
-          (int)sizeof (void *));
+          (long)mem_sys_heap1_size,
+          (int)sizeof (void *),
+          mem_sys_heap2,
+          (long)mem_sys_heap2_size);
 }
 
 void destroy_mem_sys__safe() {
   int ret;
   fprintf(stderr,
           "\tunmapping %ld bytes at page(s): %p\n",
-          (long)mem_sys_heap_size,
-          mem_sys_heap);
-  ret = munmap(mem_sys_heap, mem_sys_heap_size);
+          (long)mem_sys_heap1_size,
+          mem_sys_heap1);
+  ret = munmap(mem_sys_heap1, mem_sys_heap1_size);
   if (ret != 0) {
     fprintf(stderr, "\terror unmapping heap\n");
     perror(NULL);
@@ -149,8 +182,8 @@ void destroy_mem_sys__safe() {
 void scan_heap() {
   char *start, *base, *end;
 
-  start = (char *)mem_sys_heap;
-  end = start + mem_sys_heap_size;
+  start = (char *)mem_sys_heap1;
+  end = start + mem_sys_heap1_size;
 
   for (base = start; base < end; ) {
     cell_t *obj = (cell_t *)base;
