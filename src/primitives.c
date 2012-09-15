@@ -11,12 +11,16 @@
 #include "function.h"
 #include "memory.h"
 #include "handles.h"
+#include "util.h"
 
 void inner_prim_error(cell_t *string_cell);
 void string_error(const char *err_msg);
 
 extern environ_t *internal; /* Lib of vm-internal scheme functions. */
 extern environ_t *lib; /* Lib of public shceme functions. */
+
+extern symbol_table *global_symtab;
+extern cell_t *nil_cell;
 
 /*
  * Helpers.
@@ -579,4 +583,10 @@ void inner_prim_error(cell_t *string_cell) {
 void fast_error(const char *err_msg) {
   printf("error: %s\n", err_msg);
   GOTO_TOPLEVEL();
+}
+
+/* Debug stuff */
+cell_t *prim_dump_symtab(cell_t* rest, environ_t *env) {
+  print_symtab(global_symtab);
+  return nil_cell;
 }

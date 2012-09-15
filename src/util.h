@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "symbol.h"
+
 #define min(x,y) ({                             \
       typeof(x) _x = (x);                       \
       typeof(y) _y = (y);                       \
@@ -56,5 +58,7 @@ typedef struct value_container_t {
       (_x == _y) ? ({ bail(1); NULL; }) : _x; })
 
 #define CHECK_NULL(x) CHECK_NOT(x, NULL)
+
+void print_symtab(symbol_table *tab);
 
 #endif /* __UTIL_H */

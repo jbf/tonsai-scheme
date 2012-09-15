@@ -33,6 +33,8 @@ cell_t *prim_list(cell_t *rest, environ_t *env);
 cell_t *prim_definternal(cell_t* rest, environ_t *paren_lexical_env);
 cell_t *prim_deflibrary(cell_t* rest, environ_t *paren_lexical_env);
 
+cell_t *prim_dump_symtab(cell_t* rest, environ_t *env);
+
 int proper_list_length(cell_t *lst, int target_length);
 void fast_error(const char *err_msg);
 void undefun_error(cell_t *first, cell_t *exp);

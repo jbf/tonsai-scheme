@@ -20,3 +20,6 @@
   /*INTERNAL*/
   DECLARE_INTERNAL(definternal);
   DECLARE_INTERNAL(deflibrary);
+
+  /*DEBUG*/
+  DECLARE_PRIMITIVE(dump_symtab);
