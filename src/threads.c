@@ -18,9 +18,9 @@
 extern symbol_table *global_symtab;
 extern environ_t *special_forms;
 extern jmp_buf __jmp_env;
+extern  int __tl_eval_level;
  
 int run_in_thread(const char *code) {
-  int __tl_eval_level = 0;
   cell_t *orig_sexpr = NULL;
   cell_t *cell=NULL;
   cell_t *res=NULL;
@@ -31,6 +31,7 @@ int run_in_thread(const char *code) {
 
   handle_orig = handle_push(orig_sexpr);
   mark = get_mark();
+  __tl_eval_level = 0;
 
   if (setjmp(__jmp_env)) {
     __tl_eval_level = 0;

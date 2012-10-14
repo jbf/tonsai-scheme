@@ -1,5 +1,6 @@
 #include "util.h"
 #include "cell.h"
+#include "handles.h"
 
 #include <stdio.h>
 
@@ -16,9 +17,30 @@ void print_symtab(symbol_table *tab) {
     if(NILP(sym)) {
       printf("%p : NIL \"'()\" ", sym);
     } else {
-      printf("%p : ", sym);
+      printf("%p : cell type: %u ", sym, (sym->slot1).type);
       pp(sym);
     }
     printf("\n");
   }
+}
+
+void print_handles() {
+  handle_iterator_t handle_iter, *hi;
+
+  hi = &handle_iter;
+  init_handle_iterator(hi);
+  while(handle_iter_has_next(hi)) {
+    cell_t *c;
+    handle_t *h;
+    h = handle_iter_next_handle(hi);
+    c = handle_get(h);
+    printf("HANDLE: %p : CELL : %p :", h, c);
+    pretty_print(c);
+  }
+}
+
+extern symbol_table *global_symtab;
+void print_roots() {
+  print_symtab(global_symtab);
+  print_handles();
 }

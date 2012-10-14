@@ -60,5 +60,7 @@ typedef struct value_container_t {
 #define CHECK_NULL(x) CHECK_NOT(x, NULL)
 
 void print_symtab(symbol_table *tab);
+void print_handles();
+void print_roots();
 
 #endif /* __UTIL_H */

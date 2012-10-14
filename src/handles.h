@@ -19,4 +19,13 @@ void destroy_handles();
 handle_t *get_mark();
 void pop_to_mark(handle_t *handle);
 
+/* Iteration */
+typedef struct handle_iterator {
+  struct handle_t *current;
+} handle_iterator_t;
+
+void init_handle_iterator(handle_iterator_t *iter);
+int handle_iter_has_next(handle_iterator_t *iter);
+struct handle_t *handle_iter_next_handle(handle_iterator_t *iter);
+
 #endif /* _HANDLES_H */

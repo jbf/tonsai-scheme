@@ -590,3 +590,13 @@ cell_t *prim_dump_symtab(cell_t* rest, environ_t *env) {
   print_symtab(global_symtab);
   return nil_cell;
 }
+
+cell_t *prim_dump_handles(cell_t* rest, environ_t *env) {
+  print_handles();
+  return nil_cell;
+}
+
+cell_t *prim_dump_roots(cell_t* rest, environ_t *env) {
+  print_roots();
+  return nil_cell;
+}

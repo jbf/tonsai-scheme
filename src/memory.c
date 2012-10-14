@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "memory.h"
+#include "handles.h"
 
 #include "util.h"
 
@@ -194,19 +195,4 @@ void scan_heap() {
       base += sizeof(cell_t);
     }
   }
-}
-
-
-void print_roots() {
-  symtab_iterator_t sym_iter, *i;
-  cell_t *c;
-
-  i = &sym_iter;
-  init_symtab_iterator(i, global_symtab);
-  while(symtab_iter_has_next(i)) {
-    c = symtab_iter_next_sym(i);
-    pretty_print(c);
-  }
-
-
 }

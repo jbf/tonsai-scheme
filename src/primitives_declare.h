@@ -23,3 +23,5 @@
 
   /*DEBUG*/
   DECLARE_PRIMITIVE(dump_symtab);
+  DECLARE_PRIMITIVE(dump_handles);
+  DECLARE_PRIMITIVE(dump_roots);

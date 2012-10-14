@@ -10,6 +10,8 @@ static handle_t *bottom;
 static handle_t *top;
 static size_t handle_frame_size;
 
+/* Handles grow upwards unlike the stack ... */
+
 void init_handles() {
   size_t initial_handles_bytes = 1024;
   bottom = top = (handle_t *)malloc_or_bail(initial_handles_bytes);
@@ -60,4 +62,21 @@ void pop_to_mark(handle_t *mark) {
     top->content = NULL;
     top--;
   }
+}
+
+/* Iteration */
+void init_handle_iterator(handle_iterator_t *iter) {
+  iter->current = top;
+}
+
+int handle_iter_has_next(handle_iterator_t *iter) {
+  assert(iter != NULL);
+  return iter->current >= bottom;
+}
+
+struct handle_t *handle_iter_next_handle(handle_iterator_t *iter) {
+  assert(handle_iter_has_next(iter));
+  struct handle_t *ret = iter->current;
+  iter->current--;
+  return ret;
 }
