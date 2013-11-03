@@ -5,6 +5,11 @@
 #include "cell.h"
 #include "util.h"
 
+typedef struct value_container_t {
+  void *value;
+  struct value_container_t *next;
+} value_container_t;
+
 typedef struct environ_t {
   struct environ_t *parent;
   value_container_t *symbols;
@@ -39,5 +44,15 @@ int extend(environ_t *parent, environ_t *new, cell_t *symbols, cell_t *values);
  * evironment.
  */
 void destroy_env(environ_t **env);
+
+/*
+ * Iterates over all value containers in this environment.
+ */
+void iterate(environ_t *env, void (*fun)(struct symbol_entry_t *sym, cell_t *value));
+
+/*
+ * Print this environment.
+ */
+void iterate_print(environ_t *env);
 
 #endif /* _ENVIRONMENT_H */

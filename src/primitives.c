@@ -33,12 +33,12 @@ int scheme_to_c_truth(cell_t *c, environ_t *env) {
   if (NILP(c)) {
     return FALSE;
   }
-  
+
   if (ATOMP(c)) {
     if (STRINGP(c)) {
       return TRUE;
     }
-    
+
     cell_t *tmp = find_value(env, c);
     if (tmp == false_cell ||tmp == nil_cell) {
       return FALSE;
@@ -98,7 +98,7 @@ int proper_list_length(cell_t *lst, int target_length) {
       runner = CDR(runner);
       lst = CDR(lst);
       length++;
-      
+
       if (NULL != runner && PAIRP(runner)) { /* second step */
         runner = CDR(runner);
         length++;
@@ -109,7 +109,7 @@ int proper_list_length(cell_t *lst, int target_length) {
       return -4;
     }
   }
-  
+
   if (target_length && length > target_length) {
     return 0;
   }
@@ -123,7 +123,7 @@ int proper_list_length(cell_t *lst, int target_length) {
 int list_of(cell_type_t type, cell_t *lst) {
   assert(type != SYMBOL);
   if (NULL == lst) return -1;
-  
+
   for (; lst != NULL && PAIRP(lst); lst = CDR(lst)) {
     if (!(CAR(lst) != NULL && CAR(lst)->slot1.type == type)) return 0;
   }
@@ -158,7 +158,7 @@ cell_t *prim_list(cell_t *rest, environ_t *env) {
 
     handle_set(hf, first);
     handle_set(hr, rest);
-    
+
     while (!NILP(rest)) {
       cell_t *t = evaluate(CAR(rest), env); //rest, first, tmp handled
       htt = handle_push(t);
@@ -196,21 +196,21 @@ cell_t *prim_setcar(cell_t *rest, environ_t *env) {
   if (proper_list_length(rest, 2) != 2) {
     fast_error("wrong arity in call to (set-car! ...) expected 2 arguments.");
   }
-  
+
   hr = handle_push(rest);
   tmp = evaluate(CAR(rest), env); // rest handled
   if (!PAIRP(tmp)) {
     handle_pop(hr);
     fast_error("first operand to set-car! must be a pair.");
   }
-  
+
   ht = handle_push(tmp);
   rest = handle_get(hr);
   res = evaluate(CAR(CDR(rest)), env); // tmp, rest handled
 
   tmp = handle_get(ht);
   tmp->slot1.car = res;
-  
+
   handle_pop(ht);
   handle_pop(hr);
   return tmp;
@@ -223,7 +223,7 @@ cell_t *prim_setcdr(cell_t *rest, environ_t *env) {
   if (proper_list_length(rest, 2) != 2) {
     fast_error("wrong arity in call to (set-cdr! ...) expected 2 arguments.");
   }
-  
+
   hr = handle_push(rest);
   tmp = evaluate(CAR(rest), env); // rest handled
   if (!PAIRP(tmp)) {
@@ -234,7 +234,7 @@ cell_t *prim_setcdr(cell_t *rest, environ_t *env) {
   ht = handle_push(tmp);
   rest = handle_get(hr);
   res = evaluate(CAR(CDR(rest)), env); // tmp, rest handled
-  
+
   tmp = handle_get(ht);
   tmp->slot2.cdr = res;
 
@@ -438,11 +438,11 @@ extern environ_t *internal;
 cell_t *prim_definternal(cell_t *rest, environ_t *paren_lexical_env) {
   cell_t *val, *name_param = CAR(CAR(rest));
   rest->slot1.car = rest->slot1.car->slot2.cdr;
-  
+
   if (!SYMBOLP(name_param)) {
     fast_error("1:st argument to 'define' must evaluate to a symbol.");
   }
-    
+
   if (NULL == paren_lexical_env) {
     val = prim_lambda(rest, internal); /* internal is the global internal env */
   } else {
@@ -458,11 +458,11 @@ extern environ_t *lib;
 cell_t *prim_deflibrary(cell_t *rest, environ_t *paren_lexical_env) {
   cell_t *val, *name_param = CAR(CAR(rest));
   rest->slot1.car = rest->slot1.car->slot2.cdr;
-  
+
   if (!SYMBOLP(name_param)) {
     fast_error("1:st argument to 'define' must evaluate to a symbol.");
   }
-    
+
   if (NULL == paren_lexical_env) {
     val = prim_lambda(rest, internal); /* lib also got internal env internal env */
   } else {
@@ -475,7 +475,7 @@ cell_t *prim_deflibrary(cell_t *rest, environ_t *paren_lexical_env) {
 
 
 cell_t *prim_quote(cell_t *rest, environ_t *env) {
-  if (PAIRP(rest) && proper_list_length(rest,1) == 1) { 
+  if (PAIRP(rest) && proper_list_length(rest,1) == 1) {
     return CAR(rest);
   } else {
     fast_error("malformed quote.");
@@ -501,7 +501,7 @@ extern environ_t *toplevel;
 cell_t *prim_define(cell_t *rest, environ_t *env) {
   cell_t *val;
   handle_t *hrest;
- 
+
   /* Rest must be a symbol and an expression. */
   if (proper_list_length(rest,2) != 2) {
     fast_error("wrong arity in call to (define ...).");
@@ -509,19 +509,19 @@ cell_t *prim_define(cell_t *rest, environ_t *env) {
   if (!SYMBOLP(CAR(rest))) {
     fast_error("1:st argument to 'define' must evaluate to a symbol.");
   }
-  
+
   /* Can only define at toplevel. */
   if (__tl_eval_level != 1) {
     fast_error("(define ...) only at toplevel.");
   }
-  
+
   hrest = handle_push(rest);
   val = evaluate(CADR(rest), env); // rest protected
   rest = handle_get(hrest);
   handle_pop(hrest);
 
   add_to_environment(toplevel, CAR(rest), val);
-  
+
   return CAR(rest);
 }
 
@@ -543,7 +543,7 @@ cell_t *prim_error(cell_t *rest, environ_t *env) {
     printf("error: wrong arity in call to (error ...)\n");
     GOTO_TOPLEVEL();
   }
-  
+
   if (STRINGP(CAR(rest))) {
     inner_prim_error(CAR(rest));
   } else {
@@ -553,7 +553,7 @@ cell_t *prim_error(cell_t *rest, environ_t *env) {
     pretty_print(tmp);
     GOTO_TOPLEVEL();
   }
-  
+
   DEBUGPRINT_("Not a valid error form.\n");
   pretty_print(rest);
   GOTO_TOPLEVEL();
@@ -597,6 +597,6 @@ cell_t *prim_dump_handles(cell_t* rest, environ_t *env) {
 }
 
 cell_t *prim_dump_roots(cell_t* rest, environ_t *env) {
-  print_roots();
+  print_roots(env);
   return nil_cell;
 }

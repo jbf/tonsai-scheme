@@ -1,6 +1,7 @@
 #include "util.h"
 #include "cell.h"
 #include "handles.h"
+#include "environment.h"
 
 #include <stdio.h>
 
@@ -39,8 +40,13 @@ void print_handles() {
   }
 }
 
+void print_environment(struct environ_t *env) {
+    iterate_print(env);
+}
+
+
 extern symbol_table *global_symtab;
-void print_roots() {
+void print_roots(struct environ_t *env) {
   print_symtab(global_symtab);
   print_handles();
 }

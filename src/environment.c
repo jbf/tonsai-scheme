@@ -64,7 +64,7 @@ void free_symbol_container(value_container_t *t) {
   }
 }
 
-/* 
+/*
  * Short alloc of containers. Does not clean up on failure. Caller should
  * do that.
  */
@@ -78,7 +78,7 @@ int alloc_sym_value_pair(value_container_t **sym, value_container_t **val) {
   } else if (NULL == val) {
     oom = TRUE;
   }
-  
+
   return !oom; /* We want TRUE to be ok. */
 }
 
@@ -86,7 +86,7 @@ int add_to_environment(environ_t *env, cell_t *symbol, cell_t *value) {
   value_container_t *sym;
   value_container_t *val;
   int ok;
-  
+
   ok = alloc_sym_value_pair(&sym, &val);
 
   if (!ok) {
@@ -117,14 +117,14 @@ cell_t *_value(environ_t *env, symbol_entry_t *sym) {
     vm_exit();
     return NULL; /* unreachable */
   }
-  
+
   for (sym_list = env->symbols, val_list = env->values;
        sym_list != NULL && val_list != NULL;
        sym_list = sym_list->next, val_list = val_list->next) {
     /* assert equal length */
     assert(sym_list);
     assert(val_list);
-    
+
     if ((symbol_entry_t *)sym_list->value == sym) {
       return (cell_t *)val_list->value;
     }
@@ -139,7 +139,7 @@ int extend(environ_t *parent,
   new->parent = parent;
   for (;
        NULL != symbols &&
-         !NILP(symbols) && 
+         !NILP(symbols) &&
          NULL != values &&
          !NILP(values);
        symbols = CDR(symbols),
@@ -148,4 +148,28 @@ int extend(environ_t *parent,
   }
 
   return 1;
+}
+
+void iterate(environ_t *env, void (*fun)(struct symbol_entry_t *, cell_t *)) {
+  while (env != NULL) {
+    value_container_t *sym_list;
+    value_container_t *val_list;
+
+    for (sym_list = env->symbols, val_list = env->values;
+        sym_list != NULL && val_list != NULL;
+        sym_list = sym_list->next, val_list = val_list->next) {
+      (*fun)((struct symbol_entry_t *)sym_list->value, (cell_t *)val_list->value);
+    }
+    env = env->parent;
+  }
+}
+
+void print_sym_val(struct symbol_entry_t *sym, cell_t *val);
+void iterate_print(environ_t *env) {
+  iterate(env, &print_sym_val);
+}
+
+void print_sym_val(struct symbol_entry_t *sym, cell_t *val) {
+  printf("ENV ENTRY: sym: %p (%s) value: %p : ", sym, sym->symbol_name, val);
+  pretty_print(val);
 }

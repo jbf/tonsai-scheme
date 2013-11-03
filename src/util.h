@@ -17,11 +17,6 @@
       (void) (&_x == &_y);                      \
       _x > _y ? _x : _y; })
 
-typedef struct value_container_t {
-  void  *value;
-  struct value_container_t *next;
-} value_container_t;
-
 #ifndef FALSE
 #define FALSE 0
 #endif /* FALSE */
@@ -61,6 +56,7 @@ typedef struct value_container_t {
 
 void print_symtab(symbol_table *tab);
 void print_handles();
-void print_roots();
+void print_environment(struct environ_t *env);
+void print_roots(struct environ_t *env);
 
 #endif /* __UTIL_H */
