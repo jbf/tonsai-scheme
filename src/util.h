@@ -5,6 +5,11 @@
 
 #include "symbol.h"
 
+typedef struct value_container_t {
+  void *value;
+  struct value_container_t *next;
+} value_container_t;
+
 #define min(x,y) ({                             \
       typeof(x) _x = (x);                       \
       typeof(y) _y = (y);                       \

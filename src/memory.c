@@ -24,6 +24,10 @@ static size_t mem_sys_heap2_size = 0;
 static void *cur = NULL;
 static void *top = NULL;
 
+static int no_gc = 0;
+#define set_no_gc() (no_gc = 1)
+#define set_gc() (no_gc = 0)
+
 /* Off-heap malloc that only returns if it succeeds */
 void *malloc_or_bail(size_t bytes) {
   void *tmp;
@@ -41,6 +45,8 @@ void *malloc_or_bail(size_t bytes) {
 void free_malloced(void *ptr) {
   free(ptr);
 }
+
+#define gc()
 
 /* On-heap malloc that only returns if it succeeds */
 void *mem_sys_safe_alloc(size_t bytes) {
@@ -61,8 +67,16 @@ void *mem_sys_safe_alloc(size_t bytes) {
   bytes = (((bytes-1)/(sizeof(void*)))+1)*sizeof(void *); /* align to sizeof(void *) */
 
   if (cur + bytes > top) {
-    DEBUGPRINT_("Out of memory. Aborting.\n");
-    exit(1);
+    void *res;
+    if (no_gc) {
+      exit(1); /* out of memory */
+    }
+
+    gc();
+    set_no_gc();
+    res = mem_sys_safe_alloc(bytes);
+    set_gc();
+    return res;
   }
 
   t = cur;

@@ -5,11 +5,6 @@
 #include "cell.h"
 #include "util.h"
 
-typedef struct value_container_t {
-  void *value;
-  struct value_container_t *next;
-} value_container_t;
-
 typedef struct environ_t {
   struct environ_t *parent;
   value_container_t *symbols;

@@ -9,6 +9,7 @@
 #include "function.h"
 #include "errors.h"
 #include "handles.h"
+#include "util.h"
 
 #include <string.h>
 
@@ -22,6 +23,9 @@ static symbol_table __gs;
 symbol_table *global_symtab = &__gs;
 int __tl_eval_level = 0;
 cell_t *orig_sexpr;
+
+typedef value_container_t eval_stack_t;
+static eval_stack_t *eval_stack;
 
 cell_t *find_value(environ_t *env, cell_t *sym);
 
@@ -43,6 +47,7 @@ enum {
       printf("Invoke (%d) returns: ", __tl_eval_level);         \
     }                                                           \
     pretty_print(__my_ret);                                     \
+    eval_stack = eval_stack->next;                         \
     --__tl_eval_level;                                          \
     return __my_ret;                                            \
   } while (0)
@@ -52,6 +57,7 @@ enum {
 #define DRETURN(type, x)          \
   do {                            \
     cell_t *__my_ret = (x);       \
+    eval_stack = eval_stack->next; \
     --__tl_eval_level;            \
     return(__my_ret);             \
   } while (0)
@@ -60,6 +66,13 @@ enum {
 
 cell_t *evaluate(cell_t *exp, environ_t *env) {
   ++__tl_eval_level;
+
+  // push a frame
+  eval_stack_t s;
+  s.next = eval_stack;
+  s.value = env;
+  eval_stack = &s;
+
   if (DFLAG) {
     printf("Eval (%d) got : ", __tl_eval_level);
     pretty_print(exp);
@@ -86,7 +99,7 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
     exp = handle_get(he);
     handle_pop(he);
     cell_t *rest = CDR(exp);
-    
+
     if (DFLAG) {
       printf("First is: ");
       pretty_print(first);
@@ -108,7 +121,7 @@ cell_t *evaluate(cell_t *exp, environ_t *env) {
       t = evargs(rest, env); // first handled
       first = handle_get(hf);
       handle_pop(hf);
-      
+
       DRETURN(RET_FUNCALL, invoke(first, t, env)); // no need for handles
     }
     undefun_error(first, exp); /* Not primitive or funcall, error.*/
@@ -170,7 +183,7 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
 
   argslen = proper_list_length(args,0);
   paramlen = proper_list_length(func->param_list, 0);
-  
+
   if (argslen != paramlen) return NULL; /* error */
 
   create_empty_environment(&new_env);
@@ -180,7 +193,7 @@ cell_t *invoke(cell_t *fun, cell_t *args, environ_t *env) {
   hc = handle_push(code);
   while (NULL != code && !NILP(code)) {
     ret = evaluate(CAR(code), new_env); // code handled
-    
+
     code = handle_get(hc);
     code = CDR(code);
     handle_set(hc, code);
@@ -211,7 +224,7 @@ cell_t *find_value(environ_t *env, cell_t *sym) {
   if (ct) {
     return ct;
   }
- 
+
   ct = value(toplevel, sym);
 #ifdef LOOKUP_DEBUG
   DEBUGPRINT("In toplevel, sym is %p\n", ct);
@@ -263,6 +276,8 @@ void init_eval__safe() {
     DEBUGPRINT_("Can not load \"lib/lib_boot.scm\". Exiting.\n");
     exit(1);
   }
+
+  eval_stack = NULL;
 }
 
 void destroy_eval__safe() {
